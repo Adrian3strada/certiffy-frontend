@@ -1,5 +1,5 @@
 <template>
-  <div class="wagtail-carousel-block">
+  <div class="wagtail-carousel-component">
     <q-carousel
       v-model="slide"
       animated
@@ -10,7 +10,7 @@
       class="carousel shadow-2 rounded-borders"
     >
       <q-carousel-slide 
-        v-for="(image, index) in images" 
+        v-for="(image, index) in carouselImages" 
         :key="image.id || index"
         :name="index"
         class="column no-wrap flex-center"
@@ -45,25 +45,59 @@
 import { ref, computed } from 'vue';
 
 const props = defineProps({
-  data: {
+  content: {
     type: Object,
-    required: true
+    default: () => ({
+      images: [
+        { url: 'https://via.placeholder.com/800x400?text=Slide+1', alt: 'Slide 1' },
+        { url: 'https://via.placeholder.com/800x400?text=Slide+2', alt: 'Slide 2' },
+        { url: 'https://via.placeholder.com/800x400?text=Slide+3', alt: 'Slide 3' }
+      ],
+      id: 'carousel-sample'
+    })
+  },
+  isPreview: {
+    type: Boolean,
+    default: false
   }
 });
 
 const slide = ref(0);
 
 // Procesar las imágenes del carrusel
-const images = computed(() => {
-  if (!props.data || !props.data.value || !Array.isArray(props.data.value)) {
+const carouselImages = computed(() => {
+  // Manejar diferentes estructuras de datos posibles
+  let images = [];
+  
+  // Si content.images existe y es un array
+  if (props.content.images && Array.isArray(props.content.images)) {
+    images = props.content.images;
+  }
+  // Si content.value existe y es un array (formato de la API)
+  else if (props.content.value && Array.isArray(props.content.value)) {
+    images = props.content.value;
+  }
+  // Si content es un array directamente (otro formato posible)
+  else if (Array.isArray(props.content)) {
+    images = props.content;
+  }
+  // Si no hay imágenes, devolver un array vacío
+  else {
     return [];
   }
   
-  return props.data.value.map(item => {
-    // Si el item ya tiene una URL, devolverlo tal cual
-    if (item.url) return item;
+  // Mapear las imágenes para asegurar un formato consistente
+  return images.map(item => {
+    // Si el item ya tiene una URL, devolverlo con formato estándar
+    if (item.url) {
+      return {
+        url: item.url,
+        alt: item.alt || '',
+        id: item.id || `img-${Math.random().toString(36).substring(2, 10)}`
+      };
+    }
     
-    // Si es un objeto con type e id, formatearlo
+    // Si es un objeto con type e id (formato de la API de Wagtail)
     return {
       id: item.id || '',
       value: item.value || '',
@@ -74,7 +108,7 @@ const images = computed(() => {
 </script>
 
 <style scoped>
-.wagtail-carousel-block {
+.wagtail-carousel-component {
   margin: 1.5rem 0;
 }
 

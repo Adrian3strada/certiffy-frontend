@@ -4,7 +4,13 @@ import FooterComponent from '../sections/FooterComponent.vue';
 import ContentComponent from '../sections/ContentComponent.vue';
 import CtaComponent from '../sections/CtaComponent.vue';
 import ExternalApiComponent from '../sections/ExternalApiComponent.vue';
-import WagtailBlockComponent from '../sections/WagtailBlockComponent.vue';
+
+// Componentes de bloques de Wagtail
+import WagtailHeadingComponent from '../sections/wagtail/WagtailHeadingComponent.vue';
+import WagtailRichTextComponent from '../sections/wagtail/WagtailRichTextComponent.vue';
+import WagtailImageComponent from '../sections/wagtail/WagtailImageComponent.vue';
+import WagtailVideoComponent from '../sections/wagtail/WagtailVideoComponent.vue';
+import WagtailCarouselComponent from '../sections/wagtail/WagtailCarouselComponent.vue';
 
 // Definición de componentes disponibles
 export const componentTypes = {
@@ -13,7 +19,12 @@ export const componentTypes = {
   content: 'Contenido',
   cta: 'Llamada a la acción',
   externalApi: 'API Externa',
-  wagtailBlock: 'Bloque de Wagtail'
+  // Componentes de Wagtail
+  wagtailHeading: 'Wagtail - Encabezado',
+  wagtailRichText: 'Wagtail - Texto Enriquecido',
+  wagtailImage: 'Wagtail - Imagen',
+  wagtailVideo: 'Wagtail - Video',
+  wagtailCarousel: 'Wagtail - Carrusel'
 };
 
 // Mapeo de tipos de componentes a sus componentes Vue
@@ -23,7 +34,12 @@ export const componentMap = {
   content: ContentComponent,
   cta: CtaComponent,
   externalApi: ExternalApiComponent,
-  wagtailBlock: WagtailBlockComponent
+  // Componentes de Wagtail
+  wagtailHeading: WagtailHeadingComponent,
+  wagtailRichText: WagtailRichTextComponent,
+  wagtailImage: WagtailImageComponent,
+  wagtailVideo: WagtailVideoComponent,
+  wagtailCarousel: WagtailCarouselComponent
 };
 
 // Configuración predeterminada para cada tipo de componente
@@ -65,11 +81,34 @@ export const defaultComponentConfig = {
     showVideo: true,
     showCarousel: true
   },
-  wagtailBlock: {
-    blockType: 'richtext',
-    blockId: 'sample-block',
-    apiUrl: null,
-    mockData: null
+  // Configuraciones para componentes de Wagtail
+  wagtailHeading: {
+    level: 2,
+    text: 'Título de ejemplo',
+    id: 'heading-sample'
+  },
+  wagtailRichText: {
+    content: '<p>Este es un texto de ejemplo para mostrar cómo se vería un bloque de texto enriquecido.</p>',
+    id: 'richtext-sample'
+  },
+  wagtailImage: {
+    url: 'https://via.placeholder.com/800x400',
+    alt: 'Imagen de ejemplo',
+    caption: 'Esta es una imagen de ejemplo',
+    id: 'image-sample'
+  },
+  wagtailVideo: {
+    url: 'https://www.youtube.com/watch?v=X6dM7OjHNsE',
+    caption: 'Video de ejemplo',
+    id: 'video-sample'
+  },
+  wagtailCarousel: {
+    images: [
+      { url: 'https://via.placeholder.com/800x400?text=Slide+1', alt: 'Slide 1' },
+      { url: 'https://via.placeholder.com/800x400?text=Slide+2', alt: 'Slide 2' },
+      { url: 'https://via.placeholder.com/800x400?text=Slide+3', alt: 'Slide 3' }
+    ],
+    id: 'carousel-sample'
   }
 };
 
