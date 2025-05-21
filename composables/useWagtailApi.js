@@ -37,6 +37,48 @@ const MOCK_DATA = {
       value: 3,
       id: "483251f4-d522-4905-8575-edf765784cc8"
     }
+  ],
+  body: [
+    {
+      type: "heading",
+      value: "CERTIFFY",
+      id: "heading-1"
+    },
+    {
+      type: "rich_text",
+      value: "<p data-block-key=\"1vuf4\">CERTIFFY</p><hr/><p data-block-key=\"cd7hf\"></p><p data-block-key=\"ejvg2\"></p><p data-block-key=\"bpzcz\"></p><p data-block-key=\"cor2f\"></p>",
+      id: "rich-text-1"
+    },
+    {
+      type: "video",
+      value: {
+        url: "https://www.youtube.com/watch?v=X6dM7OjHNsE"
+      },
+      id: "video-1"
+    },
+    {
+      type: "carousel",
+      value: {
+        images: [
+          {
+            type: "image",
+            value: 1,
+            id: "cea1b6f6-d630-428a-95b1-b380b9bcff0c"
+          },
+          {
+            type: "image",
+            value: 2,
+            id: "d4d701bf-2bdc-43e9-9d44-d5f4b0e5fe4f"
+          },
+          {
+            type: "image",
+            value: 3,
+            id: "483251f4-d522-4905-8575-edf765784cc8"
+          }
+        ]
+      },
+      id: "carousel-1"
+    }
   ]
 };
 
@@ -56,32 +98,43 @@ export function useWagtailApi() {
     isMockData.value = false;
     
     try {
-      console.log(`Obteniendo página con ID ${id} de ${API_BASE_URL}/pages/${id}/`);
+      console.log(`Intentando obtener página con ID ${id} de ${API_BASE_URL}/pages/${id}/`);
       
-      const { data, error: fetchError } = await useFetch(`${API_BASE_URL}/pages/${id}/`, {
-        method: 'GET',
-        headers: {
-          'Accept': 'application/json',
-          'Content-Type': 'application/json'
+      // Intentar obtener datos de la API con un timeout para evitar esperas largas
+      const controller = new AbortController();
+      const timeoutId = setTimeout(() => controller.abort(), 5000); // 5 segundos de timeout
+      
+      try {
+        const { data, error: fetchError } = await useFetch(`${API_BASE_URL}/pages/${id}/`, {
+          method: 'GET',
+          headers: {
+            'Accept': 'application/json',
+            'Content-Type': 'application/json'
+          },
+          signal: controller.signal
+        });
+        
+        clearTimeout(timeoutId);
+        
+        if (fetchError.value) {
+          console.warn('Error al obtener datos de la API, usando datos de respaldo:', fetchError.value);
+          throw new Error(fetchError.value.message || 'Error al obtener datos');
         }
-      });
-      
-      if (fetchError.value) {
-        console.error('Error al obtener datos:', fetchError.value);
-        throw new Error(fetchError.value.message || 'Error al obtener datos');
+        
+        if (!data.value) {
+          console.warn('No se recibieron datos de la API, usando datos de respaldo');
+          throw new Error('No se recibieron datos');
+        }
+        
+        console.log('Datos obtenidos correctamente de la API:', data.value);
+        return data.value;
+      } catch (fetchErr) {
+        clearTimeout(timeoutId);
+        throw fetchErr;
       }
-      
-      if (!data.value) {
-        console.warn('No se recibieron datos, usando datos de respaldo');
-        isMockData.value = true;
-        return MOCK_DATA;
-      }
-      
-      console.log('Datos obtenidos correctamente:', data.value);
-      return data.value;
     } catch (err) {
-      console.error('Error al obtener página:', err);
-      error.value = err.message || 'Error desconocido';
+      console.warn(`Usando datos de respaldo debido a: ${err.message}`);
+      error.value = `[GET] "${API_BASE_URL}/pages/${id}/": ${err.message}`;
       isMockData.value = true;
       return MOCK_DATA;
     } finally {
@@ -99,34 +152,45 @@ export function useWagtailApi() {
     isMockData.value = false;
     
     try {
-      console.log(`Obteniendo todas las páginas de ${API_BASE_URL}/pages/`);
+      console.log(`Intentando obtener todas las páginas de ${API_BASE_URL}/pages/`);
       
-      const { data, error: fetchError } = await useFetch(`${API_BASE_URL}/pages/`, {
-        method: 'GET',
-        headers: {
-          'Accept': 'application/json',
-          'Content-Type': 'application/json'
+      // Intentar obtener datos de la API con un timeout para evitar esperas largas
+      const controller = new AbortController();
+      const timeoutId = setTimeout(() => controller.abort(), 5000); // 5 segundos de timeout
+      
+      try {
+        const { data, error: fetchError } = await useFetch(`${API_BASE_URL}/pages/`, {
+          method: 'GET',
+          headers: {
+            'Accept': 'application/json',
+            'Content-Type': 'application/json'
+          },
+          signal: controller.signal
+        });
+        
+        clearTimeout(timeoutId);
+        
+        if (fetchError.value) {
+          console.warn('Error al obtener lista de páginas, usando datos de respaldo:', fetchError.value);
+          throw new Error(fetchError.value.message || 'Error al obtener lista de páginas');
         }
-      });
-      
-      if (fetchError.value) {
-        console.error('Error al obtener lista de páginas:', fetchError.value);
-        throw new Error(fetchError.value.message || 'Error al obtener lista de páginas');
+        
+        if (!data.value) {
+          console.warn('No se recibieron datos de la API, usando datos de respaldo');
+          throw new Error('No se recibieron datos');
+        }
+        
+        // Wagtail puede devolver los resultados en un formato diferente, como items o results
+        const pages = data.value.items || data.value.results || data.value;
+        console.log('Páginas obtenidas correctamente de la API:', pages);
+        return Array.isArray(pages) ? pages : [pages];
+      } catch (fetchErr) {
+        clearTimeout(timeoutId);
+        throw fetchErr;
       }
-      
-      if (!data.value) {
-        console.warn('No se recibieron datos, usando datos de respaldo');
-        isMockData.value = true;
-        return [MOCK_DATA];
-      }
-      
-      // Wagtail puede devolver los resultados en un formato diferente, como items o results
-      const pages = data.value.items || data.value.results || data.value;
-      console.log('Páginas obtenidas correctamente:', pages);
-      return Array.isArray(pages) ? pages : [pages];
     } catch (err) {
-      console.error('Error al obtener lista de páginas:', err);
-      error.value = err.message || 'Error desconocido';
+      console.warn(`Usando datos de respaldo debido a: ${err.message}`);
+      error.value = `[GET] "${API_BASE_URL}/pages/": ${err.message}`;
       isMockData.value = true;
       return [MOCK_DATA];
     } finally {
@@ -145,19 +209,23 @@ export function useWagtailApi() {
     isMockData.value = false;
     
     try {
-      console.log(`Obteniendo bloque con ID ${blockId}`);
+      console.log(`Intentando obtener bloque con ID ${blockId}`);
       
-      // Aquí necesitaríamos conocer el endpoint exacto para bloques
-      // Por ahora, usamos datos de respaldo
-      console.warn('API de bloques no implementada, usando datos de respaldo');
+      // Extraer el tipo de bloque del ID
+      const blockType = blockId.split('-')[0] || 'richtext';
+      
+      // Aquí podríamos intentar obtener el bloque de la API si tuvieramos el endpoint
+      // Por ahora, simplemente usamos datos de respaldo
+      console.warn('API de bloques no implementada o no disponible, usando datos de respaldo');
       isMockData.value = true;
       
-      // Simulamos un bloque basado en el tipo
-      const blockType = blockId.split('-')[0] || 'richtext';
+      // Simulamos un retardo para simular la llamada a la API
+      await new Promise(resolve => setTimeout(resolve, 300));
+      
       return getMockBlockData(blockType, blockId);
     } catch (err) {
-      console.error('Error al obtener bloque:', err);
-      error.value = err.message || 'Error desconocido';
+      console.warn(`Usando datos de respaldo debido a: ${err.message}`);
+      error.value = `Error al obtener bloque: ${err.message}`;
       isMockData.value = true;
       return getMockBlockData('richtext', blockId);
     } finally {

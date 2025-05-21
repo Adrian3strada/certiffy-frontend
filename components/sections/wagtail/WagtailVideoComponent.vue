@@ -1,34 +1,72 @@
 <template>
   <div class="wagtail-video-component">
-    <div class="video-container">
-      <div v-if="loading" class="video-loading">
-        <q-spinner color="primary" size="3em" />
-        <div class="q-mt-sm">Cargando video...</div>
-      </div>
+    <q-card flat bordered class="video-card">
+      <q-card-section class="video-container">
+        <!-- Cargando video -->
+        <div v-if="loading" class="video-loading">
+          <q-spinner color="primary" size="3em" />
+          <div class="q-mt-sm">Cargando video...</div>
+        </div>
+        
+        <!-- Error al cargar video -->
+        <div v-else-if="error" class="video-error">
+          <q-icon name="error_outline" color="negative" size="2em" />
+          <div class="q-mt-sm">{{ error }}</div>
+          <q-btn 
+            v-if="videoUrl" 
+            outline 
+            color="primary" 
+            class="q-mt-md" 
+            icon="open_in_new" 
+            :href="videoUrl" 
+            target="_blank"
+            label="Ver en sitio original"
+          />
+        </div>
+        
+        <!-- Video embebido -->
+        <div v-else-if="embedUrl" class="video-embed">
+          <q-responsive :ratio="16/9">
+            <iframe 
+              :src="embedUrl" 
+              frameborder="0" 
+              allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" 
+              allowfullscreen
+            ></iframe>
+          </q-responsive>
+        </div>
+        
+        <!-- Video no disponible -->
+        <div v-else class="video-placeholder">
+          <q-icon name="videocam_off" size="3rem" color="grey-7" />
+          <div class="q-mt-sm text-subtitle1">Video no disponible</div>
+          <div class="q-mt-xs text-caption text-grey-7">
+            No se ha proporcionado una URL de video válida o el video no está disponible en este momento.
+          </div>
+        </div>
+      </q-card-section>
       
-      <div v-else-if="error" class="video-error">
-        <q-icon name="mdi-alert-circle" color="negative" size="2em" />
-        <div class="q-mt-sm">{{ error }}</div>
-      </div>
+      <!-- Leyenda del video -->
+      <q-card-section v-if="videoCaption" class="video-caption q-pt-none">
+        <q-separator spaced />
+        <div class="text-caption text-italic text-grey-8">
+          {{ videoCaption }}
+        </div>
+      </q-card-section>
       
-      <div v-else-if="embedUrl" class="video-embed">
-        <iframe 
-          :src="embedUrl" 
-          frameborder="0" 
-          allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" 
-          allowfullscreen
-        ></iframe>
-      </div>
-      
-      <div v-else class="video-placeholder">
-        <q-icon name="mdi-video" size="3rem" color="grey-7" />
-        <div class="q-mt-sm">Video no disponible</div>
-      </div>
-    </div>
-    
-    <div v-if="videoCaption" class="video-caption">
-      {{ videoCaption }}
-    </div>
+      <!-- Controles adicionales -->
+      <q-card-actions v-if="videoUrl" align="right">
+        <q-btn 
+          flat 
+          dense 
+          color="primary" 
+          icon="open_in_new" 
+          :href="videoUrl" 
+          target="_blank"
+          label="Ver original"
+        />
+      </q-card-actions>
+    </q-card>
   </div>
 </template>
 
@@ -154,57 +192,83 @@ onMounted(() => {
 });
 </script>
 
-<style scoped>
+<style>
 .wagtail-video-component {
-  margin: 1.5rem 0;
+  margin: 0;
+}
+
+.video-card {
+  overflow: hidden;
+  transition: box-shadow 0.3s ease;
+  border-radius: 8px !important;
+}
+
+.video-card:hover {
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1) !important;
 }
 
 .video-container {
   position: relative;
-  padding-bottom: 56.25%; /* 16:9 */
-  height: 0;
-  overflow: hidden;
+  background-color: #f5f5f5;
   border-radius: 4px;
-  background-color: #000;
 }
 
-.video-container iframe,
-.video-loading,
-.video-error,
-.video-placeholder {
+.video-embed {
+  width: 100%;
+  border-radius: 4px;
+  overflow: hidden;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+
+.video-embed iframe {
+  border: none;
+  width: 100%;
+  height: 100%;
   position: absolute;
   top: 0;
   left: 0;
-  width: 100%;
-  height: 100%;
+}
+
+.video-loading,
+.video-error,
+.video-placeholder {
+  min-height: 250px;
   display: flex;
   flex-direction: column;
   align-items: center;
   justify-content: center;
+  padding: 2rem;
+  text-align: center;
 }
 
 .video-loading {
-  background-color: #f5f5f5;
-  color: #666;
+  color: var(--q-primary-color, #1976d2);
 }
 
 .video-error {
-  background-color: #ffebee;
-  color: #c62828;
-  text-align: center;
-  padding: 1rem;
+  color: var(--q-negative-color, #C10015);
+  background-color: rgba(193, 0, 21, 0.05);
+  border-radius: 4px;
 }
 
 .video-placeholder {
-  background-color: #f0f0f0;
   color: #666;
+  background-color: #f0f0f0;
+  border-radius: 4px;
 }
 
 .video-caption {
-  margin-top: 0.75rem;
-  text-align: center;
   font-style: italic;
   color: #666;
-  font-size: 0.9rem;
+}
+
+/* Responsive */
+@media (max-width: 599px) {
+  .video-loading,
+  .video-error,
+  .video-placeholder {
+    min-height: 180px;
+    padding: 1rem;
+  }
 }
 </style>
