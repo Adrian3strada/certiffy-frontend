@@ -213,13 +213,10 @@ export function useWagtailApi() {
       
       // Extraer el tipo de bloque del ID
       const blockType = blockId.split('-')[0] || 'richtext';
-      
-      // Aquí podríamos intentar obtener el bloque de la API si tuvieramos el endpoint
-      // Por ahora, simplemente usamos datos de respaldo
+  // Por ahora, simplemente usamos datos de respaldo
       console.warn('API de bloques no implementada o no disponible, usando datos de respaldo');
       isMockData.value = true;
       
-      // Simulamos un retardo para simular la llamada a la API
       await new Promise(resolve => setTimeout(resolve, 300));
       
       return getMockBlockData(blockType, blockId);
@@ -284,12 +281,76 @@ export function useWagtailApi() {
     return mockBlocks[blockType] || mockBlocks['richtext'];
   };
 
+  /**
+   * Obtener los datos de la página "Acerca de"
+   * @returns {Promise<Object>} - Datos de la página Acerca de
+   */
+  const fetchAcercaDePage = async () => {
+    loading.value = true;
+    error.value = null;
+    isMockData.value = false;
+    
+    try {
+      console.log(`Intentando obtener datos de la página "Acerca de" de ${API_BASE_URL}/pages/?type=about.AboutPage`);
+      
+      // Intentar obtener datos de la API con un timeout para evitar esperas largas
+      const controller = new AbortController();
+      const timeoutId = setTimeout(() => controller.abort(), 5000); // 5 segundos de timeout
+      
+      try {
+        const { data, error: fetchError } = await useFetch(`${API_BASE_URL}/pages/?type=about.AboutPage`, {
+          method: 'GET',
+          headers: {
+            'Accept': 'application/json',
+            'Content-Type': 'application/json'
+          },
+          signal: controller.signal
+        });
+        
+        clearTimeout(timeoutId);
+        
+        if (fetchError.value) {
+          console.warn('Error al obtener datos de la API, usando datos de respaldo:', fetchError.value);
+          throw new Error(fetchError.value.message || 'Error al obtener datos');
+        }
+        
+        if (!data.value) {
+          console.warn('No se recibieron datos de la API, usando datos de respaldo');
+          throw new Error('No se recibieron datos');
+        }
+        
+        // Obtener la primera página del tipo about.AboutPage
+        const items = data.value.items || data.value.results || [];
+        const aboutPage = items.length > 0 ? items[0] : null;
+        
+        if (!aboutPage) {
+          console.warn('No se encontró la página "Acerca de", usando datos de respaldo');
+          throw new Error('Página no encontrada');
+        }
+        
+        console.log('Datos de la página "Acerca de" obtenidos correctamente:', aboutPage);
+        return aboutPage;
+      } catch (fetchErr) {
+        clearTimeout(timeoutId);
+        throw fetchErr;
+      }
+    } catch (err) {
+      console.warn(`Usando datos de respaldo debido a: ${err.message}`);
+      error.value = `[GET] "${API_BASE_URL}/pages/?type=about.AboutPage": ${err.message}`;
+      isMockData.value = true;
+      return { acercaDe: { ...mockData.acercaDe } };
+    } finally {
+      loading.value = false;
+    }
+  };
+
   return {
     loading,
     error,
     isMockData,
     getPageById,
     getAllPages,
-    getBlockById
+    getBlockById,
+    fetchAcercaDePage
   };
 }
