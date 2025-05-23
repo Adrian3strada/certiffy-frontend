@@ -1,21 +1,20 @@
 <template>
-  <section class="q-py-xl q-px-md">
+  <section class="q-py-xl q-px-md modulos-video-component">
     <div class="q-mx-auto" style="max-width: 1200px">
       <q-card flat bordered class="q-pa-md q-mb-lg shadow-1">
         <q-card-section>
           <div class="row q-col-gutter-xl">
             <!-- Sección de video -->
-            <div class="col-12 col-md-7">
+            <div class="col-12 col-lg-7 q-mb-md-lg">
               <q-card class="bg-grey-2">
-                <div class="q-pa-none" style="position: relative; padding-bottom: 56.25%; height: 0;">
+                <div class="video-container q-pa-none">
                   <!-- Miniatura del video con botón de reproducción -->
                   <q-img
                     v-if="!videoActive"
                     :src="thumbnailUrl || placeholderImage"
                     spinner-color="primary"
                     spinner-size="40px"
-                    style="position: absolute; top: 0; left: 0; width: 100%; height: 100%;"
-                    class="rounded-borders"
+                    class="rounded-borders video-thumbnail"
                   >
                     <div class="absolute-center">
                       <q-btn
@@ -25,8 +24,7 @@
                         icon="play_arrow"
                         size="lg"
                         @click="activateVideo"
-                        class="q-hoverable"
-                        style="transform: scale(1.2); transition: all 0.3s ease;"
+                        class="play-button q-hoverable"
                       />
                     </div>
                   </q-img>
@@ -37,23 +35,23 @@
                     :src="videoEmbedUrl"
                     frameborder="0"
                     allowfullscreen
-                    style="position: absolute; top: 0; left: 0; width: 100%; height: 100%;"
+                    class="video-iframe"
                   ></iframe>
                 </div>
                 
-                <q-card-section v-if="description" class="q-pt-sm">
+                <q-card-section v-if="description" class="q-pt-sm description-section">
                   <q-item-label caption class="text-grey-8">{{ description }}</q-item-label>
                 </q-card-section>
               </q-card>
             </div>
             
             <!-- Sección de información -->
-            <div class="col-12 col-md-5">
-              <q-card-section class="q-px-none">
+            <div class="col-12 col-lg-5">
+              <q-card-section class="q-px-none info-section">
                 <q-item>
                   <q-item-section>
-                    <q-item-label class="text-h5 text-weight-bold q-mb-lg">{{ title }}</q-item-label>
-                    <q-item-label class="q-mb-md q-pr-sm" v-html="formattedContent"></q-item-label>
+                    <q-item-label class="title-label text-h5 text-weight-bold q-mb-lg">{{ title }}</q-item-label>
+                    <q-item-label class="content-text q-mb-md q-pr-sm" v-html="formattedContent"></q-item-label>
                   </q-item-section>
                 </q-item>
                 
@@ -61,18 +59,18 @@
                 <template v-if="links && links.length > 0">
                   <q-separator class="q-my-md" />
                   
-                  <q-item-label header class="text-subtitle1 q-mt-lg">{{ linksTitle }}</q-item-label>
+                  <q-item-label header class="links-title text-subtitle1 q-mt-lg">{{ linksTitle }}</q-item-label>
                   
-                  <div class="row q-col-gutter-md q-mt-sm">
+                  <div class="row q-col-gutter-md q-mt-sm links-container">
                     <div 
                       v-for="(link, index) in links" 
                       :key="index"
-                      class="col-12 col-sm-6"
+                      class="col-12 col-sm-6 q-mb-sm"
                     >
                       <q-btn
                         :to="link.url"
                         color="primary"
-                        class="full-width text-weight-medium q-py-sm"
+                        class="module-link full-width text-weight-medium q-py-sm"
                         no-caps
                         unelevated
                         rounded
@@ -146,3 +144,80 @@ const activateVideo = () => {
   videoActive.value = true;
 };
 </script>
+
+<style scoped>
+.modulos-video-component .video-container {
+  position: relative;
+  padding-bottom: 56.25%;
+  height: 0;
+  overflow: hidden;
+}
+
+.modulos-video-component .video-thumbnail,
+.modulos-video-component .video-iframe {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+}
+
+.modulos-video-component .play-button {
+  transform: scale(1.2);
+  transition: all 0.3s ease;
+}
+
+.modulos-video-component .play-button:hover {
+  transform: scale(1.4);
+}
+
+/* Estilos responsivos para dispositivos móviles */
+@media (max-width: 599px) {
+  .modulos-video-component .title-label {
+    font-size: 1.25rem !important;
+    margin-bottom: 1rem !important;
+  }
+  
+  .modulos-video-component .content-text {
+    font-size: 0.9rem !important;
+  }
+  
+  .modulos-video-component .description-section {
+    padding: 8px !important;
+  }
+  
+  .modulos-video-component .info-section {
+    padding: 12px 0 !important;
+  }
+  
+  .modulos-video-component .links-title {
+    font-size: 1rem !important;
+    margin-top: 0.5rem !important;
+  }
+  
+  .modulos-video-component .module-link {
+    font-size: 0.8rem !important;
+    padding: 6px 12px !important;
+  }
+  
+  .modulos-video-component .play-button {
+    transform: scale(1);
+  }
+}
+
+/* Ajustes para tablets */
+@media (min-width: 600px) and (max-width: 1023px) {
+  .modulos-video-component .title-label {
+    font-size: 1.5rem !important;
+    margin-bottom: 1.25rem !important;
+  }
+  
+  .modulos-video-component .content-text {
+    font-size: 0.95rem !important;
+  }
+  
+  .modulos-video-component .q-mb-md-lg {
+    margin-bottom: 24px;
+  }
+}
+</style>

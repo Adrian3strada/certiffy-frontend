@@ -155,6 +155,7 @@ const cardClasses = computed(() => ({
   overflow: hidden;
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
   margin-bottom: 2rem;
+  width: 100%;
 }
 
 .info-section-component .bg-overlay {
@@ -166,6 +167,7 @@ const cardClasses = computed(() => ({
   display: flex;
   flex-direction: column;
   align-items: center;
+  padding: 1rem;
 }
 
 .info-section-component .text-centro {
@@ -202,5 +204,27 @@ const cardClasses = computed(() => ({
   height: 100%;
   width: 100%;
   object-fit: cover;
+}
+
+/* Estilos responsivos para dispositivos móviles */
+@media (max-width: 599px) {
+  .info-section-component .text-container h2 {
+    font-size: 1.5rem;
+  }
+  
+  .info-section-component .text-container p {
+    font-size: 0.9rem;
+  }
+  
+  .info-section-component .text-container {
+    padding: 0.5rem;
+  }
+}
+
+/* Ajustes para tablets */
+@media (min-width: 600px) and (max-width: 1023px) {
+  .info-section-component .text-container h2 {
+    font-size: 1.75rem;
+  }
 }
 </style>

@@ -149,6 +149,7 @@ const mostrarAcciones = computed(() => {
   position: relative;
   width: 100%;
   background-color: var(--q-primary);
+  overflow: hidden;
 }
 
 .certiffy-banner--pequeno {
@@ -177,6 +178,7 @@ const mostrarAcciones = computed(() => {
   bottom: 0;
   background-color: v-bind('props.colorOverlay');
   z-index: 1;
+  opacity: 0.85; /* Aumentar la opacidad del overlay */
 }
 
 .certiffy-banner__contenido {
@@ -187,23 +189,61 @@ const mostrarAcciones = computed(() => {
   align-items: center;
   justify-content: center;
   z-index: 2;
+  padding: 1rem;
 }
 
 .certiffy-banner__texto {
   max-width: 800px;
   margin: 0 auto;
+  text-shadow: 0 2px 4px rgba(0, 0, 0, 0.5); /* Añadir sombra al texto para mejorar legibilidad */
 }
 
 .certiffy-banner__titulo {
   line-height: 1.2;
+  word-wrap: break-word;
 }
 
 .certiffy-banner__subtitulo {
   line-height: 1.4;
+  word-wrap: break-word;
 }
 
 .certiffy-banner__descripcion {
   line-height: 1.6;
+  word-wrap: break-word;
+}
+
+/* Estilos responsivos para dispositivos móviles */
+@media (max-width: 599px) {
+  .certiffy-banner--grande {
+    height: 300px;
+  }
+  
+  .certiffy-banner--completo {
+    height: 100vh;
+    min-height: 400px;
+  }
+  
+  .certiffy-banner__texto {
+    max-width: 100%;
+    padding: 0 0.5rem;
+  }
+  
+  .certiffy-banner__acciones .q-btn {
+    font-size: 0.9rem !important;
+    padding: 8px 16px !important;
+  }
+}
+
+/* Ajustes para tablets */
+@media (min-width: 600px) and (max-width: 1023px) {
+  .certiffy-banner--grande {
+    height: 350px;
+  }
+  
+  .certiffy-banner__texto {
+    max-width: 90%;
+  }
 }
 
 .certiffy-banner__acciones {

@@ -114,6 +114,9 @@ onMounted(async () => {
 <style scoped>
 .noticia-card {
   transition: transform 0.3s ease, box-shadow 0.3s ease;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
 }
 
 .noticia-card:hover {
@@ -127,5 +130,43 @@ onMounted(async () => {
   -webkit-line-clamp: 3;
   -webkit-box-orient: vertical;
   line-height: 1.5;
+}
+
+/* Estilos responsivos para dispositivos móviles */
+@media (max-width: 599px) {
+  .text-h4 {
+    font-size: 1.5rem !important;
+  }
+  
+  .q-card-section {
+    padding: 12px !important;
+  }
+  
+  .q-item {
+    padding: 8px 0 !important;
+  }
+  
+  .text-subtitle1 {
+    font-size: 1rem !important;
+  }
+  
+  .text-body2 {
+    font-size: 0.875rem !important;
+  }
+  
+  .q-btn {
+    font-size: 0.8rem !important;
+  }
+}
+
+/* Ajustes para tablets */
+@media (min-width: 600px) and (max-width: 1023px) {
+  .text-h4 {
+    font-size: 1.75rem !important;
+  }
+  
+  .q-card-section {
+    padding: 16px !important;
+  }
 }
 </style>
