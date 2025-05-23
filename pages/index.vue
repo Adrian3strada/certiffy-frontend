@@ -11,6 +11,8 @@
         :title="mockData.noticiasEventos.title"
         :noticias="mockData.noticiasEventos.noticias"
         :verMasUrl="mockData.noticiasEventos.verMasUrl"
+        :botonLeerMasTexto="mockData.noticiasEventos.botonLeerMasTexto"
+        :botonVerTodasTexto="mockData.noticiasEventos.botonVerTodasTexto"
       />
 
       <!-- Testimonios -->

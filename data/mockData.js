@@ -1,45 +1,65 @@
 export const mockData = {
   // Datos para la sección "Acerca de"
   acercaDe: {
-    // Componente 1: Misión - texto a la derecha, fondo con colinas
+    // Componente 1: Misión - texto a la derecha
     mision: {
       titulo: "MISIÓN",
       descripcion: "Proporcionar herramientas tecnológicas innovadoras que simplifiquen y optimicen los procesos de certificación en la cadena de suministro agroalimentaria, garantizando transparencia, trazabilidad y sostenibilidad en cada etapa del proceso.",
-      imagenFondo: "https://images.pexels.com/photos/268533/pexels-photo-268533.jpeg?auto=compress&cs=tinysrgb&w=1200",
-      posicionTexto: "derecha",
-      alineacionTexto: "izquierda"
+      imagenFondo: "https://images.unsplash.com/photo-1507608616759-54f48f0af0ee?q=80&w=1200&auto=format&fit=crop",
+      posicionTexto: "centro-enmarcado",
+      alineacionTexto: "derecha",
+      colorOverlay: "rgba(25, 32, 71, 0.8)",
+      colorSeparador: "amber-6",
+      anchoTexto: "100%",
+      altura: "280px"
     },
-    // Componente 2: Misión - texto a la izquierda, fondo con colinas
+    // Componente 2: Misión - texto a la izquierda
     misionAlt: {
       titulo: "MISIÓN",
       descripcion: "Proporcionar herramientas tecnológicas innovadoras que simplifiquen y optimicen los procesos de certificación en la cadena de suministro agroalimentaria, garantizando transparencia, trazabilidad y sostenibilidad en cada etapa del proceso.",
-      imagenFondo: "https://images.pexels.com/photos/440731/pexels-photo-440731.jpeg?auto=compress&cs=tinysrgb&w=1200",
-      posicionTexto: "izquierda",
-      alineacionTexto: "derecha"
+      imagenFondo: "https://images.unsplash.com/photo-1471193945509-9ad0617afabf?q=80&w=1200&auto=format&fit=crop",
+      posicionTexto: "centro-enmarcado",
+      alineacionTexto: "izquierda",
+      colorOverlay: "rgba(0, 0, 0, 0.7)",
+      colorSeparador: "amber-6",
+      anchoTexto: "100%",
+      altura: "280px"
     },
-    // Componente 3: Visión - texto a la derecha, fondo con colinas
+    // Componente 3: Visión - texto a la derecha
     vision: {
       titulo: "VISIÓN",
       descripcion: "Ser reconocidos globalmente como la plataforma líder en soluciones de certificación para el sector agroalimentario, facilitando el cumplimiento normativo internacional y promoviendo prácticas sostenibles que beneficien a productores, consumidores y al planeta.",
-      imagenFondo: "https://images.pexels.com/photos/1287145/pexels-photo-1287145.jpeg?auto=compress&cs=tinysrgb&w=1200",
-      posicionTexto: "izquierda",
-      alineacionTexto: "izquierda"
+      imagenFondo: "https://images.unsplash.com/photo-1507608616759-54f48f0af0ee?q=80&w=1200&auto=format&fit=crop",
+      posicionTexto: "centro-enmarcado",
+      alineacionTexto: "derecha",
+      colorOverlay: "rgba(25, 32, 71, 0.8)",
+      colorSeparador: "green-6",
+      anchoTexto: "100%",
+      altura: "280px"
     },
-    // Componente 4: Visión - texto a la izquierda, fondo con colinas
+    // Componente 4: Visión - texto a la izquierda
     visionAlt: {
       titulo: "VISIÓN",
       descripcion: "Ser reconocidos globalmente como la plataforma líder en soluciones de certificación para el sector agroalimentario, facilitando el cumplimiento normativo internacional y promoviendo prácticas sostenibles que beneficien a productores, consumidores y al planeta.",
-      imagenFondo: "https://images.pexels.com/photos/2365457/pexels-photo-2365457.jpeg?auto=compress&cs=tinysrgb&w=1200",
-      posicionTexto: "derecha",
-      alineacionTexto: "derecha"
+      imagenFondo: "https://images.unsplash.com/photo-1471193945509-9ad0617afabf?q=80&w=1200&auto=format&fit=crop",
+      posicionTexto: "centro-enmarcado",
+      alineacionTexto: "izquierda",
+      colorOverlay: "rgba(25, 32, 71, 0.8)",
+      colorSeparador: "green-6",
+      anchoTexto: "100%",
+      altura: "280px"
     },
-    // Componente 5: Valores - texto centrado con borde, fondo con colinas
+    // Componente 5: Valores - texto centrado
     valores: {
       titulo: "VALORES",
       descripcion: "Integridad, Innovación, Sostenibilidad, Transparencia y Compromiso con la excelencia. Estos principios guían nuestras acciones y decisiones, mientras trabajamos para transformar positivamente la industria agroalimentaria.",
-      imagenFondo: "https://images.pexels.com/photos/1166209/pexels-photo-1166209.jpeg?auto=compress&cs=tinysrgb&w=1200",
+      imagenFondo: "https://images.unsplash.com/photo-1542601906990-b4d3fb778b09?q=80&w=1200&auto=format&fit=crop",
       posicionTexto: "centro-enmarcado",
-      alineacionTexto: "centro"
+      alineacionTexto: "centro",
+      colorOverlay: "rgba(74, 20, 140, 0.7)",
+      colorSeparador: "purple-6",
+      anchoTexto: "100%",
+      altura: "280px"
     }
   },
   
@@ -90,6 +110,8 @@ export const mockData = {
   
   noticiasEventos: {
     title: 'NOTICIAS Y EVENTOS',
+    botonLeerMasTexto: 'Leer más',
+    botonVerTodasTexto: 'Ver todas las noticias',
     banner: {
       titulo: "La tecnología blockchain revoluciona la certificación agrícola",
       descripcion: "Las soluciones digitales están transformando la trazabilidad y transparencia en la cadena de suministro agroalimentaria",
@@ -178,6 +200,7 @@ export const mockData = {
     title: 'Módulos de CERTIFFY',
     videoUrl: 'https://www.youtube.com/watch?v=dQw4w9WgXcQ',
     thumbnailUrl: 'https://placehold.co/800x450/e0f2f1/00796b?text=Video+CERTIFFY',
+    placeholderImage: 'https://placehold.co/800x450/e0f2f1/00796b?text=Video+CERTIFFY',
     description: '(Video de generalidades donde se habla sobre los 3 módulos de certiffy)',
     richText: '<p>Con este módulo, puede generar órdenes de corte y gestionar todo el proceso de certificación de manera eficiente. Explore las diferentes funcionalidades disponibles a través de los enlaces a continuación.</p>',
     links: [
@@ -191,10 +214,10 @@ export const mockData = {
   trazabilidad: {
     banner: {
       titulo: 'TRAZABILIDAD',
-      imagenUrl: 'https://images.unsplash.com/photo-1619252584547-9ee811f45413?q=80&w=1200&auto=format&fit=crop'
+      imagenUrl: 'https://images.pexels.com/photos/1286632/pexels-photo-1286632.jpeg'
     },
     seccion1: {
-      titulo: 'TITULAR',
+      titulo: '',
       subtitulo: 'TEXTO #1',
       texto: 'La trazabilidad en la cadena alimentaria es un componente esencial para garantizar la seguridad y calidad de los productos. CERTIFFY proporciona herramientas avanzadas para monitorear cada etapa del proceso, desde la producción hasta la distribución, asegurando transparencia y confianza para productores y consumidores.',
       imagenUrl: 'https://images.unsplash.com/photo-1560493676-04071c5f467b?q=80&w=1200&auto=format&fit=crop'
@@ -367,6 +390,7 @@ export const mockData = {
     contactoTitle: 'Contacto',
     telefono: 'Teléfono: +52 (433) 822 7028',
     imagenUrl: 'https://placehold.co/400x400/e6f7ff/0288d1?text=CERTIFFY',
+    copyrightText: '2025 CERTIFFY. Todos los derechos reservados.',
     redesSociales: [
       { icon: 'mdi-linkedin', url: 'https://www.linkedin.com/', color: 'blue-7' },
       { icon: 'mdi-facebook', url: 'https://www.facebook.com/', color: 'blue-9' },

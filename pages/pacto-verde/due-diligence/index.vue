@@ -1,49 +1,84 @@
 <template>
-  <q-page class="q-py-lg">
-    <div class="q-mx-auto" style="max-width: 1200px">
+  <q-page class="certiffy-pagina">
+    <div class="certiffy-contenedor">
       <!-- Banner principal (Imagen 1) -->
-      <BannerPrincipalModulo
+      <ModuloBanner
+        :tamanio-banner="'normal'"
+        :imagen-fondo="dueDiligenceData.banner.imagenUrl"
+        :usar-overlay="true"
         :titulo="dueDiligenceData.banner.titulo"
-        :imagen-url="dueDiligenceData.banner.imagenUrl"
+        :titulo-clase="'text-h1 text-weight-bold text-white'"
+        :color-overlay="'rgba(0, 0, 0, 0.4)'"
+        :posicion-texto="'center'"
       />
 
       <!-- Módulo Titular con Texto y Foto (Imagen 2) -->
       <div class="q-mt-xl q-mb-xl">
-        <ModuloTitularTextoFoto
-          :titulo="dueDiligenceData.titular.titulo"
-          :subtitulo="dueDiligenceData.titular.subtitulo"
-          :descripcion="dueDiligenceData.titular.descripcion"
-          :imagen-url="dueDiligenceData.titular.imagenUrl"
-          :imagen-titulo="dueDiligenceData.titular.imagenTitulo"
-        />
+        <ModuloMedia
+          :titulo="dueDiligenceData.titular.subtitulo"
+          :texto="dueDiligenceData.titular.descripcion"
+          :media-url="dueDiligenceData.titular.imagenUrl"
+          :titulo-media="dueDiligenceData.titular.imagenTitulo"
+          :posicion-media="'right'"
+          :distribucion-columnas="'7-5'"
+          :titulo-clase="'text-h5 text-bold'"
+          :media-ratio="4/3"
+          :borde="true"
+          :espaciado="'normal'"
+        >
+          <template v-slot:contenido-adicional>
+            <div class="text-h4 text-bold text-center q-mb-xl">
+              <span class="text-decoration-underline">{{ dueDiligenceData.titular.titulo }}</span>
+            </div>
+          </template>
+        </ModuloMedia>
       </div>
 
       <!-- Módulo de galería de imágenes (Imagen 3) -->
       <div class="q-mb-xl">
-        <ModuloGaleriaImagenes
+        <ModuloGaleria
           :titulo="dueDiligenceData.galeriaImagenes.titulo"
           :descripcion="dueDiligenceData.galeriaImagenes.descripcion"
-          :imagenes="dueDiligenceData.galeriaImagenes.imagenes"
+          :items="imagenesFormateadas"
+          :tipo-galeria="'imagenes'"
+          :columnas-desktop="3"
+          :columnas-tablet="2"
+          :columnas-mobile="1"
+          :borde="true"
+          :borde-items="true"
+          :espaciado="'normal'"
         />
       </div>
 
       <!-- Módulo Imagen a la izquierda y Texto a la derecha (Imagen 4) -->
       <div class="q-mb-xl">
-        <ModuloImagenTexto
+        <ModuloMedia
           :titulo="dueDiligenceData.seccionImagen.titulo"
           :texto="dueDiligenceData.seccionImagen.texto"
-          :imagen-url="dueDiligenceData.seccionImagen.imagenUrl"
-          :imagen-titulo="dueDiligenceData.seccionImagen.imagenTitulo"
+          :media-url="dueDiligenceData.seccionImagen.imagenUrl"
+          :titulo-media="dueDiligenceData.seccionImagen.imagenTitulo"
+          :posicion-media="'left'"
+          :distribucion-columnas="'4-8'"
+          :titulo-clase="'text-h5 text-bold'"
+          :media-ratio="1"
+          :borde="true"
+          :espaciado="'normal'"
         />
       </div>
 
       <!-- Módulo Texto e Imagen Flexible (Imagen 5) -->
       <div class="q-mb-xl">
-        <ModuloTextoFoto
+        <ModuloMedia
           :titulo="dueDiligenceData.seccionFinal.titulo"
           :texto="dueDiligenceData.seccionFinal.texto"
-          :imagen-url="dueDiligenceData.seccionFinal.imagenUrl"
-          :imagen-titulo="dueDiligenceData.seccionFinal.imagenTitulo"
+          :media-url="dueDiligenceData.seccionFinal.imagenUrl"
+          :titulo-media="dueDiligenceData.seccionFinal.imagenTitulo"
+          :posicion-media="'right'"
+          :distribucion-columnas="'7-5'"
+          :titulo-clase="'text-h5 text-bold'"
+          :media-ratio="4/3"
+          :borde="true"
+          :espaciado="'normal'"
         />
       </div>
     </div>
@@ -54,13 +89,31 @@
 import { ref, computed } from 'vue';
 import { mockData } from '~/data/mockData.js';
 
-// Importar componentes
-import BannerPrincipalModulo from '~/components/certiffy/trazabilidad/BannerPrincipalModulo.vue';
-import ModuloTitularTextoFoto from '~/components/certiffy/pacto-verde/ModuloTitularTextoFoto.vue';
-import ModuloGaleriaImagenes from '~/components/certiffy/pacto-verde/ModuloGaleriaImagenes.vue';
-import ModuloImagenTexto from '~/components/certiffy/pacto-verde/ModuloImagenTexto.vue';
-import ModuloTextoFoto from '~/components/certiffy/pacto-verde/ModuloTextoFoto.vue';
+// Importar componentes base
+import ModuloBanner from '~/components/certiffy/base/ModuloBanner.vue';
+import ModuloMedia from '~/components/certiffy/base/ModuloMedia.vue';
+import ModuloGaleria from '~/components/certiffy/base/ModuloGaleria.vue';
 
 // Para desarrollo usamos los datos mock
 const dueDiligenceData = ref(mockData.dueDiligence);
+
+// Formatear imágenes para la galería
+const imagenesFormateadas = computed(() => {
+  return dueDiligenceData.value.galeriaImagenes.imagenes.map(img => ({
+    imagenUrl: img.url,
+    titulo: img.titulo || ''
+  }));
+});
 </script>
+
+<style scoped>
+.certiffy-pagina {
+  padding: 2rem 0;
+}
+
+.certiffy-contenedor {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 0 1rem;
+}
+</style>

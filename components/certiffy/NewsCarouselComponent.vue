@@ -111,39 +111,11 @@ import { ref, computed } from 'vue';
 const props = defineProps({
   title: {
     type: String,
-    default: 'FOTOS EN CARROUSEL SOBRE LAS NOVEDADES DE LA PÁGINA'
+    required: true
   },
   items: {
     type: Array,
-    default: () => [
-      {
-        title: 'Video Corporativo',
-        description: 'Presentamos nuestro nuevo video corporativo donde mostramos las funcionalidades principales de la plataforma CERTIFFY.',
-        image: 'https://placehold.co/600x400/e9f6ff/1a73e8?text=Video+Corporativo',
-        videoUrl: 'https://www.youtube.com/embed/dQw4w9WgXcQ',
-        videoLabel: '(video corporativo)',
-        buttonLabel: 'Ver más',
-        buttonUrl: '/videos'
-      },
-      {
-        title: 'Nueva Actualización',
-        description: 'Lanzamos una nueva actualización con mejoras significativas en el módulo de trazabilidad.',
-        image: 'https://placehold.co/600x400/f0fff0/4caf50?text=Actualización',
-        videoUrl: 'https://www.youtube.com/embed/dQw4w9WgXcQ',
-        videoLabel: '(demostración de funcionalidades)',
-        buttonLabel: 'Conocer más',
-        buttonUrl: '/actualizaciones'
-      },
-      {
-        title: 'Caso de Éxito',
-        description: 'Conoce cómo nuestros clientes han mejorado su gestión de certificaciones con CERTIFFY.',
-        image: 'https://placehold.co/600x400/fff6e0/ff9800?text=Caso+de+Éxito',
-        videoUrl: 'https://www.youtube.com/embed/dQw4w9WgXcQ',
-        videoLabel: '(testimonios)',
-        buttonLabel: 'Ver caso',
-        buttonUrl: '/casos'
-      }
-    ]
+    required: true
   }
 });
 

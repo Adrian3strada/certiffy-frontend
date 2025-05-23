@@ -8,26 +8,31 @@
       />
 
       <div class="q-mt-xl q-mb-xl">
-        <ModuloDetalleFotoTexto
+        <ModuloInfoSeccion
           :titulo="administracionData.seccion1.titulo"
-          :subtitulo="administracionData.seccion1.subtitulo"
           :descripcion="administracionData.seccion1.texto"
-          :imagen-url="administracionData.seccion1.imagenUrl"
+          :imagen-fondo="administracionData.seccion1.imagenUrl"
+          posicion-texto="centro-enmarcado"
+          alineacion-texto="izquierda"
         />
       </div>
 
       <div class="q-mb-xl">
-        <ModuloTextoConFoto
+        <ModuloMedia
           :texto="administracionData.seccion2.texto"
-          :imagen-url="administracionData.seccion2.imagenUrl"
+          :media-url="administracionData.seccion2.imagenUrl"
+          posicion-media="right"
+          :texto-sobre-media="false"
         />
       </div>
 
       <div class="q-mb-xl">
-        <ModuloTextoConRegresar
-          :texto="administracionData.seccion3.texto"
-          @regresar="onRegresar"
-        />
+        <ModuloBase>
+          <q-card-section>
+            <div class="text-body1 q-mb-md">{{ administracionData.seccion3.texto }}</div>
+            <q-btn label="Volver arriba" color="primary" @click="onRegresar" />
+          </q-card-section>
+        </ModuloBase>
       </div>
     </div>
   </q-page>
@@ -37,9 +42,9 @@
 import { ref } from 'vue';
 import { mockData } from '~/data/mockData.js';
 import BannerPrincipalModulo from '~/components/certiffy/trazabilidad/BannerPrincipalModulo.vue';
-import ModuloDetalleFotoTexto from '~/components/certiffy/trazabilidad/ModuloDetalleFotoTexto.vue';
-import ModuloTextoConFoto from '~/components/certiffy/trazabilidad/ModuloTextoConFoto.vue';
-import ModuloTextoConRegresar from '~/components/certiffy/trazabilidad/ModuloTextoConRegresar.vue';
+import ModuloInfoSeccion from '~/components/certiffy/base/ModuloInfoSeccion.vue';
+import ModuloMedia from '~/components/certiffy/base/ModuloMedia.vue';
+import ModuloBase from '~/components/certiffy/base/ModuloBase.vue';
 
 const administracionData = ref(mockData.administracion);
 

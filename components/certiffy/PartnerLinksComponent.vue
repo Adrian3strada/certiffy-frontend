@@ -43,16 +43,11 @@
 const props = defineProps({
   title: {
     type: String,
-    default: 'Titular......seguimos sumando visiones ........'
+    required: true
   },
   links: {
     type: Array,
-    default: () => [
-      { text: 'Enlaces web socios y/o aliados', url: '#' },
-      { text: 'Enlaces web socios y/o aliados', url: '#' },
-      { text: 'Enlaces web socios y/o aliados', url: '#' },
-      { text: 'Enlaces web socios y/o aliados', url: '#' }
-    ]
+    required: true
   }
 });
 </script>

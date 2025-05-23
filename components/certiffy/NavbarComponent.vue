@@ -87,17 +87,11 @@ import { useRoute } from 'vue-router';
 const props = defineProps({
   logoUrl: {
     type: String,
-    default: '/images/logo.png'
+    required: true
   },
   navItems: {
     type: Array,
-    default: () => [
-      { label: 'ACERCA DE', url: '/acerca-de' },
-      { label: 'PLATAFORMA', url: '/plataforma' },
-      { label: 'NOTICIAS Y EVENTOS', url: '/noticias-y-eventos' },
-      { label: 'PACTO VERDE', url: '/pacto-verde' },
-      { label: 'CONTACTO', url: '/contacto' }
-    ]
+    required: true
   }
 });
 

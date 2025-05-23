@@ -1,22 +1,18 @@
 <template>
-  <q-card class="full-width q-mb-xl" flat bordered style="border-color: #8e24aa">
-    <q-img 
-      :src="imagenFinal" 
-      height="300px"
-      @error="onImageError"
-    >
-      <template v-slot:loading>
-        <q-spinner-dots color="white" size="40px" />
-      </template>
-      <div class="absolute-center text-center full-width">
-        <div class="text-h1 text-bold text-white" style="text-decoration: underline; text-shadow: 2px 2px 8px rgba(0,0,0,0.8);">{{ titulo }}</div>
-      </div>
-    </q-img>
-  </q-card>
+  <ModuloBanner
+    :tamanio-banner="'normal'"
+    :imagen-fondo="imagenFinal"
+    :usar-overlay="true"
+    :titulo="titulo"
+    :titulo-clase="'text-h1 text-weight-bold text-white'"
+    :color-overlay="'rgba(0, 0, 0, 0.4)'"
+    :posicion-texto="'center'"
+  />
 </template>
 
 <script setup>
 import { ref, computed } from 'vue';
+import ModuloBanner from '../base/ModuloBanner.vue';
 
 const props = defineProps({
   titulo: {
@@ -38,11 +34,8 @@ const imagenFinal = computed(() => {
   return imagenError.value ? imagenRespaldo : props.imagenUrl;
 });
 
-// Función para manejar errores de carga de imagen
-function onImageError() {
-  console.warn(`Error al cargar la imagen: ${props.imagenUrl}`);
-  imagenError.value = true;
-}
+// La funcionalidad de manejo de errores está incorporada en el ModuloBanner
+// Si necesitamos capturar el error específicamente, podemos emitir un evento
 </script>
 
 <style scoped>

@@ -105,21 +105,17 @@ const props = defineProps({
 // Estado para controlar la reproducción del video
 const videoActive = ref(false);
 
-// Props específicos del componente o valores por defecto
-const title = computed(() => props.content.title || 'Módulos de CERTIFFY');
-const videoUrl = computed(() => props.content.videoUrl || 'https://www.youtube.com/watch?v=dQw4w9WgXcQ');
-const thumbnailUrl = computed(() => props.content.thumbnailUrl || '');
-const description = computed(() => props.content.description || '(Video de generalidades donde se habla sobre los 3 módulos de certiffy)');
-const richText = computed(() => props.content.richText || '<p>Con este módulo, puede generar órdenes de corte y gestionar todo el proceso de certificación de manera eficiente. Explore las diferentes funcionalidades disponibles a través de los enlaces a continuación.</p>');
-const links = computed(() => props.content.links || [
-  { label: 'Trazabilidad', url: '/trazabilidad' },
-  { label: 'Administración', url: '/administracion' },
-  { label: 'Certificación', url: '/certificacion' }
-]);
-const linksTitle = computed(() => props.content.linksTitle || 'Módulos disponibles');
+// Props específicos del componente sin valores por defecto
+const title = computed(() => props.content.title);
+const videoUrl = computed(() => props.content.videoUrl);
+const thumbnailUrl = computed(() => props.content.thumbnailUrl);
+const description = computed(() => props.content.description);
+const richText = computed(() => props.content.richText);
+const links = computed(() => props.content.links);
+const linksTitle = computed(() => props.content.linksTitle);
 
-// Imagen de respaldo
-const placeholderImage = 'https://placehold.co/800x450/e0f2f1/00796b?text=Video+CERTIFFY';
+// Imagen de respaldo - esta propiedad se usa solo internamente en el componente
+const placeholderImage = computed(() => props.content.placeholderImage);
 
 // Convertir URL de YouTube a URL de embed
 const videoEmbedUrl = computed(() => {

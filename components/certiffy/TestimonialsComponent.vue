@@ -77,23 +77,7 @@ import { ref } from 'vue';
 const props = defineProps({
   testimonials: {
     type: Array,
-    default: () => [
-      {
-        frase: 'FRASE O TEXTO TESTIMONIAL',
-        autor: 'nombre del testimonio',
-        organizacion: 'organización perteneciente'
-      },
-      {
-        frase: 'CERTIFFY ha transformado nuestra forma de gestionar la trazabilidad de nuestros productos',
-        autor: 'Carlos Martínez',
-        organizacion: 'Director de Calidad - AgroExport'
-      },
-      {
-        frase: 'Desde que implementamos CERTIFFY, hemos reducido un 40% el tiempo dedicado a gestionar certificaciones',
-        autor: 'Laura Gómez',
-        organizacion: 'Gerente de Operaciones - FreshFruits'
-      }
-    ]
+    required: true
   }
 });
 

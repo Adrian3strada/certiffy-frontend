@@ -282,8 +282,8 @@ export function useWagtailApi() {
   };
 
   /**
-   * Obtener los datos de la página "Acerca de"
-   * @returns {Promise<Object>} - Datos de la página Acerca de
+   * Obtener datos para la página Acerca De
+   * @returns {Promise<Object>} - Datos para la página Acerca De
    */
   const fetchAcercaDePage = async () => {
     loading.value = true;
@@ -291,13 +291,15 @@ export function useWagtailApi() {
     isMockData.value = false;
     
     try {
-      console.log(`Intentando obtener datos de la página "Acerca de" de ${API_BASE_URL}/pages/?type=about.AboutPage`);
+      console.log('Intentando obtener datos de la página Acerca De');
       
-      // Intentar obtener datos de la API con un timeout para evitar esperas largas
-      const controller = new AbortController();
-      const timeoutId = setTimeout(() => controller.abort(), 5000); // 5 segundos de timeout
-      
+      // Primer intento: buscar por tipo de página
       try {
+        console.log(`Buscando por tipo: ${API_BASE_URL}/pages/?type=about.AboutPage`);
+        
+        const controller = new AbortController();
+        const timeoutId = setTimeout(() => controller.abort(), 5000);
+        
         const { data, error: fetchError } = await useFetch(`${API_BASE_URL}/pages/?type=about.AboutPage`, {
           method: 'GET',
           headers: {
@@ -310,12 +312,10 @@ export function useWagtailApi() {
         clearTimeout(timeoutId);
         
         if (fetchError.value) {
-          console.warn('Error al obtener datos de la API, usando datos de respaldo:', fetchError.value);
-          throw new Error(fetchError.value.message || 'Error al obtener datos');
+          throw new Error(fetchError.value.message || 'Error al buscar por tipo');
         }
         
         if (!data.value) {
-          console.warn('No se recibieron datos de la API, usando datos de respaldo');
           throw new Error('No se recibieron datos');
         }
         
@@ -324,24 +324,156 @@ export function useWagtailApi() {
         const aboutPage = items.length > 0 ? items[0] : null;
         
         if (!aboutPage) {
-          console.warn('No se encontró la página "Acerca de", usando datos de respaldo');
-          throw new Error('Página no encontrada');
+          throw new Error('Página no encontrada por tipo');
         }
         
-        console.log('Datos de la página "Acerca de" obtenidos correctamente:', aboutPage);
-        return aboutPage;
-      } catch (fetchErr) {
-        clearTimeout(timeoutId);
-        throw fetchErr;
+        console.log('Página encontrada por tipo:', aboutPage);
+        
+        // Procesar los datos obtenidos
+        return procesarDatosAcercaDe(aboutPage);
+      } catch (errorTipo) {
+        console.warn(`No se encontró la página por tipo: ${errorTipo.message}. Intentando por ID...`);
+        
+        // Segundo intento: buscar por ID
+        const pageId = 16; // ID de la página Acerca De en Wagtail
+        const pageData = await getPageById(pageId);
+        
+        if (!pageData) {
+          throw new Error('No se encontró la página ni por tipo ni por ID');
+        }
+        
+        console.log('Página encontrada por ID:', pageData);
+        
+        // Procesar los datos obtenidos
+        return procesarDatosAcercaDe(pageData);
       }
     } catch (err) {
-      console.warn(`Usando datos de respaldo debido a: ${err.message}`);
-      error.value = `[GET] "${API_BASE_URL}/pages/?type=about.AboutPage": ${err.message}`;
+      console.warn(`Error al obtener datos de Acerca De: ${err.message}. Usando datos de respaldo.`);
+      error.value = `Error al obtener página Acerca De: ${err.message}`;
       isMockData.value = true;
-      return { acercaDe: { ...mockData.acercaDe } };
+      
+      // Usando datos de respaldo en formato acercaDe
+      return {
+        acercaDe: {
+          mision: {
+            titulo: "MISIÓN",
+            descripcion: "Proporcionar herramientas tecnológicas innovadoras que simplifiquen y optimicen los procesos de certificación en la cadena de suministro agroalimentaria, garantizando transparencia, trazabilidad y sostenibilidad en cada etapa del proceso.",
+            imagenFondo: "/images/landscapes/hills-light.jpg",
+            posicionTexto: "derecha",
+            alineacionTexto: "izquierda"
+          },
+          vision: {
+            titulo: "VISIÓN",
+            descripcion: "Ser reconocidos globalmente como la plataforma líder en soluciones de certificación para el sector agroalimentario, facilitando el cumplimiento normativo internacional y promoviendo prácticas sostenibles que beneficien a productores, consumidores y al planeta.",
+            imagenFondo: "/images/landscapes/hills-light.jpg",
+            posicionTexto: "izquierda",
+            alineacionTexto: "izquierda"
+          },
+          valores: {
+            titulo: "VALORES",
+            descripcion: "Integridad, Innovación, Sostenibilidad, Transparencia y Compromiso con la excelencia. Estos principios guían nuestras acciones y decisiones, mientras trabajamos para transformar positivamente la industria agroalimentaria.",
+            imagenFondo: "/images/landscapes/hills-light.jpg",
+            posicionTexto: "centro-enmarcado",
+            alineacionTexto: "centro"
+          },
+          misionAlt: {
+            titulo: "NUESTRA MISIÓN",
+            descripcion: "Proporcionar herramientas tecnológicas innovadoras que simplifiquen y optimicen los procesos de certificación en la cadena de suministro agroalimentaria, garantizando transparencia, trazabilidad y sostenibilidad en cada etapa del proceso.",
+            imagenFondo: "/images/landscapes/hills-dark.jpg",
+            posicionTexto: "izquierda",
+            alineacionTexto: "derecha"
+          },
+          visionAlt: {
+            titulo: "NUESTRA VISIÓN",
+            descripcion: "Ser reconocidos globalmente como la plataforma líder en soluciones de certificación para el sector agroalimentario, facilitando el cumplimiento normativo internacional y promoviendo prácticas sostenibles que beneficien a productores, consumidores y al planeta.",
+            imagenFondo: "/images/landscapes/hills-dark.jpg",
+            posicionTexto: "derecha",
+            alineacionTexto: "derecha"
+          }
+        }
+      };
     } finally {
       loading.value = false;
     }
+  };
+  
+  /**
+   * Función auxiliar para procesar los datos de la página Acerca De
+   * @param {Object} pageData - Datos crudos de la página de Wagtail
+   * @returns {Object} - Datos procesados para los componentes
+   */
+  const procesarDatosAcercaDe = (pageData) => {
+    // Estructura base para los datos
+    const acercaDe = {
+      mision: {},
+      misionAlt: {},
+      vision: {},
+      visionAlt: {},
+      valores: {}
+    };
+    
+    // Si existe la sección body, procesarla para extraer los bloques
+    if (pageData.body && Array.isArray(pageData.body)) {
+      // Filtrar bloques de tipo info_section o similares
+      const infoBlocks = pageData.body.filter(block => 
+        block.type === 'info_section' || 
+        block.type === 'section' ||
+        block.type === 'text_image'
+      );
+      
+      // Mapear los bloques a las secciones correspondientes
+      if (infoBlocks.length >= 1 && infoBlocks[0]) {
+        acercaDe.mision = {
+          titulo: infoBlocks[0].value?.title || 'MISIÓN',
+          descripcion: infoBlocks[0].value?.description || '',
+          imagenFondo: infoBlocks[0].value?.image?.url || '/images/landscapes/hills-light.jpg',
+          posicionTexto: infoBlocks[0].value?.text_position || 'derecha',
+          alineacionTexto: infoBlocks[0].value?.text_alignment || 'izquierda'
+        };
+      }
+      
+      if (infoBlocks.length >= 2 && infoBlocks[1]) {
+        acercaDe.misionAlt = {
+          titulo: infoBlocks[1].value?.title || 'NUESTRA MISIÓN',
+          descripcion: infoBlocks[1].value?.description || '',
+          imagenFondo: infoBlocks[1].value?.image?.url || '/images/landscapes/hills-dark.jpg',
+          posicionTexto: infoBlocks[1].value?.text_position || 'izquierda',
+          alineacionTexto: infoBlocks[1].value?.text_alignment || 'derecha'
+        };
+      }
+      
+      if (infoBlocks.length >= 3 && infoBlocks[2]) {
+        acercaDe.vision = {
+          titulo: infoBlocks[2].value?.title || 'VISIÓN',
+          descripcion: infoBlocks[2].value?.description || '',
+          imagenFondo: infoBlocks[2].value?.image?.url || '/images/landscapes/hills-light.jpg',
+          posicionTexto: infoBlocks[2].value?.text_position || 'izquierda',
+          alineacionTexto: infoBlocks[2].value?.text_alignment || 'izquierda'
+        };
+      }
+      
+      if (infoBlocks.length >= 4 && infoBlocks[3]) {
+        acercaDe.visionAlt = {
+          titulo: infoBlocks[3].value?.title || 'NUESTRA VISIÓN',
+          descripcion: infoBlocks[3].value?.description || '',
+          imagenFondo: infoBlocks[3].value?.image?.url || '/images/landscapes/hills-dark.jpg',
+          posicionTexto: infoBlocks[3].value?.text_position || 'derecha',
+          alineacionTexto: infoBlocks[3].value?.text_alignment || 'derecha'
+        };
+      }
+      
+      if (infoBlocks.length >= 5 && infoBlocks[4]) {
+        acercaDe.valores = {
+          titulo: infoBlocks[4].value?.title || 'VALORES',
+          descripcion: infoBlocks[4].value?.description || '',
+          imagenFondo: infoBlocks[4].value?.image?.url || '/images/landscapes/hills-light.jpg',
+          posicionTexto: infoBlocks[4].value?.text_position || 'centro-enmarcado',
+          alineacionTexto: infoBlocks[4].value?.text_alignment || 'centro'
+        };
+      }
+    }
+    
+    return { acercaDe };
   };
 
   return {

@@ -46,7 +46,7 @@
       <!-- Copyright -->
       <div class="text-center q-py-sm text-caption">
         <q-separator dark class="q-mb-sm" />
-        {{ new Date().getFullYear() }} CERTIFFY. Todos los derechos reservados.
+        {{ copyrightText }}
       </div>
     </div>
   </footer>
@@ -56,32 +56,31 @@
 const props = defineProps({
   direccionTitle: {
     type: String,
-    default: 'Dirección'
+    required: true
   },
   direccion: {
     type: String,
-    default: 'Mexico'
+    required: true
   },
   contactoTitle: {
     type: String,
-    default: 'Contacto'
+    required: true
   },
   telefono: {
     type: String,
-    default: 'Teléfono: +52 (433) 822 7028'
+    required: true
   },
   imagenUrl: {
     type: String,
-    default: 'https://placehold.co/400x400/e6f7ff/0288d1?text=CERTIFFY'
+    required: true
   },
   redesSociales: {
     type: Array,
-    default: () => [
-      { icon: 'mdi-linkedin', url: 'https://www.linkedin.com/', color: 'blue-7' },
-      { icon: 'mdi-facebook', url: 'https://www.facebook.com/', color: 'blue-9' },
-      { icon: 'mdi-instagram', url: 'https://www.instagram.com/', color: 'purple-5' },
-      { icon: 'mdi-twitter', url: 'https://www.twitter.com/', color: 'light-blue-5' }
-    ]
+    required: true
+  },
+  copyrightText: {
+    type: String,
+    required: true
   }
 });
 </script>

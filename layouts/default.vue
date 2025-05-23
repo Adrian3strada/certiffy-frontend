@@ -19,6 +19,7 @@
       :telefono="mockData.footerContact.telefono"
       :imagenUrl="mockData.footerContact.imagenUrl"
       :redesSociales="mockData.footerContact.redesSociales"
+      :copyrightText="mockData.footerContact.copyrightText"
     />
   </q-layout>
 </template>

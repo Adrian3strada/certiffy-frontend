@@ -6,14 +6,10 @@
       </div>
       
       <div class="row q-col-gutter-lg justify-center">
-        <div v-for="(noticia, index) in noticias" :key="index" class="col-12 col-md-4">
+        <div v-for="(noticia, index) in noticiasData" :key="index" class="col-12 col-md-4">
           <q-card 
-            class="h-100 q-hoverable shadow-1" 
+            class="noticia-card h-100 q-hoverable shadow-1" 
             bordered
-            style="transition: transform 0.3s ease, box-shadow 0.3s ease"
-            :style="{ transform: 'translateY(0)' }"
-            @mouseover="e => e.target.style.transform = 'translateY(-5px)'"
-            @mouseleave="e => e.target.style.transform = 'translateY(0)'"
           >
             <q-img
               :src="noticia.imagen"
@@ -32,7 +28,7 @@
               
               <q-item>
                 <q-item-section>
-                  <q-item-label class="q-mt-sm text-body2" style="overflow: hidden; display: -webkit-box; -webkit-line-clamp: 3; -webkit-box-orient: vertical;">
+                  <q-item-label class="noticia-descripcion q-mt-sm text-body2">
                     {{ noticia.descripcion }}
                   </q-item-label>
                 </q-item-section>
@@ -44,7 +40,7 @@
                 color="primary" 
                 :to="noticia.url" 
                 flat
-                label="Leer más" 
+                :label="botonLeerMasTexto" 
                 icon-right="arrow_forward"
               />
             </q-card-actions>
@@ -56,7 +52,7 @@
         <q-btn 
           color="primary" 
           :to="verMasUrl" 
-          label="Ver todas las noticias" 
+          :label="botonVerTodasTexto" 
           unelevated
           rounded
           class="q-px-xl q-py-sm"
@@ -73,19 +69,27 @@ import { useWagtailApi } from '~/composables/useWagtailApi';
 const props = defineProps({
   title: {
     type: String,
-    default: 'NOTICIAS Y EVENTOS'
+    required: true
   },
   noticias: {
     type: Array,
-    default: () => []
+    required: true
   },
   verMasUrl: {
     type: String,
-    default: '/noticias-y-eventos'
+    required: true
   },
   maxItems: {
     type: Number,
     default: 3
+  },
+  botonLeerMasTexto: {
+    type: String,
+    required: true
+  },
+  botonVerTodasTexto: {
+    type: String,
+    required: true
   }
 });
 
@@ -99,31 +103,6 @@ onMounted(async () => {
       const data = await getLatestNews(props.maxItems);
       if (data && Array.isArray(data)) {
         noticiasData.value = data;
-      } else {
-        // Usar datos de ejemplo si no se pueden obtener de la API
-        noticiasData.value = [
-          {
-            titulo: 'CERTIFFY X AGROJAL',
-            descripcion: 'Alianza estratégica para mejorar la trazabilidad en la cadena de suministro agrícola y garantizar la calidad de los productos.',
-            imagen: 'https://placehold.co/600x400/eef8ff/2196f3?text=CERTIFFY+X+AGROJAL',
-            fecha: '10 de mayo de 2025',
-            url: '/noticias/certiffy-agrojal'
-          },
-          {
-            titulo: 'TITULO DE LA NOTICIA',
-            descripcion: 'Nueva actualización de nuestra plataforma de certificación con funcionalidades mejoradas para la gestión de documentos.',
-            imagen: 'https://placehold.co/600x400/e6f9e6/4caf50?text=NOTICIA',
-            fecha: '2 de mayo de 2025',
-            url: '/noticias/actualizacion-plataforma'
-          },
-          {
-            titulo: 'TITULO DE LA NOTICIA',
-            descripcion: 'Webinar sobre las nuevas normativas europeas de certificación y cómo CERTIFFY puede ayudar a cumplirlas.',
-            imagen: 'https://placehold.co/600x400/e6f9e6/4caf50?text=NOTICIA',
-            fecha: '28 de abril de 2025',
-            url: '/noticias/webinar-normativas'
-          }
-        ];
       }
     } catch (err) {
       console.error('Error al obtener noticias:', err);
@@ -131,3 +110,22 @@ onMounted(async () => {
   }
 });
 </script>
+
+<style scoped>
+.noticia-card {
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.noticia-card:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+}
+
+.noticia-descripcion {
+  overflow: hidden;
+  display: -webkit-box;
+  -webkit-line-clamp: 3;
+  -webkit-box-orient: vertical;
+  line-height: 1.5;
+}
+</style>
