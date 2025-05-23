@@ -1,8 +1,8 @@
 export const mockData = {
   // Datos para la sección "Acerca de"
-  acercaDe: {
+  acercaDe: [
     // Componente 1: Misión - texto a la derecha
-    mision: {
+    {
       titulo: "MISIÓN",
       descripcion: "Proporcionar herramientas tecnológicas innovadoras que simplifiquen y optimicen los procesos de certificación en la cadena de suministro agroalimentaria, garantizando transparencia, trazabilidad y sostenibilidad en cada etapa del proceso.",
       imagenFondo: "https://images.unsplash.com/photo-1507608616759-54f48f0af0ee?q=80&w=1200&auto=format&fit=crop",
@@ -13,8 +13,9 @@ export const mockData = {
       anchoTexto: "100%",
       altura: "280px"
     },
+    
     // Componente 2: Misión - texto a la izquierda
-    misionAlt: {
+    {
       titulo: "MISIÓN",
       descripcion: "Proporcionar herramientas tecnológicas innovadoras que simplifiquen y optimicen los procesos de certificación en la cadena de suministro agroalimentaria, garantizando transparencia, trazabilidad y sostenibilidad en cada etapa del proceso.",
       imagenFondo: "https://images.unsplash.com/photo-1471193945509-9ad0617afabf?q=80&w=1200&auto=format&fit=crop",
@@ -26,7 +27,7 @@ export const mockData = {
       altura: "280px"
     },
     // Componente 3: Visión - texto a la derecha
-    vision: {
+    {
       titulo: "VISIÓN",
       descripcion: "Ser reconocidos globalmente como la plataforma líder en soluciones de certificación para el sector agroalimentario, facilitando el cumplimiento normativo internacional y promoviendo prácticas sostenibles que beneficien a productores, consumidores y al planeta.",
       imagenFondo: "https://images.unsplash.com/photo-1507608616759-54f48f0af0ee?q=80&w=1200&auto=format&fit=crop",
@@ -38,7 +39,7 @@ export const mockData = {
       altura: "280px"
     },
     // Componente 4: Visión - texto a la izquierda
-    visionAlt: {
+    {
       titulo: "VISIÓN",
       descripcion: "Ser reconocidos globalmente como la plataforma líder en soluciones de certificación para el sector agroalimentario, facilitando el cumplimiento normativo internacional y promoviendo prácticas sostenibles que beneficien a productores, consumidores y al planeta.",
       imagenFondo: "https://images.unsplash.com/photo-1471193945509-9ad0617afabf?q=80&w=1200&auto=format&fit=crop",
@@ -50,7 +51,7 @@ export const mockData = {
       altura: "280px"
     },
     // Componente 5: Valores - texto centrado
-    valores: {
+    {
       titulo: "VALORES",
       descripcion: "Integridad, Innovación, Sostenibilidad, Transparencia y Compromiso con la excelencia. Estos principios guían nuestras acciones y decisiones, mientras trabajamos para transformar positivamente la industria agroalimentaria.",
       imagenFondo: "https://images.unsplash.com/photo-1542601906990-b4d3fb778b09?q=80&w=1200&auto=format&fit=crop",
@@ -61,7 +62,7 @@ export const mockData = {
       anchoTexto: "100%",
       altura: "280px"
     }
-  },
+  ],
   
   navbar: {
     logoUrl: 'https://placehold.co/200x80/F9A826/000000?text=CERTIFFY',
