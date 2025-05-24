@@ -65,47 +65,6 @@ import NoticiaArticuloSecundarioComponent from './NoticiaArticuloSecundarioCompo
 import NoticiaImagenTerciariaComponent from './NoticiaImagenTerciariaComponent.vue';
 import NoticiasCuadriculaComponent from './NoticiasCuadriculaComponent.vue';
 
-// Datos por defecto
-const defaultData = {
-  banner: {
-    titulo: 'FOTO PRINCIPAL DE LA NOTA',
-    descripcion: 'Descripción principal que acompaña a la foto destacada de la noticia',
-    imagenUrl: 'https://images.pexels.com/photos/1353938/pexels-photo-1353938.jpeg?auto=compress&cs=tinysrgb&w=1200',
-    categoria: 'CAFÉ'
-  },
-  articuloPrincipal: {
-    titulo: 'TITULAR',
-    contenido: 'Contenido principal del artículo. Aquí se incluye toda la información importante sobre la noticia o evento destacado.',
-    fecha: 'FECHA'
-  },
-  imagenSecundaria: {
-    imagenUrl: 'https://images.pexels.com/photos/1379636/pexels-photo-1379636.jpeg?auto=compress&cs=tinysrgb&w=1200',
-    caption: 'FOTO #2'
-  },
-  articuloSecundario: {
-    titulo: 'TEXTO #2',
-    contenido: 'Contenido secundario que proporciona información adicional sobre el tema principal.'
-  },
-  imagenTerciaria: {
-    imagenUrl: 'https://images.pexels.com/photos/1181673/pexels-photo-1181673.jpeg?auto=compress&cs=tinysrgb&w=1200',
-    caption: 'FOTO #3'
-  },
-  noticiasAdicionales: [
-    {
-      titulo: 'TITULO DE LA NOTICIA',
-      imagenUrl: 'https://images.pexels.com/photos/1061588/pexels-photo-1061588.jpeg?auto=compress&cs=tinysrgb&w=1200'
-    },
-    {
-      titulo: 'TITULO DE LA NOTICIA',
-      imagenUrl: 'https://images.pexels.com/photos/1181671/pexels-photo-1181671.jpeg?auto=compress&cs=tinysrgb&w=1200'
-    },
-    {
-      titulo: 'TITULO DE LA NOTICIA',
-      imagenUrl: 'https://images.pexels.com/photos/2113566/pexels-photo-2113566.jpeg?auto=compress&cs=tinysrgb&w=1200'
-    }
-  ],
-  notaInformativa: 'Nota: no agregar títulos.... que las noticias se coloquen abajo de forma consecutiva a la que ya está desplegada.'
-};
 
 // Definir props
 const props = defineProps({

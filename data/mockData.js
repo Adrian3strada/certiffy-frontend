@@ -72,6 +72,7 @@ export const mockData = {
       { label: 'PLATAFORMA', url: '/plataforma' },
       { label: 'NOTICIAS Y EVENTOS', url: '/noticias-y-eventos' },
       { label: 'PACTO VERDE', url: '/pacto-verde' },
+      { label: 'API', url: '/api' },
       { label: 'CONTACTO', url: '/contacto' }
     ]
   },

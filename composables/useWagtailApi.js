@@ -1,91 +1,68 @@
 import { ref } from 'vue';
+import { useFetch } from '#app';
 
 // URL base de la API de Wagtail
-const API_BASE_URL = 'https://8af2-2806-266-480-8244-9437-a02c-cbc8-6484.ngrok-free.app/api/v2';
-
-// Datos de respaldo para cuando la API no está disponible
-const MOCK_DATA = {
-  id: 15,
-  meta: {
-    type: "home.HomePage",
-    detail_url: "https://8af2-2806-266-480-8244-9437-a02c-cbc8-6484.ngrok-free.app/api/v2/pages/15/",
-    html_url: "http://127.0.0.1/",
-    slug: "homepage",
-    show_in_menus: false,
-    seo_title: "",
-    search_description: "",
-    first_published_at: "2025-05-16T19:59:35.798033Z",
-    alias_of: null,
-    parent: null
-  },
-  title: "HOMEPAGE",
-  intro_text: "<p data-block-key=\"1vuf4\">CERTIFFY</p><hr/><p data-block-key=\"cd7hf\"></p><p data-block-key=\"ejvg2\"></p><p data-block-key=\"bpzcz\"></p><p data-block-key=\"cor2f\"></p>",
-  video_url: "https://www.youtube.com/watch?v=X6dM7OjHNsE",
-  carousel_images: [
-    {
-      type: "image",
-      value: 1,
-      id: "cea1b6f6-d630-428a-95b1-b380b9bcff0c"
-    },
-    {
-      type: "image",
-      value: 2,
-      id: "d4d701bf-2bdc-43e9-9d44-d5f4b0e5fe4f"
-    },
-    {
-      type: "image",
-      value: 3,
-      id: "483251f4-d522-4905-8575-edf765784cc8"
-    }
-  ],
-  body: [
-    {
-      type: "heading",
-      value: "CERTIFFY",
-      id: "heading-1"
-    },
-    {
-      type: "rich_text",
-      value: "<p data-block-key=\"1vuf4\">CERTIFFY</p><hr/><p data-block-key=\"cd7hf\"></p><p data-block-key=\"ejvg2\"></p><p data-block-key=\"bpzcz\"></p><p data-block-key=\"cor2f\"></p>",
-      id: "rich-text-1"
-    },
-    {
-      type: "video",
-      value: {
-        url: "https://www.youtube.com/watch?v=X6dM7OjHNsE"
-      },
-      id: "video-1"
-    },
-    {
-      type: "carousel",
-      value: {
-        images: [
-          {
-            type: "image",
-            value: 1,
-            id: "cea1b6f6-d630-428a-95b1-b380b9bcff0c"
-          },
-          {
-            type: "image",
-            value: 2,
-            id: "d4d701bf-2bdc-43e9-9d44-d5f4b0e5fe4f"
-          },
-          {
-            type: "image",
-            value: 3,
-            id: "483251f4-d522-4905-8575-edf765784cc8"
-          }
-        ]
-      },
-      id: "carousel-1"
-    }
-  ]
-};
+const API_BASE_URL = 'https://693d-2806-103e-1d-30e0-88bf-2d33-4e9f-2e8e.ngrok-free.app/api/v2';
 
 export function useWagtailApi() {
   const loading = ref(false);
   const error = ref(null);
   const isMockData = ref(false);
+  
+  /**
+   * Obtener datos de una URL completa
+   * @param {string} url - URL completa para obtener datos
+   * @returns {Promise<Object>} - Datos obtenidos de la URL
+   */
+  const getDataFromUrl = async (url) => {
+    loading.value = true;
+    error.value = null;
+    isMockData.value = false;
+    
+    try {
+      console.log(`Intentando obtener datos de ${url}`);
+      
+      // Usar useFetch de Nuxt para obtener los datos
+      const { data, error: fetchError } = await useFetch(url, {
+        method: 'GET',
+        headers: {
+          'Accept': 'application/json',
+          'Content-Type': 'application/json'
+        },
+        // Configurar opciones adicionales para mejorar la compatibilidad con ngrok
+        credentials: 'omit',
+        // Aumentar el timeout para dar tiempo a la API a responder
+        options: {
+          timeout: 15000
+        }
+      });
+      
+      if (fetchError.value) {
+        console.error('Error al obtener datos de la API:', fetchError.value);
+        throw new Error(fetchError.value.message || 'Error al obtener datos');
+      }
+      
+      // Verificar si la respuesta es HTML (ngrok) en lugar de JSON
+      if (data.value && typeof data.value === 'string' && data.value.includes('<!DOCTYPE html>')) {
+        console.error('La API ha devuelto HTML en lugar de JSON (posiblemente ngrok)');
+        throw new Error('La API ha devuelto HTML en lugar de JSON. Verifica que la URL sea correcta y accesible.');
+      }
+      
+      if (!data.value) {
+        console.error('No se recibieron datos de la API');
+        throw new Error('No se recibieron datos de la API');
+      }
+      
+      console.log('Datos obtenidos correctamente de la API:', data.value);
+      return data.value;
+    } catch (err) {
+      console.error(`Error al obtener datos de la API: ${err.message}`);
+      error.value = `[GET] "${url}": ${err.message}`;
+      throw err; // Propagar el error para que el componente pueda manejarlo
+    } finally {
+      loading.value = false;
+    }
+  };
 
   /**
    * Obtener una página por su ID
@@ -483,6 +460,7 @@ export function useWagtailApi() {
     getPageById,
     getAllPages,
     getBlockById,
-    fetchAcercaDePage
+    fetchAcercaDePage,
+    getDataFromUrl
   };
 }
