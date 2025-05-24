@@ -1,115 +1,107 @@
 <template>
-  <div class="api-content-component">
-    <div class="q-pa-md">
-      <div class="q-mx-auto" style="max-width: 1200px">
-        <!-- Estado de carga -->
-        <div v-if="loading" class="text-center q-pa-xl">
-          <q-spinner color="primary" size="3em" />
-          <p class="q-mt-md">Cargando contenido...</p>
-        </div>
-        
-        <!-- Estado de error -->
-        <div v-else-if="error" class="text-center q-pa-xl">
-          <q-icon name="error_outline" color="negative" size="3em" />
-          <p class="text-negative q-mt-md">{{ error }}</p>
-          <q-btn 
-            outline 
-            color="primary" 
-            label="Reintentar" 
-            class="q-mt-md" 
-            @click="fetchData" 
-            icon="refresh"
-          />
-        </div>
-        
-        <!-- Contenido cargado correctamente -->
-        <template v-else>
-          <!-- Título de la página -->
-          <div v-if="pageTitle" class="text-center q-mb-xl">
-            <h1 class="text-h4 text-weight-bold q-my-none">{{ pageTitle }}</h1>
-          </div>
-          
-          <!-- Contenido dinámico basado en los bloques -->
-          <template v-if="blocks && blocks.length > 0">
-            <div v-for="(block, index) in blocks" :key="block.id || index" class="block-wrapper q-mb-lg">
-            <!-- Carrusel -->
-            <template v-if="block.type === 'carousel' && showCarousel">
-              <q-card flat bordered class="carousel-card q-mb-lg shadow-2" v-if="block.value && block.value.images && block.value.images.length > 0">
-                <q-carousel
-                  v-model="activeSlides[index]"
-                  animated
-                  arrows
-                  navigation
-                  infinite
-                  swipeable
-                  control-color="primary"
-                  control-type="unelevated"
-                  control-text-color="white"
-                  navigation-icon="circle"
-                  padding
-                  class="bg-white rounded-borders"
-                  :height="getCarouselHeight"
-                  :autoplay="autoplayDuration"
-                  @mouseenter="pauseAutoplay(index)"
-                  @mouseleave="resumeAutoplay(index)"
+  <div class="api-content-component q-pa-md">
+    <!-- Cargando -->
+    <div v-if="loading" class="text-center q-pa-lg">
+      <q-spinner color="primary" size="3em" />
+      <div class="q-mt-md text-h6">Cargando contenido...</div>
+    </div>
+    
+    <!-- Error -->
+    <div v-else-if="error" class="text-center q-pa-lg">
+      <q-icon name="error" size="3em" color="negative" />
+      <div class="q-mt-md text-h6 text-negative">Error al cargar el contenido</div>
+      <div class="q-mt-sm text-body1">{{ error }}</div>
+      <div class="q-mt-md">
+        <q-btn color="primary" label="Reintentar" @click="fetchData" />
+      </div>
+    </div>
+    
+    <!-- Contenido cargado correctamente -->
+    <div v-else>
+      <!-- Título de la página -->
+      <div v-if="pageTitle" class="text-center q-mb-xl">
+        <h1 class="text-h4 text-weight-bold q-my-none">{{ pageTitle }}</h1>
+      </div>
+      
+      <!-- Contenido dinámico basado en los bloques -->
+      <template v-if="blocks && blocks.length > 0">
+        <div v-for="(block, index) in blocks" :key="block.id || index" class="block-wrapper q-mb-lg">
+          <!-- Carrusel -->
+          <template v-if="block.type === 'carousel' && showCarousel">
+            <q-card flat bordered class="carousel-card q-mb-lg shadow-2" v-if="block.value && block.value.images && block.value.images.length > 0">
+              <q-carousel
+                v-model="activeSlides[index]"
+                animated
+                arrows
+                navigation
+                infinite
+                swipeable
+                control-color="primary"
+                control-type="unelevated"
+                control-text-color="white"
+                navigation-icon="circle"
+                padding
+                class="bg-white rounded-borders"
+                :height="getCarouselHeight"
+                :autoplay="autoplayDuration"
+                @mouseenter="pauseAutoplay(index)"
+                @mouseleave="resumeAutoplay(index)"
+              >
+                <q-carousel-slide 
+                  v-for="(item, slideIndex) in block.value.images" 
+                  :key="slideIndex" 
+                  :name="slideIndex" 
+                  class="column no-wrap carousel-slide"
                 >
-                  <q-carousel-slide 
-                    v-for="(item, slideIndex) in block.value.images" 
-                    :key="slideIndex" 
-                    :name="slideIndex" 
-                    class="column no-wrap carousel-slide"
-                  >
-                    <div class="q-pa-md full-height">
-                      <div class="row items-center justify-center q-col-gutter-md full-height">
-                        <div class="col-12">
-                          <q-card class="media-card overflow-hidden">
-                            <q-img 
-                              :src="getImageUrl(item.image)" 
-                              :ratio="16/9"
-                              spinner-color="primary"
-                              spinner-size="40px"
-                              class="item-image"
-                            >
-                              <div v-if="item.caption" class="absolute-bottom text-subtitle1 text-center bg-dark-transparent q-pa-sm">
-                                {{ item.caption }}
-                              </div>
-                            </q-img>
-                          </q-card>
-                        </div>
+                  <div class="q-pa-md full-height">
+                    <div class="row items-center justify-center q-col-gutter-md full-height">
+                      <div class="col-12">
+                        <q-card class="media-card overflow-hidden">
+                          <q-img 
+                            :src="getImageUrl(item.image)" 
+                            :ratio="16/9"
+                            spinner-color="primary"
+                            spinner-size="40px"
+                            class="item-image"
+                          >
+                            <div v-if="item.caption" class="absolute-bottom text-subtitle1 text-center bg-dark-transparent q-pa-sm">
+                              {{ item.caption }}
+                            </div>
+                          </q-img>
+                        </q-card>
                       </div>
                     </div>
-                  </q-carousel-slide>
-                </q-carousel>
-              </q-card>
-            </template>
-            
-            <!-- Párrafos de texto -->
-            <template v-else-if="block.type === 'paragraph' && showParagraphs">
-              <div class="paragraph-block q-my-md">
-                <div v-html="block.value" class="text-content-item"></div>
-              </div>
-            </template>
-            
-            <!-- Video -->
-            <template v-else-if="block.type === 'video' && showVideo">
-              <ApiVideoComponent 
-                :videoData="block.value" 
-                :aspectRatio="videoAspectRatio"
-                :spinnerColor="spinnerColor"
-                :showControls="showVideoControls"
-                @video-loaded="handleVideoLoaded"
-                @video-error="handleVideoError"
-              />
-            </template>
+                  </div>
+                </q-carousel-slide>
+              </q-carousel>
+            </q-card>
+          </template>
+          
+          <!-- Párrafos de texto -->
+          <template v-else-if="block.type === 'paragraph' && showParagraphs">
+            <div class="paragraph-block q-my-md">
+              <div v-html="block.value" class="text-content-item"></div>
             </div>
           </template>
           
-          <!-- Mensaje cuando no hay bloques -->
-          <div v-else class="text-center q-pa-xl">
-            <q-icon name="info" size="3rem" color="grey-7" />
-            <p class="text-subtitle1 q-mt-md">No hay contenido disponible</p>
-          </div>
-        </template>
+          <!-- Video -->
+          <template v-else-if="block.type === 'video' && showVideo">
+            <ApiVideoComponent 
+              :videoData="block.value" 
+              :aspectRatio="videoAspectRatio"
+              :spinnerColor="spinnerColor"
+              :showControls="showVideoControls"
+              @video-loaded="handleVideoLoaded"
+              @video-error="handleVideoError"
+            />
+          </template>
+        </div>
+      </template>
+      
+      <!-- Mensaje cuando no hay bloques -->
+      <div v-else class="text-center q-pa-xl">
+        <q-icon name="info" size="3rem" color="grey-7" />
+        <p class="text-subtitle1 q-mt-md">No hay contenido disponible</p>
       </div>
     </div>
   </div>

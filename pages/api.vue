@@ -22,8 +22,8 @@
 import { ref, reactive, onMounted } from 'vue';
 import ApiContentComponent from '~/components/api/ApiContentComponent.vue';
 
-// URL de la API que funciona con Postman
-const apiUrl = ref('https://693d-2806-103e-1d-30e0-88bf-2d33-4e9f-2e8e.ngrok-free.app/api/v2/pages/3/');
+// URL de la API que funciona con Postman (asegurando que sea la ruta correcta)
+const apiUrl = ref('https://693d-2806-103e-1d-30e0-88bf-2d33-4e9f-2e8e.ngrok-free.app/api/v2/pages/3/?format=json');
 
 // Función personalizada para obtener la URL de la imagen
 const getCustomImageUrl = (imageId) => {

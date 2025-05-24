@@ -2,7 +2,7 @@ import { ref } from 'vue';
 import { useFetch } from '#app';
 
 // URL base de la API de Wagtail
-const API_BASE_URL = 'https://693d-2806-103e-1d-30e0-88bf-2d33-4e9f-2e8e.ngrok-free.app/api/v2';
+const API_BASE_URL = 'https://693d-2806-103e-1d-30e0-88bf-2d33-4e9f-2e8e.ngrok-free.app';
 
 export function useWagtailApi() {
   const loading = ref(false);
@@ -10,7 +10,7 @@ export function useWagtailApi() {
   const isMockData = ref(false);
   
   /**
-   * Obtener datos de una URL completa
+   * Obtener datos de una URL completa usando useFetch
    * @param {string} url - URL completa para obtener datos
    * @returns {Promise<Object>} - Datos obtenidos de la URL
    */
@@ -20,44 +20,68 @@ export function useWagtailApi() {
     isMockData.value = false;
     
     try {
-      console.log(`Intentando obtener datos de ${url}`);
+      console.log(`Intentando obtener datos de ${url} con useFetch`);
       
-      // Usar useFetch de Nuxt para obtener los datos
+      // Usar useFetch con configuración específica para ngrok
       const { data, error: fetchError } = await useFetch(url, {
         method: 'GET',
+        // Usar el modo 'no-cors' para evitar problemas con CORS
+        mode: 'cors',
+        // No enviar credenciales
+        credentials: 'omit',
+        // Headers específicos para solicitar JSON
         headers: {
           'Accept': 'application/json',
-          'Content-Type': 'application/json'
+          'Content-Type': 'application/json',
+          'Cache-Control': 'no-cache',
+          'Pragma': 'no-cache'
         },
-        // Configurar opciones adicionales para mejorar la compatibilidad con ngrok
-        credentials: 'omit',
-        // Aumentar el timeout para dar tiempo a la API a responder
+        // Opciones adicionales
         options: {
-          timeout: 15000
+          // Aumentar el timeout
+          timeout: 30000,
+          // Evitar caché
+          cache: 'no-cache',
+          // Forzar recarga
+          fresh: true
         }
       });
       
+      // Verificar si hay errores en la petición
       if (fetchError.value) {
         console.error('Error al obtener datos de la API:', fetchError.value);
         throw new Error(fetchError.value.message || 'Error al obtener datos');
       }
       
-      // Verificar si la respuesta es HTML (ngrok) en lugar de JSON
-      if (data.value && typeof data.value === 'string' && data.value.includes('<!DOCTYPE html>')) {
-        console.error('La API ha devuelto HTML en lugar de JSON (posiblemente ngrok)');
-        throw new Error('La API ha devuelto HTML en lugar de JSON. Verifica que la URL sea correcta y accesible.');
-      }
-      
+      // Verificar si se recibieron datos
       if (!data.value) {
         console.error('No se recibieron datos de la API');
         throw new Error('No se recibieron datos de la API');
+      }
+      
+      // Verificar si los datos son una cadena (posiblemente HTML)
+      if (typeof data.value === 'string') {
+        // Intentar parsear como JSON
+        try {
+          const jsonData = JSON.parse(data.value);
+          console.log('Datos obtenidos correctamente de la API (parseados de string):', jsonData);
+          return jsonData;
+        } catch (parseError) {
+          // Verificar si es HTML
+          if (data.value.includes('<!DOCTYPE html>')) {
+            console.error('La API ha devuelto HTML en lugar de JSON');
+            throw new Error('La API ha devuelto HTML en lugar de JSON');
+          }
+          console.error('Error al parsear la respuesta como JSON:', parseError);
+          throw new Error('Error al parsear la respuesta como JSON');
+        }
       }
       
       console.log('Datos obtenidos correctamente de la API:', data.value);
       return data.value;
     } catch (err) {
       console.error(`Error al obtener datos de la API: ${err.message}`);
-      error.value = `[GET] "${url}": ${err.message}`;
+      error.value = `Error al obtener datos: ${err.message}`;
       throw err; // Propagar el error para que el componente pueda manejarlo
     } finally {
       loading.value = false;
