@@ -1,55 +1,252 @@
 <template>
-  <div>
-    <ApiContentComponent 
-      :apiUrl="apiUrl"
-      :carouselHeightMobile="'320px'"
-      :carouselHeightTablet="'420px'"
-      :carouselHeightDesktop="'520px'"
-      :autoplayDuration="4000"
-      :showCarousel="true"
-      :showParagraphs="true"
-      :showVideo="true"
-      :customImageUrlFunction="getCustomImageUrl"
-      @data-loaded="handleDataLoaded"
-      @data-error="handleDataError"
-      @video-loaded="handleVideoLoaded"
-      @video-error="handleVideoError"
-    />
-  </div>
+  <q-page class="q-pa-md">
+    <div v-if="loading" class="text-center q-pa-xl">
+      <q-spinner color="primary" size="3em" />
+      <p class="q-mt-md">Cargando contenido...</p>
+    </div>
+    
+    <div v-else-if="error" class="text-center q-pa-xl">
+      <q-icon name="error_outline" color="negative" size="3em" />
+      <p class="text-negative q-mt-md">{{ error }}</p>
+      <q-btn 
+        outline 
+        color="primary" 
+        label="Reintentar" 
+        class="q-mt-md" 
+        @click="fetchData" 
+        icon="refresh"
+      />
+    </div>
+    
+    <div v-else>
+      <!-- Mostrar un componente por cada carrusel en la página -->
+      <div v-for="(carouselGroup, index) in carouselGroups" :key="'carousel-' + index" class="q-mb-lg">
+        <ApiVideoComponent 
+          :blocks="carouselGroup.blocks"
+          :title="carouselGroup.title || pageTitle"
+          :api-base-url="'https://6da8-177-240-133-120.ngrok-free.app'"
+          :autoplayDuration="5000"
+        />
+      </div>
+
+      <!-- Mostrar bloques que no son carruseles, si es necesario -->
+      <div v-if="nonCarouselBlocks.length > 0" class="q-pa-md">
+        <div v-for="(block, index) in nonCarouselBlocks" :key="'other-' + index" class="q-mb-md">
+          <pre v-if="false">{{ block }}</pre>
+          <!-- Aquí podríamos renderizar otros tipos de bloques si fuera necesario -->
+        </div>
+      </div>
+      
+      <!-- Sección de Noticias -->
+      <div class="q-mt-xl q-mb-xl">
+        <h2 class="text-h4 text-center q-mb-lg">{{ noticiaTitle }}</h2>
+        
+        <div v-if="loadingNoticias" class="text-center q-pa-xl">
+          <q-spinner color="primary" size="3em" />
+          <p class="q-mt-md">Cargando noticias...</p>
+        </div>
+        
+        <div v-else-if="errorNoticias" class="text-center text-negative q-pa-xl">
+          <q-icon name="error" size="3em" />
+          <p class="q-mt-md">{{ errorNoticias }}</p>
+          <q-btn 
+            outline 
+            color="primary" 
+            label="Reintentar" 
+            class="q-mt-md" 
+            @click="fetchNoticias" 
+            icon="refresh"
+          />
+        </div>
+        
+        <div v-else>
+          <!-- Componente de tarjetas para cada bloque de tipo cards -->
+          <div v-for="(block, index) in cardBlocks" :key="'card-' + index" class="q-mb-xl">
+            <ApiCardComponent 
+              :block="block"
+              :api-base-url="'https://6da8-177-240-133-120.ngrok-free.app'"
+            />
+          </div>
+        </div>
+      </div>
+    </div>
+  </q-page>
 </template>
 
 <script setup>
-import { ref, reactive, onMounted } from 'vue';
-import ApiContentComponent from '~/components/api/ApiContentComponent.vue';
+import { ref, onMounted } from 'vue';
+import { useWagtailApi, API_BASE_URL } from '~/composables/useWagtailApi';
+import ApiVideoComponent from '~/components/api/ApiVideoComponent.vue';
+import ApiCardComponent from '~/components/api/ApiCardComponent.vue';
 
-// URL de la API que funciona con Postman (asegurando que sea la ruta correcta)
-const apiUrl = ref('https://693d-2806-103e-1d-30e0-88bf-2d33-4e9f-2e8e.ngrok-free.app/api/v2/pages/3/?format=json');
+// Estado de la página
+const loading = ref(true);
+const error = ref(null);
+const pageTitle = ref('');
+const blocks = ref([]);
+const carouselGroups = ref([]);
+const nonCarouselBlocks = ref([]);
 
-// Función personalizada para obtener la URL de la imagen
-const getCustomImageUrl = (imageId) => {
-  // Usar imágenes locales o de placeholder
-  return `https://via.placeholder.com/800x450?text=Imagen+Dinámica+${imageId}`;
+// Estado para noticias
+const loadingNoticias = ref(true);
+const errorNoticias = ref(null);
+const noticiaTitle = ref('');
+const noticiasBlocks = ref([]);
+const cardBlocks = ref([]);
+
+
+// Procesar bloques para agrupar carruseles con sus párrafos asociados
+const processBlocks = (allBlocks) => {
+  const groupsArray = [];
+  const otherBlocks = [];
+  let currentGroup = null;
+  
+  // Recorrer todos los bloques
+  for (let i = 0; i < allBlocks.length; i++) {
+    const block = allBlocks[i];
+    
+    // Si es un carrusel, comenzar un nuevo grupo
+    if (block.type === 'carousel') {
+      // Si hay un grupo actual, guardarlo
+      if (currentGroup) {
+        groupsArray.push(currentGroup);
+      }
+      
+      // Crear nuevo grupo
+      currentGroup = {
+        blocks: [block],
+        title: ''
+      };
+      
+      // Buscar bloques de párrafo y video que pertenezcan a este carrusel
+      let j = i + 1;
+      while (j < allBlocks.length && allBlocks[j].type !== 'carousel') {
+        if (allBlocks[j].type === 'paragraph' || allBlocks[j].type === 'video') {
+          currentGroup.blocks.push(allBlocks[j]);
+          i = j; // Avanzar el índice principal
+        } else {
+          otherBlocks.push(allBlocks[j]);
+        }
+        j++;
+      }
+    } else if (!currentGroup) {
+      // Si no hay un grupo actual, agregar a otros bloques
+      otherBlocks.push(block);
+    }
+  }
+  
+  // Agregar el último grupo si existe
+  if (currentGroup) {
+    groupsArray.push(currentGroup);
+  }
+  
+  return {
+    groups: groupsArray,
+    others: otherBlocks
+  };
 };
 
-// Manejadores de eventos para datos
-const handleDataLoaded = (data) => {
-  console.log('Datos cargados correctamente:', data);
+// Obtener datos de la API usando useFetch como recomienda el encargado del proyecto
+const fetchData = async () => {
+  loading.value = true;
+  error.value = null;
+  
+  try {
+    // Usar el proxy del servidor de Nuxt para evitar problemas de CORS
+    const { data, error: fetchError } = await useFetch('/api/proxy-wagtail', {
+      method: 'GET',
+      headers: {
+        'Accept': 'application/json',
+        'Content-Type': 'application/json'
+      }
+    });
+    
+    if (fetchError.value) {
+      throw new Error(fetchError.value.message || 'Error al obtener datos');
+    }
+    
+    if (!data.value) {
+      throw new Error('No se recibieron datos de la API');
+    }
+    
+    // Procesar y agrupar los bloques por carruseles y contenidos asociados
+    const processed = processBlocks(data.value.body);
+    
+    // Asignar los grupos y bloques procesados
+    carouselGroups.value = processed.groups;
+    nonCarouselBlocks.value = processed.others;
+    
+    // Mantener la lista completa de bloques para compatibilidad
+    blocks.value = data.value.body;
+    
+    // Verificar si hay un título de página disponible
+    if (data.value.title) {
+      pageTitle.value = data.value.title;
+    }
+    blocks.value = data.value.body || [];
+    
+    loading.value = false;
+  } catch (err) {
+    console.error('Error al cargar los datos:', err);
+    error.value = `Error al cargar los datos: ${err.message}`;
+    loading.value = false;
+    
+    // Usar datos de respaldo para desarrollo
+    pageTitle.value = 'Certiffy - Datos de respaldo';
+    blocks.value = [
+      {
+        id: 'mock-1',
+        type: 'richtext',
+        value: '<p>Este es un texto de respaldo para desarrollo. La API no está disponible en este momento.</p>'
+      }
+    ];
+  }
 };
 
-const handleDataError = (error) => {
-  console.error('Error al cargar los datos:', error);
+
+// Función para obtener datos de noticias
+const fetchNoticias = async () => {
+  loadingNoticias.value = true;
+  errorNoticias.value = null;
+  
+  try {
+    // Usar el proxy del servidor de Nuxt para evitar problemas de CORS
+    const { data, error: fetchError } = await useFetch('/api/proxy-wagtail', {
+      method: 'GET',
+      query: {
+        url: `${API_BASE_URL}/api/v2/pages/14/`
+      },
+      headers: {
+        'Accept': 'application/json',
+        'Content-Type': 'application/json'
+      }
+    });
+    
+    if (fetchError.value) {
+      throw new Error(fetchError.value.message || 'Error al obtener noticias');
+    }
+    
+    if (!data.value) {
+      throw new Error('No se recibieron datos de noticias de la API');
+    }
+    
+    // Extraer el título de la página
+    noticiaTitle.value = data.value.title || 'Noticias';
+    
+    // Extraer bloques de tarjetas
+    noticiasBlocks.value = data.value.body || [];
+    cardBlocks.value = noticiasBlocks.value.filter(block => block.type === 'cards');
+    
+    loadingNoticias.value = false;
+  } catch (e) {
+    errorNoticias.value = e.message || 'Ocurrió un error al cargar las noticias';
+    loadingNoticias.value = false;
+  }
 };
 
-// Manejadores de eventos para video
-const handleVideoLoaded = (videoData) => {
-  console.log('Video cargado correctamente:', videoData);
-};
-
-const handleVideoError = (error) => {
-  console.error('Error al cargar el video:', error);
-};
-
+// Cargar datos al montar el componente
 onMounted(() => {
-  console.log('Componente API montado con datos de ejemplo');
+  fetchData();
+  fetchNoticias();
 });
 </script>
