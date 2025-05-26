@@ -93,7 +93,8 @@
 
 <script setup>
 import { ref, onMounted } from 'vue';
-import { useWagtailApi, API_BASE_URL, isProduction } from '~/composables/useWagtailApi';
+import { useWagtailApi, API_BASE_URL } from '~/composables/useWagtailApi';
+import { useEnvironment } from '~/composables/useEnvironment';
 import { API_ROUTES } from '~/config/api';
 import ApiVideoComponent from '~/components/api/ApiVideoComponent.vue';
 import ApiCardComponent from '~/components/api/ApiCardComponent.vue';
@@ -122,6 +123,9 @@ const testimonialBlocks = ref([]);
 // Estado para módulos Certiffy
 const moduloCertiffyTitle = ref('Módulos de CERTIFFY');
 const moduloCertiffyBlocks = ref([]);
+
+// Obtener funciones del composable de entorno
+const { fetchHomePage, fetchNewsPage } = useEnvironment();
 
 
 // Procesar bloques para agrupar carruseles con sus párrafos asociados
@@ -190,36 +194,14 @@ const processBlocks = (allBlocks) => {
   };
 };
 
-// Obtener datos de la API usando useFetch como recomienda el encargado del proyecto
+// Obtener datos de la API usando el composable useEnvironment (que usa useFetch internamente)
 const fetchData = async () => {
   loading.value = true;
   error.value = null;
   
   try {
-    let data, fetchError;
-    
-    // En producción (Vercel), hacemos la petición directamente a la API
-    // En desarrollo local, usamos el proxy para evitar problemas de CORS
-    if (isProduction()) {
-      console.log('Ejecutando en producción (Vercel), haciendo petición directa a la API');
-      ({ data, error: fetchError } = await useFetch(API_ROUTES.HOME_PAGE, {
-        method: 'GET',
-        headers: {
-          'Accept': 'application/json',
-          'Content-Type': 'application/json',
-          'ngrok-skip-browser-warning': 'true'
-        }
-      }));
-    } else {
-      console.log('Ejecutando en desarrollo local, usando el proxy');
-      ({ data, error: fetchError } = await useFetch('/api/proxy-wagtail', {
-        method: 'GET',
-        headers: {
-          'Accept': 'application/json',
-          'Content-Type': 'application/json'
-        }
-      }));
-    }
+    // Usar la función centralizada para obtener datos de la página principal
+    const { data, error: fetchError } = await fetchHomePage();
     
     if (fetchError.value) {
       throw new Error(fetchError.value.message || 'Error al obtener datos');
@@ -285,33 +267,8 @@ const fetchNoticias = async () => {
   errorNoticias.value = null;
   
   try {
-    let data, fetchError;
-    
-    // En producción (Vercel), hacemos la petición directamente a la API
-    // En desarrollo local, usamos el proxy para evitar problemas de CORS
-    if (isProduction()) {
-      console.log('Ejecutando en producción (Vercel), haciendo petición directa a la API de noticias');
-      ({ data, error: fetchError } = await useFetch(API_ROUTES.NEWS_PAGE, {
-        method: 'GET',
-        headers: {
-          'Accept': 'application/json',
-          'Content-Type': 'application/json',
-          'ngrok-skip-browser-warning': 'true'
-        }
-      }));
-    } else {
-      console.log('Ejecutando en desarrollo local, usando el proxy para noticias');
-      ({ data, error: fetchError } = await useFetch('/api/proxy-wagtail', {
-        method: 'GET',
-        query: {
-          url: API_ROUTES.NEWS_PAGE
-        },
-        headers: {
-          'Accept': 'application/json',
-          'Content-Type': 'application/json'
-        }
-      }));
-    }
+    // Usar la función centralizada para obtener datos de noticias
+    const { data, error: fetchError } = await fetchNewsPage();
     
     if (fetchError.value) {
       throw new Error(fetchError.value.message || 'Error al obtener noticias');
