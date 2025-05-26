@@ -12,31 +12,19 @@ export function useEnvironment() {
     return false;
   };
 
-  // Función para obtener datos de la API, adaptada al entorno
+  // Función para obtener datos de la API usando el proxy para evitar problemas de CORS
   const fetchPageData = async (pageUrl) => {
-    // En producción (Vercel), hacemos petición directa
-    // En desarrollo local, usamos el proxy
-    if (isProduction()) {
-      console.log('Entorno: Producción - Petición directa a:', pageUrl);
-      return await useFetch(pageUrl, {
-        method: 'GET',
-        headers: {
-          'Accept': 'application/json',
-          'Content-Type': 'application/json',
-          'ngrok-skip-browser-warning': 'true'
-        }
-      });
-    } else {
-      console.log('Entorno: Desarrollo - Usando proxy para:', pageUrl);
-      return await useFetch('/api/proxy-wagtail', {
-        method: 'GET',
-        query: { url: pageUrl },
-        headers: {
-          'Accept': 'application/json',
-          'Content-Type': 'application/json'
-        }
-      });
-    }
+    // Usamos el proxy tanto en producción como en desarrollo para evitar problemas de CORS
+    console.log('Usando proxy para:', pageUrl);
+    
+    return await useFetch('/api/proxy-wagtail', {
+      method: 'GET',
+      query: { url: pageUrl },
+      headers: {
+        'Accept': 'application/json',
+        'Content-Type': 'application/json'
+      }
+    });
   };
 
   // Función específica para obtener la página principal
