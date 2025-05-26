@@ -4,6 +4,14 @@ import { ref } from 'vue';
 // URL base de la API de Wagtail - centralizada para toda la aplicación
 export const API_BASE_URL = 'https://e2dd-2806-103e-1d-30e0-e195-e285-27cd-a015.ngrok-free.app';
 
+// Función auxiliar para determinar si estamos en producción (Vercel) o desarrollo local
+export const isProduction = () => {
+  if (typeof window !== 'undefined') {
+    return window.location.hostname !== 'localhost' && !window.location.hostname.includes('127.0.0.1');
+  }
+  return false;
+};
+
 export function useWagtailApi() {
   const loading = ref(false);
   const error = ref(null);

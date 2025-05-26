@@ -93,7 +93,7 @@
 
 <script setup>
 import { ref, onMounted } from 'vue';
-import { useWagtailApi, API_BASE_URL } from '~/composables/useWagtailApi';
+import { useWagtailApi, API_BASE_URL, isProduction } from '~/composables/useWagtailApi';
 import { API_ROUTES } from '~/config/api';
 import ApiVideoComponent from '~/components/api/ApiVideoComponent.vue';
 import ApiCardComponent from '~/components/api/ApiCardComponent.vue';
@@ -196,14 +196,30 @@ const fetchData = async () => {
   error.value = null;
   
   try {
-    // Usar el proxy del servidor de Nuxt para evitar problemas de CORS
-    const { data, error: fetchError } = await useFetch('/api/proxy-wagtail', {
-      method: 'GET',
-      headers: {
-        'Accept': 'application/json',
-        'Content-Type': 'application/json'
-      }
-    });
+    let data, fetchError;
+    
+    // En producción (Vercel), hacemos la petición directamente a la API
+    // En desarrollo local, usamos el proxy para evitar problemas de CORS
+    if (isProduction()) {
+      console.log('Ejecutando en producción (Vercel), haciendo petición directa a la API');
+      ({ data, error: fetchError } = await useFetch(API_ROUTES.HOME_PAGE, {
+        method: 'GET',
+        headers: {
+          'Accept': 'application/json',
+          'Content-Type': 'application/json',
+          'ngrok-skip-browser-warning': 'true'
+        }
+      }));
+    } else {
+      console.log('Ejecutando en desarrollo local, usando el proxy');
+      ({ data, error: fetchError } = await useFetch('/api/proxy-wagtail', {
+        method: 'GET',
+        headers: {
+          'Accept': 'application/json',
+          'Content-Type': 'application/json'
+        }
+      }));
+    }
     
     if (fetchError.value) {
       throw new Error(fetchError.value.message || 'Error al obtener datos');
@@ -263,23 +279,39 @@ const fetchData = async () => {
 };
 
 
-// Función para obtener datos de noticias
+// Función para obtener las noticias
 const fetchNoticias = async () => {
   loadingNoticias.value = true;
   errorNoticias.value = null;
   
   try {
-    // Usar el proxy del servidor de Nuxt para evitar problemas de CORS
-    const { data, error: fetchError } = await useFetch('/api/proxy-wagtail', {
-      method: 'GET',
-      query: {
-        url: API_ROUTES.NEWS_PAGE
-      },
-      headers: {
-        'Accept': 'application/json',
-        'Content-Type': 'application/json'
-      }
-    });
+    let data, fetchError;
+    
+    // En producción (Vercel), hacemos la petición directamente a la API
+    // En desarrollo local, usamos el proxy para evitar problemas de CORS
+    if (isProduction()) {
+      console.log('Ejecutando en producción (Vercel), haciendo petición directa a la API de noticias');
+      ({ data, error: fetchError } = await useFetch(API_ROUTES.NEWS_PAGE, {
+        method: 'GET',
+        headers: {
+          'Accept': 'application/json',
+          'Content-Type': 'application/json',
+          'ngrok-skip-browser-warning': 'true'
+        }
+      }));
+    } else {
+      console.log('Ejecutando en desarrollo local, usando el proxy para noticias');
+      ({ data, error: fetchError } = await useFetch('/api/proxy-wagtail', {
+        method: 'GET',
+        query: {
+          url: API_ROUTES.NEWS_PAGE
+        },
+        headers: {
+          'Accept': 'application/json',
+          'Content-Type': 'application/json'
+        }
+      }));
+    }
     
     if (fetchError.value) {
       throw new Error(fetchError.value.message || 'Error al obtener noticias');
