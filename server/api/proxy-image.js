@@ -1,5 +1,7 @@
 // Proxy para imágenes de Wagtail que evita problemas de CORS
-import { API_BASE_URL } from '~/composables/useWagtailApi';
+
+// URL base de la API de Wagtail - duplicada aquí para evitar problemas de importación en el servidor
+const API_BASE_URL = 'https://e2dd-2806-103e-1d-30e0-e195-e285-27cd-a015.ngrok-free.app';
 
 export default defineEventHandler(async (event) => {
   try {

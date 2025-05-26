@@ -1,7 +1,8 @@
 import { Quasar, Notify, Dialog, Loading, LoadingBar, LocalStorage } from 'quasar'
 import * as components from 'quasar'
 
-// Import MDI v5 icon set
+// Import icon sets
+import '@quasar/extras/material-icons/material-icons.css'
 import '@quasar/extras/mdi-v5/mdi-v5.css'
 
 export default defineNuxtPlugin((nuxtApp) => {
@@ -38,7 +39,28 @@ export default defineNuxtPlugin((nuxtApp) => {
           position: 'top'
         }
       },
-      iconSet: 'material-icons',
+      iconSet: {
+        name: 'material-icons',
+        // Definir explícitamente los conjuntos de iconos para diferentes componentes
+        arrow: {
+          dropdown: 'expand_more',
+          left: 'chevron_left',
+          right: 'chevron_right',
+          up: 'keyboard_arrow_up',
+          down: 'keyboard_arrow_down'
+        },
+        carousel: {
+          left: 'chevron_left',
+          right: 'chevron_right',
+          up: 'keyboard_arrow_up',
+          down: 'keyboard_arrow_down',
+          navigation: 'lens'
+        },
+        tabs: {
+          left: 'chevron_left',
+          right: 'chevron_right'
+        }
+      },
       extras: {
         fontIcons: ['mdi-v5']
       }

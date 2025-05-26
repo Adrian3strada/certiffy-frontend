@@ -1,11 +1,16 @@
 // Proxy para la API de Wagtail que evita problemas de CORS
-import { API_BASE_URL } from '~/composables/useWagtailApi';
+
+// URL base de la API de Wagtail - duplicada aquí para evitar problemas de importación en el servidor
+const API_BASE_URL = 'https://e2dd-2806-103e-1d-30e0-e195-e285-27cd-a015.ngrok-free.app';
+
+// Página principal por defecto
+const DEFAULT_PAGE_URL = `${API_BASE_URL}/api/v2/pages/3/`;
 
 export default defineEventHandler(async (event) => {
   try {
     // Obtener la URL de la consulta o usar la predeterminada
     const query = getQuery(event);
-    const apiUrl = query.url || `${API_BASE_URL}/api/v2/pages/3/`;
+    const apiUrl = query.url || DEFAULT_PAGE_URL;
     
     // Hacer la petición a la API de Wagtail desde el servidor
     const response = await fetch(apiUrl, {

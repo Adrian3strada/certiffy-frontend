@@ -24,7 +24,7 @@
         <ApiVideoComponent 
           :blocks="carouselGroup.blocks"
           :title="carouselGroup.title || pageTitle"
-          :api-base-url="'https://6da8-177-240-133-120.ngrok-free.app'"
+          :api-base-url="API_BASE_URL"
           :autoplayDuration="5000"
         />
       </div>
@@ -64,7 +64,25 @@
           <div v-for="(block, index) in cardBlocks" :key="'card-' + index" class="q-mb-xl">
             <ApiCardComponent 
               :block="block"
-              :api-base-url="'https://6da8-177-240-133-120.ngrok-free.app'"
+              :api-base-url="API_BASE_URL"
+            />
+          </div>
+          
+          <!-- Componente de testimonios -->
+          <div v-for="(block, index) in testimonialBlocks" :key="'testimonial-' + index" class="q-my-xl">
+            <ApiTestimonialsComponent
+              :block="block"
+              :api-base-url="API_BASE_URL"
+              :title="testimonialTitle"
+              :autoplayDuration="5000"
+            />
+          </div>
+          
+          <!-- Componente de Módulos Certiffy -->
+          <div v-for="(block, index) in moduloCertiffyBlocks" :key="'modulo-' + index" class="q-my-xl">
+            <ApiModulosVideoComponent
+              :block="block"
+              :api-base-url="API_BASE_URL"
             />
           </div>
         </div>
@@ -76,8 +94,11 @@
 <script setup>
 import { ref, onMounted } from 'vue';
 import { useWagtailApi, API_BASE_URL } from '~/composables/useWagtailApi';
+import { API_ROUTES } from '~/config/api';
 import ApiVideoComponent from '~/components/api/ApiVideoComponent.vue';
 import ApiCardComponent from '~/components/api/ApiCardComponent.vue';
+import ApiTestimonialsComponent from '~/components/api/ApiTestimonialsComponent.vue';
+import ApiModulosVideoComponent from '~/components/api/ApiModulosVideoComponent.vue';
 
 // Estado de la página
 const loading = ref(true);
@@ -94,9 +115,26 @@ const noticiaTitle = ref('');
 const noticiasBlocks = ref([]);
 const cardBlocks = ref([]);
 
+// Estado para testimonios
+const testimonialTitle = ref('Testimonios');
+const testimonialBlocks = ref([]);
+
+// Estado para módulos Certiffy
+const moduloCertiffyTitle = ref('Módulos de CERTIFFY');
+const moduloCertiffyBlocks = ref([]);
+
 
 // Procesar bloques para agrupar carruseles con sus párrafos asociados
 const processBlocks = (allBlocks) => {
+  // Si allBlocks es undefined o no es un array, devolver arrays vacíos
+  if (!allBlocks || !Array.isArray(allBlocks)) {
+    console.warn('processBlocks recibió un valor no válido para allBlocks:', allBlocks);
+    return {
+      groups: [],
+      others: []
+    };
+  }
+
   const groupsArray = [];
   const otherBlocks = [];
   let currentGroup = null;
@@ -104,6 +142,12 @@ const processBlocks = (allBlocks) => {
   // Recorrer todos los bloques
   for (let i = 0; i < allBlocks.length; i++) {
     const block = allBlocks[i];
+    
+    // Verificar que el bloque tiene una propiedad type
+    if (!block || !block.type) {
+      console.warn('Se encontró un bloque sin propiedad type:', block);
+      continue;
+    }
     
     // Si es un carrusel, comenzar un nuevo grupo
     if (block.type === 'carousel') {
@@ -120,7 +164,7 @@ const processBlocks = (allBlocks) => {
       
       // Buscar bloques de párrafo y video que pertenezcan a este carrusel
       let j = i + 1;
-      while (j < allBlocks.length && allBlocks[j].type !== 'carousel') {
+      while (j < allBlocks.length && allBlocks[j] && allBlocks[j].type !== 'carousel') {
         if (allBlocks[j].type === 'paragraph' || allBlocks[j].type === 'video') {
           currentGroup.blocks.push(allBlocks[j]);
           i = j; // Avanzar el índice principal
@@ -169,15 +213,30 @@ const fetchData = async () => {
       throw new Error('No se recibieron datos de la API');
     }
     
-    // Procesar y agrupar los bloques por carruseles y contenidos asociados
-    const processed = processBlocks(data.value.body);
-    
-    // Asignar los grupos y bloques procesados
-    carouselGroups.value = processed.groups;
-    nonCarouselBlocks.value = processed.others;
-    
-    // Mantener la lista completa de bloques para compatibilidad
-    blocks.value = data.value.body;
+    // Verificar que data.value.body existe y es un array
+    if (data.value && data.value.body && Array.isArray(data.value.body)) {
+      // Procesar y agrupar los bloques por carruseles y contenidos asociados
+      const processed = processBlocks(data.value.body);
+      
+      // Asignar los grupos y bloques procesados
+      carouselGroups.value = processed.groups;
+      nonCarouselBlocks.value = processed.others;
+      
+      // Mantener la lista completa de bloques para compatibilidad
+      blocks.value = data.value.body;
+      
+      // Extraer bloques de testimonios
+      testimonialBlocks.value = data.value.body.filter(block => block.type === 'testimonios');
+      
+      // Extraer bloques de modulo_certiffy
+      moduloCertiffyBlocks.value = data.value.body.filter(block => block.type === 'modulo_certiffy');
+    } else {
+      console.warn('No se encontraron bloques en la respuesta de la API o el formato es incorrecto');
+      carouselGroups.value = [];
+      nonCarouselBlocks.value = [];
+      blocks.value = [];
+      testimonialBlocks.value = [];
+    }
     
     // Verificar si hay un título de página disponible
     if (data.value.title) {
@@ -214,7 +273,7 @@ const fetchNoticias = async () => {
     const { data, error: fetchError } = await useFetch('/api/proxy-wagtail', {
       method: 'GET',
       query: {
-        url: `${API_BASE_URL}/api/v2/pages/14/`
+        url: API_ROUTES.NEWS_PAGE
       },
       headers: {
         'Accept': 'application/json',

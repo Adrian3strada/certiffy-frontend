@@ -1,8 +1,8 @@
 import { ref } from 'vue';
-import { useFetch } from '#app';
+// Usamos fetch nativo pero mantenemos una estructura compatible con useFetch
 
 // URL base de la API de Wagtail - centralizada para toda la aplicación
-export const API_BASE_URL = 'https://6da8-177-240-133-120.ngrok-free.app';
+export const API_BASE_URL = 'https://e2dd-2806-103e-1d-30e0-e195-e285-27cd-a015.ngrok-free.app';
 
 export function useWagtailApi() {
   const loading = ref(false);
@@ -59,38 +59,31 @@ export function useWagtailApi() {
     error.value = null;
     
     try {
-      console.log(`Intentando obtener página con ID ${id} de ${API_BASE_URL}/pages/${id}/`);
+      // Construir la URL de la API
+      const apiUrl = `${API_BASE_URL}/pages/${id}/`;
       
-      // Usar el composable useFetch de Nuxt como recomendó el encargado del proyecto
-      const { data, error: fetchError } = await useFetch(`${API_BASE_URL}/pages/${id}/`, {
+      // Realizar la petición usando fetch nativo
+      const response = await fetch(apiUrl, {
         method: 'GET',
         headers: {
           'Accept': 'application/json',
           'Content-Type': 'application/json'
         },
-        // Opciones adicionales para mejorar la compatibilidad
         credentials: 'omit',
         mode: 'cors',
-        // Configurar timeout y caché
-        options: {
-          timeout: 10000,
-          cache: 'no-cache',
-          fresh: true
-        }
+        cache: 'no-cache'
       });
       
-      if (fetchError.value) {
-        console.error('Error al obtener datos de la API:', fetchError.value);
-        throw new Error(fetchError.value.message || 'Error al obtener datos');
+      // Verificar si la respuesta es exitosa
+      if (!response.ok) {
+        throw new Error(`Error HTTP: ${response.status} ${response.statusText}`);
       }
       
-      if (!data.value) {
-        console.error('No se recibieron datos');
-        throw new Error('No se recibieron datos');
-      }
+      // Convertir la respuesta a JSON
+      const data = await response.json();
       
-      console.log('Datos obtenidos correctamente de la API:', data.value);
-      return data.value;
+      loading.value = false;
+      return data;
     } catch (err) {
       console.error(`Error al obtener página con ID ${id}: ${err.message}`);
       error.value = `[GET] "${API_BASE_URL}/pages/${id}/": ${err.message}`;
@@ -108,8 +101,6 @@ export function useWagtailApi() {
     error.value = null;
     
     try {
-      console.log(`Intentando obtener todas las páginas de ${API_BASE_URL}/pages/`);
-      
       // Usar el composable useFetch de Nuxt como recomendó el encargado del proyecto
       const { data, error: fetchError } = await useFetch(`${API_BASE_URL}/pages/`, {
         method: 'GET',
@@ -119,28 +110,21 @@ export function useWagtailApi() {
         },
         // Opciones adicionales para mejorar la compatibilidad
         credentials: 'omit',
-        mode: 'cors',
-        // Configurar timeout y caché
-        options: {
-          timeout: 10000,
-          cache: 'no-cache',
-          fresh: true
-        }
+        mode: 'cors'
       });
       
       if (fetchError.value) {
-        console.error('Error al obtener lista de páginas:', fetchError.value);
         throw new Error(fetchError.value.message || 'Error al obtener lista de páginas');
       }
       
       if (!data.value) {
-        console.error('No se recibieron datos');
         throw new Error('No se recibieron datos');
       }
       
       // Wagtail puede devolver los resultados en un formato diferente, como items o results
       const pages = data.value.items || data.value.results || data.value;
-      console.log('Páginas obtenidas correctamente de la API:', pages);
+      
+      loading.value = false;
       return Array.isArray(pages) ? pages : [pages];
     } catch (err) {
       console.error(`Error al obtener páginas: ${err.message}`);
