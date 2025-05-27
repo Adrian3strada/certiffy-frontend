@@ -1,33 +1,35 @@
 <template>
   <q-layout view="hHh LpR fff">
-    <!-- Navbar/Header -->
+    <!-- Navbar/Header (Único componente estático que mantenemos) -->
     <NavbarComponent 
-      :logoUrl="mockData.navbar.logoUrl" 
-      :navItems="mockData.navbar.navItems" 
+      :logoUrl="navbarData.logoUrl" 
+      :navItems="navbarData.navItems" 
     />
 
-    <!-- Contenido principal -->
+    <!-- Contenido principal dinámico -->
     <q-page-container>
       <slot />
     </q-page-container>
 
-    <!-- Footer -->
-    <FooterContactComponent 
-      :direccionTitle="mockData.footerContact.direccionTitle"
-      :direccion="mockData.footerContact.direccion"
-      :contactoTitle="mockData.footerContact.contactoTitle"
-      :telefono="mockData.footerContact.telefono"
-      :imagenUrl="mockData.footerContact.imagenUrl"
-      :redesSociales="mockData.footerContact.redesSociales"
-      :copyrightText="mockData.footerContact.copyrightText"
-    />
+    <!-- El footer se ha movido a componentes dinámicos -->
   </q-layout>
 </template>
 
 <script setup>
-import { mockData } from '~/data/mockData';
+import { ref } from 'vue';
 import NavbarComponent from '~/components/certiffy/NavbarComponent.vue';
-import FooterContactComponent from '~/components/certiffy/FooterContactComponent.vue';
+
+// Datos para el navbar (único componente estático que mantenemos)
+const navbarData = ref({
+  logoUrl: '/images/logo-certiffy.png',
+  navItems: [
+    { label: 'Inicio', url: '/' },
+    { label: 'Acerca de', url: '/acerca-de' },
+    { label: 'Noticias', url: '/noticias' },
+    { label: 'Pacto Verde', url: '/pacto-verde' },
+    { label: 'Contacto', url: '/contacto' }
+  ]
+});
 </script>
 
 <style scoped>
