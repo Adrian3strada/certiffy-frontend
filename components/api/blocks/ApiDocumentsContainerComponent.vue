@@ -5,11 +5,11 @@
         {{ title }}
       </h3>
       
-      <div class="documents-grid">
+      <div class="documents-list">
         <div 
           v-for="(document, index) in documents" 
           :key="document.id || index"
-          class="document-item"
+          class="document-item q-mb-md"
         >
           <ApiDocumentComponent 
             :block="document" 
@@ -49,42 +49,39 @@ const hasDocuments = computed(() => {
 
 <style scoped>
 .api-documents-container {
-  margin: 2rem 0;
+  margin: 2rem auto;
+  max-width: 800px;
 }
 
 .documents-section-title {
   font-size: 1.5rem;
   margin-bottom: 1.5rem;
+  color: var(--certiffy-azul);
 }
 
-.documents-grid {
+.documents-list {
   display: flex;
-  flex-direction: row;
-  flex-wrap: nowrap;
-  gap: 20px;
-  overflow-x: auto;
-  padding: 10px 0;
-  scroll-behavior: smooth;
-  -webkit-overflow-scrolling: touch;
+  flex-direction: column;
+  gap: 15px;
 }
 
 .document-item {
-  flex: 0 0 auto;
-  width: 300px;
-  max-width: 100%;
+  width: 100%;
+  transition: transform 0.3s ease;
+}
+
+.document-item:hover {
+  transform: translateY(-2px);
 }
 
 /* Estilos para dispositivos móviles */
 @media (max-width: 767px) {
-  .documents-grid {
-    overflow-x: auto;
-    scroll-snap-type: x mandatory;
-    padding-bottom: 20px;
+  .api-documents-container {
+    padding: 0 10px;
   }
   
   .document-item {
-    scroll-snap-align: start;
-    width: 85%;
+    margin-bottom: 10px;
   }
 }
 </style>
