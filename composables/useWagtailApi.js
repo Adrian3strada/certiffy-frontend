@@ -1,8 +1,7 @@
 import { ref } from 'vue';
 
 // URL base de la API de Wagtail - centralizada para toda la aplicación
-// Usar la URL de ngrok que sabemos que funciona
-export const API_BASE_URL = 'https://e412-2806-103e-1d-3687-f08f-4014-a8d6-4606.ngrok-free.app';
+export const API_BASE_URL = process.env.NUXT_PUBLIC_API_BASE || '';
 
 // Flag para indicar si debemos usar el proxy (siempre true en desarrollo para evitar CORS)
 export const USE_PROXY = true;
@@ -49,8 +48,6 @@ export function useWagtailApi() {
         finalUrl = `/api/proxy-wagtail?url=${encodeURIComponent(`${API_BASE_URL}${apiPath}`)}`;          
       }
       
-      console.log('Obteniendo datos de:', finalUrl);
-      
       // Realizar la petición
       const response = await fetch(finalUrl);
       
@@ -59,12 +56,9 @@ export function useWagtailApi() {
       }
       
       const data = await response.json();
-      console.log('Datos obtenidos correctamente:', data);
-      
       loading.value = false;
       return data;
     } catch (err) {
-      console.error('Error al obtener datos:', err);
       error.value = err.message;
       loading.value = false;
       

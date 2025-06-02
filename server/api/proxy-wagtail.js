@@ -12,7 +12,7 @@ export default defineEventHandler(async (event) => {
     const query = getQuery(event);
     const apiUrl = query.url || DEFAULT_PAGE_URL;
     
-    console.log(`[proxy-wagtail] Solicitando: ${apiUrl}`);
+    // Solicitud al API
     
     // Hacer la petición a la API de Wagtail desde el servidor con timeout
     const controller = new AbortController();
@@ -32,20 +32,18 @@ export default defineEventHandler(async (event) => {
     
     // Verificar si la respuesta es exitosa
     if (!response.ok) {
-      console.error(`[proxy-wagtail] Error HTTP: ${response.status} ${response.statusText}`);
       throw new Error(`Error HTTP: ${response.status} ${response.statusText}`);
     }
     
     // Convertir la respuesta a JSON
     const data = await response.json();
     
-    console.log(`[proxy-wagtail] Respuesta exitosa con ${Object.keys(data).length} campos`);
+    // Respuesta exitosa
     
     // Devolver los datos
     return data;
   } catch (error) {
-    // Manejar errores
-    console.error('Error en el proxy de Wagtail:', error);
+    // Manejar errores silenciosamente
     
     // Devolver un error con formato JSON
     return {

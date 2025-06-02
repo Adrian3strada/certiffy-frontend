@@ -1,5 +1,5 @@
 <template>
-  <footer class="api-footer-component">
+  <footer class="api-footer-component bg-certiffy-azul">
     <div class="footer-content q-py-lg">
       <div class="container-xl q-mx-auto">
         <div class="row q-col-gutter-md">
@@ -16,19 +16,19 @@
               >
                 <template v-slot:error>
                   <div class="logo-placeholder">
-                    <h4 class="text-weight-bold text-white">CMS MARKETING</h4>
+                    <h4 class="text-certiffy-dorado" style="font-family: 'OpenSans-ExtraBold', sans-serif;">CERTIFFY</h4>
                   </div>
                 </template>
               </q-img>
             </div>
-            <p class="copyright text-caption q-mb-none">
-              © {{ new Date().getFullYear() }} CMS Marketing. Todos los derechos reservados.
+            <p class="copyright text-caption q-mb-none text-certiffy-dorado" style="font-family: 'OpenSans-SemiBold', sans-serif;">
+              © {{ new Date().getFullYear() }} CERTIFFY. Todos los derechos reservados.
             </p>
           </div>
 
           <!-- Links de navegación -->
           <div class="col-12 col-md-4 column items-center q-gutter-y-md">
-            <h6 class="text-white q-mb-sm">Enlaces</h6>
+            <h6 class="text-certiffy-dorado q-mb-sm" style="font-family: 'OpenSans-Bold', sans-serif;">Enlaces</h6>
             <div v-if="loading" class="text-center full-width">
               <q-spinner color="white" size="1.5em" />
             </div>
@@ -42,28 +42,29 @@
                 :to="formatLink(link.url)"
                 flat
                 no-caps
-                class="footer-link"
+                class="footer-link hover-effect"
                 :label="formatTitle(link.titulo)"
                 text-color="white"
                 padding="sm md"
+                style="font-family: 'OpenSans-SemiBold', sans-serif;"
               />
             </div>
           </div>
 
           <!-- Redes sociales y contacto -->
           <div class="col-12 col-md-4 column items-end q-gutter-y-md">
-            <h6 class="text-white q-mb-sm q-mr-md">Síguenos</h6>
+            <h6 class="text-certiffy-dorado q-mb-sm q-mr-md" style="font-family: 'OpenSans-Bold', sans-serif;">Síguenos</h6>
             <div class="social-links row q-gutter-md justify-end">
-              <q-btn round flat color="white" icon="fab fa-facebook" href="#" target="_blank" />
-              <q-btn round flat color="white" icon="fab fa-twitter" href="#" target="_blank" />
-              <q-btn round flat color="white" icon="fab fa-instagram" href="#" target="_blank" />
-              <q-btn round flat color="white" icon="fab fa-linkedin" href="#" target="_blank" />
+              <q-btn round flat color="amber" icon="fab fa-facebook" href="#" target="_blank" class="hover-effect" />
+              <q-btn round flat color="amber" icon="fab fa-twitter" href="#" target="_blank" class="hover-effect" />
+              <q-btn round flat color="amber" icon="fab fa-instagram" href="#" target="_blank" class="hover-effect" />
+              <q-btn round flat color="amber" icon="fab fa-linkedin" href="#" target="_blank" class="hover-effect" />
             </div>
             <div class="contact-info text-right q-mt-md">
-              <p class="text-caption text-white q-mb-xs">
-                <q-icon name="email" size="xs" class="q-mr-xs" /> info@cmsmarketing.com
+              <p class="text-caption text-certiffy-dorado q-mb-xs" style="font-family: 'OpenSans-SemiBold', sans-serif;">
+                <q-icon name="email" size="xs" class="q-mr-xs" /> info@certiffy.com
               </p>
-              <p class="text-caption text-white q-mb-none">
+              <p class="text-caption text-certiffy-dorado q-mb-none" style="font-family: 'OpenSans-SemiBold', sans-serif;">
                 <q-icon name="phone" size="xs" class="q-mr-xs" /> +1 (555) 123-4567
               </p>
             </div>
@@ -73,18 +74,18 @@
     </div>
     
     <!-- Segunda sección para términos y políticas -->
-    <div class="footer-bottom q-py-sm">
+    <div class="footer-bottom q-py-sm bg-certiffy-azul" style="border-top: 1px solid rgba(223, 187, 67, 0.3);">
       <div class="container-xl q-mx-auto">
         <div class="row justify-between items-center">
           <div class="col-12 col-md-auto">
             <div class="terms-links row q-col-gutter-md q-mt-sm-none q-mt-md">
-              <q-btn flat dense no-caps text-color="grey-4" label="Términos y Condiciones" class="text-caption" to="/terminos" />
-              <q-btn flat dense no-caps text-color="grey-4" label="Política de Privacidad" class="text-caption" to="/privacidad" />
+              <q-btn flat dense no-caps text-color="amber-2" label="Términos y Condiciones" class="text-caption hover-effect" style="font-family: 'OpenSans-SemiBold', sans-serif;" to="/terminos" />
+              <q-btn flat dense no-caps text-color="amber-2" label="Política de Privacidad" class="text-caption hover-effect" style="font-family: 'OpenSans-SemiBold', sans-serif;" to="/privacidad" />
             </div>
           </div>
           <div class="col-12 col-md-auto">
-            <p class="text-caption text-grey-4 q-mb-none q-mt-sm-none q-mt-md">
-              Desarrollado por <a href="#" class="text-white">Equipo CMS Marketing</a>
+            <p class="text-caption text-amber-2 q-mb-none q-mt-sm-none q-mt-md" style="font-family: 'OpenSans-SemiBold', sans-serif;">
+              Desarrollado por <a href="#" class="text-certiffy-dorado hover-effect">Equipo CERTIFFY</a>
             </p>
           </div>
         </div>

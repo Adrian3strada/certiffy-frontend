@@ -1,22 +1,5 @@
 <template>
   <div class="grupo-tarjetas-fondo-container">
-    <!-- Depuración si está habilitado -->
-    <div v-if="props.debugMode || internalDebugMode" class="debug-info q-mb-xs">
-      <div class="text-subtitle2 text-primary q-pb-xs">Componente: ApiGrupoTarjetasFondo</div>
-      <q-toggle v-model="internalDebugMode" label="Mostrar debug interno" dense size="sm" />
-      <div v-if="internalDebugMode" class="q-mt-xs">
-        <div class="text-caption text-weight-bold">Estructura del bloque:</div>
-        <pre class="text-caption q-pa-xs bg-grey-2">{{ JSON.stringify(props.block, null, 2) }}</pre>
-        
-        <div class="text-caption text-weight-bold q-mt-xs">Tarjetas procesadas:</div>
-        <div v-for="(tarjeta, index) in tarjetas" :key="index" class="q-pa-xs">
-          <div>Tarjeta {{ index + 1 }}:</div>
-          <div>Imagen: <span class="text-primary">{{ tarjeta.imageUrl }}</span></div>
-          <div>Descripción: <span class="text-primary" v-html="tarjeta.descripcion"></span></div>
-        </div>
-        <div class="q-pa-xs">error: <span class="text-negative">{{ error }}</span></div>
-      </div>
-    </div>
     
     <!-- Estado de carga -->
     <div v-if="loading" class="full-width flex justify-center items-center" style="min-height: 100px">
@@ -102,10 +85,6 @@ const props = defineProps({
   apiBaseUrl: {
     type: String,
     default: process.env.NUXT_PUBLIC_API_BASE || ''
-  },
-  debugMode: {
-    type: Boolean,
-    default: false
   }
 });
 
@@ -113,7 +92,7 @@ const props = defineProps({
 const tarjetas = ref([]);
 const loading = ref(false);
 const error = ref(null);
-const internalDebugMode = ref(false);
+
 const tarjetasContainer = ref(null);
 const scrollPosition = ref(0);
 const containerWidth = ref(0);
@@ -153,9 +132,8 @@ const extractTitle = (htmlContent) => {
 
 // Manejar error al cargar la imagen
 const handleImageError = (index) => {
-  console.warn(`Error al cargar la imagen de la tarjeta ${index + 1}`);
   if (tarjetas.value[index]) {
-    tarjetas.value[index].imageUrl = 'https://images.unsplash.com/photo-1447933601403-0c6688de566e?q=80&w=1856&auto=format&fit=crop';
+    tarjetas.value[index].imageUrl = '/images/placeholder-card.jpg';
   }
 };
 
@@ -230,7 +208,7 @@ const handleResize = () => {
 onMounted(async () => {
   loading.value = true;
   try {
-    console.log('Procesando bloque grupo_de_tarjetas_fondo:', props.block);
+
     
     const blockData = props.block.value || props.block;
     
@@ -276,14 +254,14 @@ onMounted(async () => {
       error.value = 'No se encontraron tarjetas para mostrar';
     }
     
-    console.log('Tarjetas procesadas:', tarjetas.value);
+
     
     // Esperar al siguiente tick para calcular dimensiones
     await nextTick();
     calculateDimensions();
     
   } catch (err) {
-    console.error('Error al procesar el bloque:', err);
+
     error.value = 'Error al procesar el bloque: ' + err.message;
     tarjetas.value = [];
   } finally {
@@ -493,14 +471,7 @@ onUnmounted(() => {
   transform: scale(1.2);
 }
 
-/* Estilo para debug */
-.debug-info {
-  font-size: 0.7rem;
-  background: rgba(0, 0, 0, 0.03);
-  border-radius: 4px;
-  padding: 0.25rem;
-  margin-bottom: 0.25rem;
-}
+
 
 /* Estilo para error */
 .error-container {

@@ -1,9 +1,10 @@
 <template>
-  <header class="navbar-component bg-dark text-white q-py-sm shadow-2">
+  <header class="navbar-component bg-certiffy-azul text-white q-py-sm shadow-2">
     <div class="q-px-md q-px-sm-lg q-mx-auto" style="max-width: 1200px; width: 100%">
       <div class="row full-width items-center">
         <!-- Logo (solo se muestra si viene de la API) -->
         <!-- Oculto para mantener consistencia con enfoque headless -->
+        <div class="col-auto text-certiffy-dorado" style="font-family: 'OpenSans-ExtraBold', sans-serif; font-size: 1.5rem; cursor: pointer;" @click="navigateToHome">CERTIFFY</div>
         
         <q-space />
         
@@ -25,7 +26,8 @@
                 flat
                 no-caps
                 dropdown-icon="expand_more"
-                class="nav-dropdown text-white q-px-md text-weight-medium"
+                class="nav-dropdown text-white q-px-md"
+                style="font-family: 'OpenSans-SemiBold', sans-serif;"
                 auto-close
                 :ripple="false"
               >
@@ -49,7 +51,8 @@
                 :to="normalizeUrl(item.url)"
                 :label="item.title"
                 no-caps
-                class="nav-tab text-weight-medium q-px-md"
+                class="nav-tab q-px-md text-certiffy-dorado hover-effect"
+                style="font-family: 'OpenSans-SemiBold', sans-serif;"
               />
             </template>
           </q-tabs>
@@ -60,10 +63,10 @@
           <q-btn
             flat
             round
-            color="white"
+            color="accent"
             icon="menu"
             @click="drawerOpen = !drawerOpen"
-            class="menu-button"
+            class="menu-button text-certiffy-dorado"
           />
         </div>
       </div>
@@ -76,11 +79,11 @@
       bordered
       :width="drawerWidth"
       :breakpoint="1024"
-      class="bg-dark text-white mobile-drawer"
+      class="bg-certiffy-azul text-white mobile-drawer"
     >
       <q-scroll-area class="fit">
         <q-list padding class="drawer-list">
-          <q-item-label header class="drawer-header text-accent q-mt-md">CERTIFFY</q-item-label>
+          <q-item-label header class="drawer-header text-certiffy-dorado q-mt-md" style="font-family: 'OpenSans-ExtraBold', sans-serif;">CERTIFFY</q-item-label>
           
           <q-separator spaced dark />
           
@@ -90,10 +93,11 @@
             <template v-if="item.children && item.children.length > 0">
               <q-expansion-item
                 :label="item.title"
-                :header-class="'text-white drawer-parent-item'"
+                :header-class="'text-certiffy-dorado drawer-parent-item'"
                 expand-separator
                 icon="expand_more"
                 dark
+                style="font-family: 'OpenSans-SemiBold', sans-serif;"
               >
                 <q-list class="q-pl-md">
                   <q-item
@@ -105,13 +109,12 @@
                     class="drawer-item"
                   >
                     <q-item-section>
-                      <q-item-label class="drawer-item-label">{{ child.title }}</q-item-label>
+                      <q-item-label class="drawer-item-label text-certiffy-dorado" style="font-family: 'OpenSans-SemiBold', sans-serif;">{{ child.title }}</q-item-label>
                     </q-item-section>
                   </q-item>
                 </q-list>
               </q-expansion-item>
             </template>
-            
             <!-- Si no tiene submenús -->
             <q-item
               v-else
@@ -121,7 +124,7 @@
               class="drawer-item"
             >
               <q-item-section>
-                <q-item-label class="drawer-item-label">{{ item.title }}</q-item-label>
+                <q-item-label class="drawer-item-label text-certiffy-dorado" style="font-family: 'OpenSans-SemiBold', sans-serif;">{{ item.title }}</q-item-label>
               </q-item-section>
             </q-item>
           </template>
@@ -144,7 +147,7 @@ const { getDataFromUrl, loading, error } = useWagtailApi();
 const props = defineProps({
   navbarEndpoint: {
     type: String,
-    default: `${API_BASE_URL}/api/v2/pages/`
+    default: '/api/proxy-wagtail?url=https://e412-2806-103e-1d-3687-f08f-4014-a8d6-4606.ngrok-free.app/api/v2/pages'
   }
 });
 
@@ -162,19 +165,18 @@ const fetchNavItems = async () => {
   fetchError.value = null;
   
   try {
-    // Utilizamos el proxy para evitar problemas de CORS
-    const proxyUrl = `/api/proxy-wagtail?url=${encodeURIComponent(props.navbarEndpoint)}`;
-    const data = await getDataFromUrl(proxyUrl);
+    // Utilizamos el proxy para obtener los datos de navegación
+    const data = await getDataFromUrl(props.navbarEndpoint);
     
     if (data && data.navbar) {
       navItems.value = data.navbar;
     } else {
       fetchError.value = 'No se encontraron elementos de navegación en la API';
-      console.error('Error obteniendo elementos de navegación:', fetchError.value);
+      // Error silencioso para no interrumpir la experiencia de usuario
     }
   } catch (err) {
     fetchError.value = err.message || 'Error al obtener elementos de navegación';
-    console.error('Error obteniendo elementos de navegación:', err);
+    // Error silencioso para no interrumpir la experiencia de usuario
   } finally {
     isFetching.value = false;
   }
@@ -262,6 +264,7 @@ const normalizeUrl = (url) => {
 </script>
 
 <style scoped>
+/* Estilos según la guía de diseño Certiffy */
 .navbar-component {
   position: sticky;
   top: 0;
@@ -284,7 +287,8 @@ const normalizeUrl = (url) => {
 
 .navbar-component .nav-tab:hover,
 .navbar-component .nav-dropdown:hover {
-  background-color: rgba(255, 255, 255, 0.1);
+  background-color: rgba(223, 187, 67, 0.2);
+  transform: scale(1.05);
 }
 
 .navbar-component .menu-button {
@@ -293,6 +297,7 @@ const normalizeUrl = (url) => {
 
 .navbar-component .menu-button:hover {
   transform: scale(1.1);
+  box-shadow: 0 0 8px rgba(223, 187, 67, 0.6);
 }
 
 .navbar-component .mobile-drawer .drawer-item {
@@ -300,7 +305,8 @@ const normalizeUrl = (url) => {
 }
 
 .navbar-component .mobile-drawer .drawer-item:hover {
-  background-color: rgba(255, 255, 255, 0.1);
+  background-color: rgba(223, 187, 67, 0.2);
+  transform: translateX(5px);
 }
 
 .dropdown-item {
@@ -308,7 +314,8 @@ const normalizeUrl = (url) => {
 }
 
 .dropdown-item:hover {
-  background-color: rgba(255, 255, 255, 0.1) !important;
+  background-color: rgba(223, 187, 67, 0.2) !important;
+  transform: scale(1.02);
 }
 
 .text-decoration-none {
@@ -318,6 +325,46 @@ const normalizeUrl = (url) => {
 .logo-link {
   display: block;
   text-decoration: none;
+}
+
+/* Clase para efectos hover */
+.hover-effect {
+  transition: all 0.3s ease;
+}
+
+.hover-effect:hover {
+  transform: scale(1.05);
+}
+
+/* Estilos para botones tipo CTA según guía */
+.certiffy-btn {
+  border-radius: 25px;
+  padding: 8px 16px;
+  font-family: 'OpenSans-Bold', sans-serif;
+  text-transform: uppercase;
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.certiffy-btn-primary {
+  background-color: #0A1A42;
+  color: white;
+  border: 2px solid #DFBB43;
+}
+
+.certiffy-btn-primary:hover {
+  transform: scale(1.05);
+  box-shadow: 0 4px 8px rgba(0,0,0,0.2);
+}
+
+.certiffy-btn-secondary {
+  background-color: #DFBB43;
+  color: #0A1A42;
+  border: 2px solid #0A1A42;
+}
+
+.certiffy-btn-secondary:hover {
+  transform: scale(1.05);
+  box-shadow: 0 4px 8px rgba(0,0,0,0.2);
 }
 
 /* Estilos responsivos para dispositivos móviles */

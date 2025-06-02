@@ -1,4 +1,6 @@
 /* Estilos globales para el contenido y componentes */
+@import url('./certiffy-theme.css');
+
 
 /* Mantener la estructura del contenido normal con ancho limitado */
 .content-block {

@@ -54,12 +54,10 @@ export function useComponentRegistry() {
       
       // Intentar importar dinámicamente el componente
       // Esto funciona para referencias estáticas conocidas en tiempo de compilación
-      console.log(`Intentando cargar componente: ${componentName} para tipo: ${blockType}`);
       
       // Si no tenemos el componente, devolver un div como fallback
       return fallbackComponent.value;
     } catch (error) {
-      console.warn(`No se pudo cargar un componente para el tipo: ${blockType}`, error);
       return fallbackComponent.value;
     }
   };
@@ -87,9 +85,8 @@ export function useComponentRegistry() {
       
       // Por ahora, inicializamos con un mapa vacío
       // Los componentes se registrarán cuando se utilicen
-      console.log('Inicializando registro de componentes');
     } catch (error) {
-      console.error('Error al inicializar el registro de componentes:', error);
+      // Manejo silencioso de errores en inicialización
     }
   };
   

@@ -51,7 +51,7 @@
             
             <!-- Sección de botones/links -->
             <div v-if="botones && botones.length > 0" class="q-mt-lg">
-              <h3 class="links-title">Módulos disponibles:</h3>
+              <h3 class="links-title text-certiffy-azul" style="font-family: 'OpenSans-Bold', sans-serif;">Módulos disponibles:</h3>
               
               <div class="module-links q-gutter-lg q-mt-md">
                 <q-btn

@@ -1,10 +1,6 @@
 <template>
   <div class="dynamic-block-renderer">
-    <!-- Modo depuración para ver estructura completa del bloque -->
-    <div v-if="debugMode && block" class="debug-info q-pa-md">
-      <div class="text-subtitle2 text-primary">Tipo de bloque: {{ block.type }}</div>
-      <pre>{{ JSON.stringify(block, null, 2) }}</pre>
-    </div>
+
     
     <!-- CASOS ESPECIALES: Algunos componentes tienen lógica especial de renderizado -->
     <!-- Caso especial: Carrusel -->
@@ -15,7 +11,7 @@
       :showCarousel="true"
       :showVideo="true"
       :customImageUrlFunction="(image) => `/api/proxy-image?url=${encodeURIComponent(image && image.url ? image.url : '')}`"
-      :debugMode="debugMode"
+
     />
     
     <!-- Caso especial: Video -->
@@ -84,10 +80,7 @@ const props = defineProps({
     type: String,
     default: ''
   },
-  debugMode: {
-    type: Boolean,
-    default: false
-  }
+
 });
 
 // Extraer el título del bloque si existe
@@ -119,7 +112,7 @@ onMounted(() => {
     detectNewComponent(props.block.type);
   }
   
-  console.log('DynamicBlockRenderer: Componentes registrados exitosamente');
+
 });
 
 // Observar cambios en el bloque para detectar nuevos tipos
@@ -196,8 +189,7 @@ const detectNewComponent = (blockType) => {
       `Api${pascalCaseType.charAt(0).toUpperCase()}${pascalCaseType.slice(1)}`
     ];
     
-    console.log(`DynamicBlockRenderer: Detectando componente para tipo '${blockType}'`);
-    console.log('Posibles nombres de componente:', possibleNames);
+
     
     // Nota: La importación dinámica requiere configuración de Vite/Webpack
     // En una implementación real, se podría usar:

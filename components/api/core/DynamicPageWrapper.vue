@@ -36,7 +36,7 @@
           <DynamicBlockRenderer 
             :block="block" 
             :api-base-url="apiBaseUrl"
-            :debug-mode="false"
+
           />
         </div>
       </template>
@@ -161,33 +161,33 @@ const getPageId = async () => {
   let hasReloaded = false;
   // Si tenemos un ID de página en props, usarlo directamente
   if (props.pageId) {
-    console.log('getPageId: Usando ID proporcionado directamente:', props.pageId);
+    // 'getPageId: Usando ID proporcionado directamente:', props.pageId);
     return props.pageId;
   }
   
   const currentPath = route.path;
-  console.log('getPageId: Obteniendo ID para la ruta:', currentPath);
+  // 'getPageId: Obteniendo ID para la ruta:', currentPath);
   
   // Si no hay rutas cargadas, cargar el mapa del sitio
   if (Object.keys(knownRoutes).length === 0) {
-    console.log('getPageId: No hay rutas cargadas, cargando mapa del sitio...');
+    // 'getPageId: No hay rutas cargadas, cargando mapa del sitio...');
     await loadSiteMap();
   }
   
   // Asegurarse de que el mapa del sitio esté cargado
   if (Object.keys(knownRoutes).length === 0) {
     // Si aún no hay rutas después de cargar, recargar forzadamente
-    console.log('getPageId: Sin rutas aún después de cargar, forzando recarga...');
+    // 'getPageId: Sin rutas aún después de cargar, forzando recarga...');
     await loadSiteMap(true);
   }
   
   // 1. Comprobar directamente en el mapa de rutas
   if (knownRoutes[currentPath]) {
-    console.log(`getPageId: Ruta encontrada directamente: ${currentPath} -> ID: ${knownRoutes[currentPath]}`);
+    // `getPageId: Ruta encontrada directamente: ${currentPath} -> ID: ${knownRoutes[currentPath]}`);
     return knownRoutes[currentPath];
   }
   
-  console.log('getPageId: Ruta no encontrada directamente, probando variantes...');
+  // 'getPageId: Ruta no encontrada directamente, probando variantes...');
   
   // 2. Probar con variantes de la ruta actual
   const pathVariants = [
@@ -204,7 +204,7 @@ const getPageId = async () => {
   
   for (const variant of pathVariants) {
     if (knownRoutes[variant]) {
-      console.log(`getPageId: Variante de ruta encontrada: ${variant} -> ID: ${knownRoutes[variant]}`);
+      // `getPageId: Variante de ruta encontrada: ${variant} -> ID: ${knownRoutes[variant]}`);
       // Registrar esta variante para futuras consultas
       knownRoutes[currentPath] = knownRoutes[variant];
       return knownRoutes[variant];
@@ -214,7 +214,7 @@ const getPageId = async () => {
   // 3. Extraer y buscar el slug (la última parte de la ruta)
   const slug = currentPath.split('/').pop() || '';
   if (slug && slugToIdMap.value[slug]) {
-    console.log(`getPageId: Slug encontrado: ${slug} -> ID: ${slugToIdMap.value[slug]}`);
+    // `getPageId: Slug encontrado: ${slug} -> ID: ${slugToIdMap.value[slug]}`);
     // Registrar esta ruta para futuras consultas
     knownRoutes[currentPath] = slugToIdMap.value[slug];
     return slugToIdMap.value[slug];
@@ -234,7 +234,7 @@ const getPageId = async () => {
     
     for (const variant of slugVariants) {
       if (slugToIdMap.value[variant]) {
-        console.log(`getPageId: Variante de slug encontrada: ${variant} -> ID: ${slugToIdMap.value[variant]}`);
+        // `getPageId: Variante de slug encontrada: ${variant} -> ID: ${slugToIdMap.value[variant]}`);
         // Registrar esta ruta para futuras consultas
         knownRoutes[currentPath] = slugToIdMap.value[variant];
         return slugToIdMap.value[variant];
@@ -244,7 +244,7 @@ const getPageId = async () => {
   
   // 5. Analizar la estructura de la ruta para secciones y subsecciones
   const pathParts = currentPath.split('/').filter(part => part);
-  console.log('getPageId: Analizando partes de la ruta:', pathParts);
+  // 'getPageId: Analizando partes de la ruta:', pathParts);
   
   if (pathParts.length >= 1) {
     // Extraer sección principal
@@ -252,7 +252,7 @@ const getPageId = async () => {
     let subSection = pathParts.length >= 2 ? pathParts[1] : null; // Segunda parte si existe
     let mainSectionId = null; // Inicializar variable para almacenar ID de sección principal
     
-    console.log(`getPageId: Buscando coincidencias para sección '${mainSection}' y subsección '${subSection}'`);
+    // `getPageId: Buscando coincidencias para sección '${mainSection}' y subsección '${subSection}'`);
     
     // Buscar rutas que coincidan con esta estructura
     for (const [route, id] of Object.entries(knownRoutes)) {
@@ -274,7 +274,7 @@ const getPageId = async () => {
               routeSubSection.includes(subSection) || 
               subSection.includes(routeSubSection)) {
             
-            console.log(`getPageId: Coincidencia de sección/subsección encontrada: ${route} -> ID: ${id}`);
+            // `getPageId: Coincidencia de sección/subsección encontrada: ${route} -> ID: ${id}`);
             // Registrar para futuras consultas
             knownRoutes[currentPath] = id;
             return id;
@@ -282,7 +282,7 @@ const getPageId = async () => {
         } 
         // Si no hay subsección o no coincide, guardar la sección principal como respaldo
         else if (!subSection) {
-          console.log(`getPageId: Coincidencia de sección principal: ${route} -> ID: ${id}`);
+          // `getPageId: Coincidencia de sección principal: ${route} -> ID: ${id}`);
           // Usaremos esto si no encontramos nada mejor
           mainSectionId = id;
         }
@@ -291,7 +291,7 @@ const getPageId = async () => {
     
     // Si encontramos al menos la sección principal, usarla
     if (mainSectionId) {
-      console.log(`getPageId: Usando ID de sección principal: ${mainSectionId}`);
+      // `getPageId: Usando ID de sección principal: ${mainSectionId}`);
       // Registrar para futuras consultas
       knownRoutes[currentPath] = mainSectionId;
       return mainSectionId;
@@ -300,13 +300,13 @@ const getPageId = async () => {
   
   // 6. Último recurso: intentar recargar el mapa y buscar de nuevo
   if (!hasReloaded) {
-    console.log('getPageId: Ruta no encontrada, intentando recargar el mapa...');
+    // 'getPageId: Ruta no encontrada, intentando recargar el mapa...');
     hasReloaded = true;
     await loadSiteMap(true); // Forzar recarga
     
     // Intentar encontrar la ruta de nuevo
     if (knownRoutes[currentPath]) {
-      console.log(`getPageId: Ruta encontrada después de recargar: ${currentPath} -> ID: ${knownRoutes[currentPath]}`);
+      // `getPageId: Ruta encontrada después de recargar: ${currentPath} -> ID: ${knownRoutes[currentPath]}`);
       return knownRoutes[currentPath];
     }
     
@@ -314,7 +314,7 @@ const getPageId = async () => {
   }
   
   // Último recurso: retornar null para que el componente maneje el caso de ruta no encontrada
-  console.log('No se encontró ninguna coincidencia para la ruta actual');
+  // 'No se encontró ninguna coincidencia para la ruta actual');
   return null; // No usamos IDs fijos como fallback
 };
 
@@ -322,16 +322,16 @@ const getPageId = async () => {
 const loadSiteMap = async (forceReload = false) => {
   // Si ya tenemos rutas y no se fuerza recarga, no hacemos nada
   if (!forceReload && Object.keys(knownRoutes).length > 0) {
-    console.log('Usando mapa de rutas existente:', Object.keys(knownRoutes));
+    // 'Usando mapa de rutas existente:', Object.keys(knownRoutes));
     return;
   }
   
-  console.log('Cargando mapa del sitio desde la API...');
+  // 'Cargando mapa del sitio desde la API...');
   
   try {
     // Limpiar mapas si se fuerza recarga completa
     if (forceReload) {
-      console.log('Limpiando mapa de rutas existente para recarga completa');
+      // 'Limpiando mapa de rutas existente para recarga completa');
       // Usamos Object.keys y delete para mantener la reactividad
       Object.keys(knownRoutes).forEach(key => delete knownRoutes[key]);
       slugToIdMap.value = {};
@@ -364,7 +364,7 @@ const loadSiteMap = async (forceReload = false) => {
         }
       }
     
-      console.log('loadSiteMap: Solicitando datos del sitemap (página #'+(++paginasProcesadas)+') desde:', apiUrl);
+      // 'loadSiteMap: Solicitando datos del sitemap (página #'+(++paginasProcesadas)+') desde:', apiUrl);
       
       // Usar useFetch de Nuxt para obtener los datos con opciones de cache y headers correctos
       const { data: responseData, error: fetchError } = await useFetch(apiUrl, {
@@ -379,29 +379,29 @@ const loadSiteMap = async (forceReload = false) => {
       });
       
       if (fetchError.value) {
-        console.error('Error al obtener sitemap:', fetchError.value);
+        // 'Error al obtener sitemap:', fetchError.value);
         throw new Error(`Error en la petición: ${fetchError.value.message || 'Error desconocido'}`);
       }
       
       if (!responseData.value) {
-        console.error('No se recibieron datos en la respuesta');
+        // 'No se recibieron datos en la respuesta');
         throw new Error('No se recibieron datos de la API');
       }
       
       // Mostrar datos para depuración
-      console.log('loadSiteMap: Respuesta recibida, página #' + paginasProcesadas + ', campos:', Object.keys(responseData.value));
+      // 'loadSiteMap: Respuesta recibida, página #' + paginasProcesadas + ', campos:', Object.keys(responseData.value));
       
       const data = responseData.value;
       
       // Verificar estructura de datos
       if (!data.items) {
-        console.error('Respuesta API sin estructura items esperada. Campos recibidos:', Object.keys(data));
+        // 'Respuesta API sin estructura items esperada. Campos recibidos:', Object.keys(data));
         return false; // Detener la carga si no hay items
       }
       
       // Procesar cada página del listado
       if (data.items && Array.isArray(data.items)) {
-        console.log(`Procesando lote de ${data.items.length} páginas...`);
+        // `Procesando lote de ${data.items.length} páginas...`);
         data.items.forEach(page => {
         try {
           // Extraer la ruta directamente del html_url de la API
@@ -426,11 +426,11 @@ const loadSiteMap = async (forceReload = false) => {
           // Detectar página principal
           if (page.meta.type === 'home.HomePage' || route === '/' || page.id === 3) {
             homePageId.value = page.id;
-            console.log(`Página principal detectada: ID=${page.id}, Ruta=${route}`);
+            // `Página principal detectada: ID=${page.id}, Ruta=${route}`);
           }
           
           // Log detallado de cada página
-          console.log(`Procesando: ID=${page.id}, Titulo='${page.title}', Tipo=${page.meta.type}, Ruta='${route}', Slug='${page.meta.slug}'`);
+          // `Procesando: ID=${page.id}, Titulo='${page.title}', Tipo=${page.meta.type}, Ruta='${route}', Slug='${page.meta.slug}'`);
           
           // Registrar la ruta original exactamente como viene de la API
           knownRoutes[route] = page.id;
@@ -450,7 +450,7 @@ const loadSiteMap = async (forceReload = false) => {
           routeVariants.forEach(variant => {
             if (variant !== route) { // Evitar duplicados
               knownRoutes[variant] = page.id;
-              console.log(`  Variante: '${variant}' -> ID: ${page.id}`);
+              // `  Variante: '${variant}' -> ID: ${page.id}`);
             }
           });
           
@@ -464,7 +464,7 @@ const loadSiteMap = async (forceReload = false) => {
             slugToIdMap.value[slug.replace(/_/g, '-')] = page.id;
             slugToIdMap.value[slug.toLowerCase()] = page.id;
             
-            console.log(`  Slug mapeado: '${slug}' -> ID: ${page.id}`);
+            // `  Slug mapeado: '${slug}' -> ID: ${page.id}`);
           }
           
           // Crear mapa especial para secciones (noticias, eventos, etc.)
@@ -480,7 +480,7 @@ const loadSiteMap = async (forceReload = false) => {
               // Mapear directamente la combinación de sección/contenido
               const shortRoute = `/${section}/${content}`;
               knownRoutes[shortRoute] = page.id;
-              console.log(`  Ruta corta: '${shortRoute}' -> ID: ${page.id}`);
+              // `  Ruta corta: '${shortRoute}' -> ID: ${page.id}`);
               
               // Variantes con guiones
               knownRoutes[shortRoute.replace(/-/g, '_')] = page.id;
@@ -488,14 +488,14 @@ const loadSiteMap = async (forceReload = false) => {
             }
           }
         } catch (err) {
-          console.error(`Error al procesar página ${page.id}:`, err);
+          // `Error al procesar página ${page.id}:`, err);
         }
       });
     }
     
     // Si existe un menú de navegación en la respuesta, usarlo para mapear rutas
     if (data.navbar && Array.isArray(data.navbar)) {
-      console.log('Procesando menú de navegación...');
+      // 'Procesando menú de navegación...');
       
       // Función para procesar elementos del menú recursivamente
       const processNavItem = (item) => {
@@ -512,7 +512,7 @@ const loadSiteMap = async (forceReload = false) => {
           );
           
           if (pageItem) {
-            console.log(`  Menú: '${route}' -> ID: ${pageItem.id}`);
+            // `  Menú: '${route}' -> ID: ${pageItem.id}`);
             knownRoutes[route] = pageItem.id;
             knownRoutes[route.replace(/-/g, '_')] = pageItem.id;
             knownRoutes[route.replace(/_/g, '-')] = pageItem.id;
@@ -531,12 +531,12 @@ const loadSiteMap = async (forceReload = false) => {
     
       // Si hay más páginas disponibles, cargar la siguiente página
       if (data.next) {
-        console.log('loadSiteMap: Cargando siguiente página del sitemap:', data.next);
+        // 'loadSiteMap: Cargando siguiente página del sitemap:', data.next);
         return await loadPages(data.next); // Llamada recursiva con la siguiente URL
       }
       
       // Hemos terminado con todas las páginas
-      console.log(`loadSiteMap: Terminado procesamiento de todas las páginas (${paginasProcesadas} en total)`);
+      // `loadSiteMap: Terminado procesamiento de todas las páginas (${paginasProcesadas} en total)`);
       return true;
     };
     
@@ -544,16 +544,16 @@ const loadSiteMap = async (forceReload = false) => {
     await loadPages();
     
     // Registrar estadísticas finales
-    console.log('Mapa de rutas actualizado con', Object.keys(knownRoutes).length, 'rutas');
-    console.log('Mapa de slugs actualizado con', Object.keys(slugToIdMap.value).length, 'slugs');
+    // 'Mapa de rutas actualizado con', Object.keys(knownRoutes).length, 'rutas');
+    // 'Mapa de slugs actualizado con', Object.keys(slugToIdMap.value).length, 'slugs');
     
     // Advertencia si no se cargó ninguna ruta
     if (Object.keys(knownRoutes).length === 0) {
-      console.warn('Advertencia: No se pudieron cargar rutas desde la API');
+      // 'Advertencia: No se pudieron cargar rutas desde la API');
     }
     
   } catch (error) {
-    console.error('Error al cargar el mapa del sitio:', error);
+    // 'Error al cargar el mapa del sitio:', error);
   }
 };
 
@@ -568,7 +568,7 @@ const fetchPageData = async () => {
     
     // Si no se pudo determinar un ID, mostrar un mensaje claro
     if (!pageIdToFetch) {
-      console.error('No se encontró ningún ID de página para la ruta actual:', route.path);
+      // 'No se encontró ningún ID de página para la ruta actual:', route.path);
       error.value = `No se encontró ninguna página registrada para la ruta: ${route.path}`;
       loading.value = false;
       pageContent.value = [];
@@ -578,7 +578,7 @@ const fetchPageData = async () => {
     
     // URL para obtener la página usando el proxy
     const pageUrl = `/api/proxy-wagtail?url=${encodeURIComponent(`${apiBaseUrl}/api/v2/pages/${pageIdToFetch}/`)}`;    
-    console.log('Solicitando página a través del proxy:', pageUrl);
+    // 'Solicitando página a través del proxy:', pageUrl);
     
     // Usar useFetch de Nuxt para obtener los datos
     const { data: responseData, error: fetchError } = await useFetch(pageUrl);
@@ -619,7 +619,7 @@ const fetchPageData = async () => {
       useDynamicRenderer.value = false;
     }
     
-    console.log(`Página ${pageIdToFetch} cargada con éxito. Tipo: ${pageType.value}. Renderizador: ${useDynamicRenderer.value ? 'Dinámico' : 'API'}`);
+    // `Página ${pageIdToFetch} cargada con éxito. Tipo: ${pageType.value}. Renderizador: ${useDynamicRenderer.value ? 'Dinámico' : 'API'}`);
     
     // Actualizar título de la página en el navegador
     document.title = data.title || props.pageTitle || 'CMS Marketing';
@@ -632,7 +632,7 @@ const fetchPageData = async () => {
     // Registrar esta página en el mapa de rutas si se cargó exitosamente
     const currentPath = route.path;
     if (!knownRoutes[currentPath]) {
-      console.log(`Añadiendo ruta actual al mapa: ${currentPath} -> ID: ${pageIdToFetch}`);
+      // `Añadiendo ruta actual al mapa: ${currentPath} -> ID: ${pageIdToFetch}`);
       knownRoutes[currentPath] = pageIdToFetch;
       
       // Añadir variantes también
@@ -646,12 +646,12 @@ const fetchPageData = async () => {
     return data;
     
   } catch (err) {
-    console.error('Error al cargar la página:', err);
+    // 'Error al cargar la página:', err);
     error.value = `Error al cargar la página: ${err.message}`;
     
     // Registrar detalles del error para depuración
-    console.log(`Ruta actual: ${route.path}, ID solicitado: ${pageIdToFetch || 'no determinado'}`);
-    console.log(`Rutas conocidas: ${Object.keys(knownRoutes).length}, Slugs: ${Object.keys(slugToIdMap.value).length}`);
+    // `Ruta actual: ${route.path}, ID solicitado: ${pageIdToFetch || 'no determinado'}`);
+    // `Rutas conocidas: ${Object.keys(knownRoutes).length}, Slugs: ${Object.keys(slugToIdMap.value).length}`);
     
     // Mostrar contenido de error
     pageTitle.value = props.pageTitle || 'Error - CMS Marketing';
@@ -663,7 +663,7 @@ const fetchPageData = async () => {
     }];
     
     // Simplemente mostrar el mensaje de error sin redirección automática
-    console.log('Error mostrado al usuario, esperando acción manual.');
+    // 'Error mostrado al usuario, esperando acción manual.');
     
     return null;
   } finally {
@@ -678,18 +678,18 @@ onMounted(async () => {
     // El mapa del sitio se cargará dentro de fetchPageData si es necesario
     await fetchPageData();
   } catch (err) {
-    console.error('Error al inicializar componente:', err);
+    // 'Error al inicializar componente:', err);
   }
 });
 
 // Observar cambios en la ruta y recargar la página cuando cambie
 watch(() => route.path, async (newPath, oldPath) => {
   if (newPath !== oldPath) {
-    console.log(`Ruta cambiada de ${oldPath} a ${newPath}, recargando datos...`);
+    // `Ruta cambiada de ${oldPath} a ${newPath}, recargando datos...`);
     try {
       await fetchPageData();
     } catch (err) {
-      console.error('Error al actualizar la página:', err);
+      // 'Error al actualizar la página:', err);
     }
   }
 });

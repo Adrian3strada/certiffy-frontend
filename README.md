@@ -1,23 +1,22 @@
 # CMS Marketing con Vue
 
-Un sistema de gestión de contenido (CMS) para marketing que permite a los usuarios de marketing crear y editar páginas web dinámicas mediante una interfaz de arrastrar y soltar, similar a WordPress. Desarrollado con Vue.js, Nuxt 3, Quasar y otras tecnologías modernas.
+Aplicación web SPA (Single Page Application) headless que consume contenido dinámico desde una API de Wagtail CMS. Desarrollada con Vue.js, Nuxt 3, Quasar y tecnologías modernas, la aplicación renderiza de forma dinámica los bloques y componentes basados en la respuesta de la API.
 
 ## Características
 
-- **Constructor de páginas visual**: Interfaz de arrastrar y soltar con grid de 12 columnas
-- **Componentes personalizables**: Encabezados, contenido, galerías, testimonios, formularios, etc.
+- **Renderizado dinámico de componentes**: Renderiza automáticamente los componentes basados en el tipo de bloque recibido de la API
+- **Componentes reutilizables**: Encabezados, contenido, galerías, testimonios, carruseles y más
 - **Diseño responsivo**: Las páginas se adaptan automáticamente a cualquier dispositivo
-- **Vista previa en tiempo real**: Visualiza los cambios mientras editas
-- **Panel de administración**: Gestión completa de páginas y plantillas
-- **API simulada**: Para desarrollo y pruebas sin dependencia de un backend real
+- **Rutas dinámicas**: Sistema de rutas que mapea los slugs de la API a páginas en la aplicación
+- **Manejo de errores robusto**: Fallbacks y mensajes de error amigables para el usuario
+- **Proxying de imágenes**: Sistema que gestiona automáticamente las rutas de imágenes para evitar problemas CORS
 
 ## Tecnologías utilizadas
 
-- **Vue.js 3**: Framework JavaScript progresivo
+- **Vue.js 3**: Framework JavaScript progresivo con Composition API
 - **Nuxt 3**: Framework para aplicaciones Vue.js
 - **Quasar**: Framework UI con componentes Vue.js
-- **Vue Grid Layout**: Para la funcionalidad de arrastrar y soltar
-- **Firebase** (simulado): Para autenticación y almacenamiento
+- **useFetch**: Hook nativo de Nuxt para peticiones HTTP
 
 ## Instalación
 
@@ -36,42 +35,49 @@ npm run dev
 ## Estructura del proyecto
 
 ```
-├── api/                # Servicios y datos simulados de API
-│   ├── mock/           # Datos simulados para desarrollo
-│   └── services.js     # Servicios para interactuar con la API
 ├── assets/             # Recursos estáticos (imágenes, estilos)
 ├── components/         # Componentes Vue reutilizables
-│   │── api/             # Componentes para el consumo de API
-│   │   │── core/        # Componentes centrales del sistema
-│   │   │── blocks/      # Componentes básicos de contenido
-│   │   │── feature-blocks/ # Componentes especializados
-│   │   │── layout/      # Componentes de estructura (navbar, footer)
-│   │   │── shared/      # Componentes compartidos
-│   │   │── utils/       # Utilidades y helpers
-│   │── archived/        # Componentes archivados (no en uso activo)
-│   ├── admin/          # Componentes para el panel de administración
-│   ├── builder/        # Componentes para el constructor de páginas
-│   └── templates/      # Plantillas de componentes para las páginas
+│   ├── api/             # Componentes para el consumo de API
+│   │   ├── core/        # Componentes centrales del sistema (DynamicPageWrapper, DynamicBlockRenderer)
+│   │   ├── blocks/      # Componentes básicos (texto, imágenes, botones, hero banners)
+│   │   ├── feature-blocks/ # Componentes especializados (carruseles, tarjetas, testimonios)
+│   │   ├── layout/      # Componentes de estructura (navbar, footer)
+│   │   ├── shared/      # Componentes compartidos
+│   │   └── registry.js   # Registro centralizado de componentes
+│   └── archived/        # Componentes archivados (no en uso activo)
 ├── composables/        # Composables de Vue
-│   │── useWagtailApi.js # Composable para interactuar con la API de Wagtail
+│   ├── useWagtailApi.js # Composable para interactuar con la API de Wagtail
+│   ├── useComponentRegistry.js # Registro dinámico de componentes
+│   └── useDynamicPages.js # Manejo de páginas dinámicas
 ├── layouts/            # Layouts de la aplicación
 ├── pages/              # Páginas de la aplicación
-│   ├── admin/          # Páginas del panel de administración
-│   └── preview/        # Páginas de vista previa
-└── plugins/            # Plugins de Nuxt
+│   ├── index.vue       # Página principal
+│   └── [...slug].vue   # Manejador de rutas dinámicas
+├── plugins/            # Plugins de Nuxt
+│   ├── api-client.js    # Cliente para API
+│   └── apiFetch.js      # Utilidad para useFetch
+├── public/             # Archivos públicos estáticos
+└── server/             # Endpoints de API del lado del servidor
+    └── api/            # API endpoints para proxy y funcionalidades del servidor
 ```
 
 ## Uso
 
 1. Inicia la aplicación con `npm run dev`
 2. Accede a http://localhost:3000
-3. Crea una nueva página seleccionando una plantilla
-4. Utiliza el constructor de páginas para añadir y personalizar componentes
-5. Guarda la página y visualízala en modo de vista previa
+3. La aplicación carga dinámicamente el contenido desde la API de Wagtail
+4. Navega a otras páginas utilizando los enlaces del menú
+5. La aplicación renderiza automáticamente los componentes según los tipos de bloques recibidos
 
-## Integración con backend real
+## Configuración de la API
 
-Para integrar con un backend real, modifica los archivos en la carpeta `api/` para conectar con tus endpoints reales en lugar de usar los datos simulados.
+La aplicación requiere una API de Wagtail CMS. Configura la URL base de la API en el archivo `.env`:
+
+```
+NUXT_PUBLIC_API_BASE=https://tu-url-de-api-wagtail.com
+```
+
+Además, asegúrate de que el servidor Wagtail tenga habilitada la API y que los tipos de bloques correspondan con los componentes registrados en `components/api/registry.js`.
 
 ## Producción
 

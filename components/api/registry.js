@@ -5,6 +5,7 @@
 // Importar componentes básicos (bloques)
 import ApiButtonComponent from './blocks/ApiButtonComponent.vue';
 import ApiDocumentComponent from './blocks/ApiDocumentComponent.vue';
+import ApiDocumentsContainerComponent from './blocks/ApiDocumentsContainerComponent.vue';
 import ApiGalleryComponent from './blocks/ApiGalleryComponent.vue';
 import ApiHeroBannerComponent from './blocks/ApiHeroBannerComponent.vue';
 import ApiImageComponent from './blocks/ApiImageComponent.vue';
@@ -35,6 +36,8 @@ export const componentMap = {
   // Bloques básicos - nombres estandarizados
   'button': ApiButtonComponent,
   'document': ApiDocumentComponent,
+  'documents_container': ApiDocumentsContainerComponent,
+  'documents': ApiDocumentsContainerComponent,
   'gallery': ApiGalleryComponent,
   'hero_banner': ApiHeroBannerComponent,
   'image': ApiImageComponent,
@@ -86,7 +89,6 @@ export const componentMap = {
  */
 export function registerAllComponents(registerFn) {
   if (!registerFn || typeof registerFn !== 'function') {
-    console.error('Se requiere una función válida para registrar componentes');
     return;
   }
   
@@ -97,7 +99,7 @@ export function registerAllComponents(registerFn) {
       registerFn(type.toLowerCase(), component);
     }
   });
-  console.log('Registro de componentes completado con éxito');
+
 }
 
 /**
