@@ -1,12 +1,12 @@
 // Servicio para interactuar con la API externa
-const API_BASE_URL = 'https://99ce-2806-266-480-8244-9437-a02c-cbc8-6484.ngrok-free.app/api/v2';
+const API_BASE_URL = 'https://e412-2806-103e-1d-3687-f08f-4014-a8d6-4606.ngrok-free.app/api/v2';
 
 // Crear una versión de respaldo con los datos de ejemplo que proporcionaste
 const MOCK_DATA = {
   "id": 15,
   "meta": {
     "type": "home.HomePage",
-    "detail_url": "https://99ce-2806-266-480-8244-9437-a02c-cbc8-6484.ngrok-free.app/api/v2/pages/15/",
+    "detail_url": "https://e412-2806-103e-1d-3687-f08f-4014-a8d6-4606.ngrok-free.app/api/v2/pages/15/",
     "html_url": "http://127.0.0.1/",
     "slug": "homepage",
     "show_in_menus": false,

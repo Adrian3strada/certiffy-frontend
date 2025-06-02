@@ -6,7 +6,7 @@
 </template>
 
 <script setup>
-import DynamicPageWrapper from '~/components/api/DynamicPageWrapper.vue';
+import DynamicPageWrapper from '~/components/api/core/DynamicPageWrapper.vue';
 import { useRouter } from 'vue-router';
 import { onMounted } from 'vue';
 

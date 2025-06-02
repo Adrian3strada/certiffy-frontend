@@ -64,22 +64,35 @@ export function useDynamicPages() {
     error.value = null;
     
     try {
+      console.log(`Obteniendo página con ID: ${id}`);
+      
       // Verificar si ya tenemos la página en caché por ID
       const cachedPageEntry = Array.from(pageCache.value.entries()).find(
         ([_, page]) => page.id === parseInt(id)
       );
       
       if (cachedPageEntry) {
+        console.log(`Página con ID ${id} encontrada en caché`);
         loading.value = false;
         return cachedPageEntry[1];
       }
       
-      // Obtener la página desde la API
-      const data = await apiGetPageById(id);
+      // Construir la URL para obtener la página por su ID
+      const pageUrl = `/api/v2/pages/${id}/`;
+      console.log(`Solicitando página a: ${pageUrl}`);
+      
+      // Usar el proxy para evitar problemas de CORS
+      const proxyUrl = `/api/proxy-wagtail?url=${encodeURIComponent(API_BASE_URL + pageUrl)}`;
+      console.log(`URL del proxy: ${proxyUrl}`);
+      
+      // Obtener la página desde la API usando el proxy
+      const data = await getDataFromUrl(proxyUrl);
       
       if (!data) {
         throw new Error(`No se encontraron datos para la página con ID ${id}`);
       }
+      
+      console.log(`Datos recibidos para página ID ${id}:`, data.title);
       
       // Guardar en caché usando el slug
       if (data.meta && data.meta.slug) {

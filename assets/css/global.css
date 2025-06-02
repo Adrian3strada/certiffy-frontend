@@ -1,0 +1,85 @@
+/* Estilos globales para el contenido y componentes */
+
+/* Mantener la estructura del contenido normal con ancho limitado */
+.content-block {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 1rem;
+  box-sizing: border-box;
+}
+
+/* Estilos específicos para bloques de texto para mejorar legibilidad */
+.content-block p {
+  max-width: 800px;
+  margin-left: auto;
+  margin-right: auto;
+  line-height: 1.6;
+  font-size: 1rem;
+}
+
+/* Limitar el ancho del texto para mayor legibilidad */
+.api-rich-text-component {
+  max-width: 700px;
+  margin-left: auto;
+  margin-right: auto;
+  font-size: 0.95rem;
+  color: #333;
+}
+
+/* Restaurar margen para otros componentes que no son el hero */
+.api-content-renderer > .content-container > .content-block:not(:first-child) {
+  margin-top: 2rem;
+}
+
+/* Container adicional para forzar ancho completo solo donde se necesita */
+.full-width-container {
+  width: 100%;
+  padding: 0;
+}
+
+/* Asegurar que los contenedores principales mantengan márgenes apropiados */
+.dynamic-page {
+  max-width: 1200px;
+  margin: 0 auto;
+  width: 100%;
+}
+
+/* Ajustes específicos para títulos */
+.content-block h1 {
+  max-width: 700px;
+  margin-left: auto;
+  margin-right: auto;
+  font-size: 1.8rem;
+  margin-bottom: 1.2rem;
+  font-weight: 600;
+  color: #222;
+}
+
+.content-block h2 {
+  max-width: 700px;
+  margin-left: auto;
+  margin-right: auto;
+  font-size: 1.5rem;
+  margin-bottom: 1rem;
+  font-weight: 600;
+  color: #333;
+}
+
+.content-block h3 {
+  max-width: 700px;
+  margin-left: auto;
+  margin-right: auto;
+  font-size: 1.2rem;
+  margin-bottom: 0.8rem;
+  font-weight: 600;
+  color: #444;
+}
+
+/* Añadir estilos específicos para el contenido de texto */
+.rich-text-content {
+  font-size: 0.95rem;
+  line-height: 1.5;
+  color: #333;
+  max-width: 700px;
+  margin: 0 auto;
+}

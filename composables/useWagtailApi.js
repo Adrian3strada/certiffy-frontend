@@ -2,7 +2,7 @@ import { ref } from 'vue';
 
 // URL base de la API de Wagtail - centralizada para toda la aplicación
 // Usar la URL de ngrok que sabemos que funciona
-export const API_BASE_URL = 'https://9e3f-2806-103e-1d-30e0-d80b-381f-713a-dfeb.ngrok-free.app';
+export const API_BASE_URL = 'https://e412-2806-103e-1d-3687-f08f-4014-a8d6-4606.ngrok-free.app';
 
 // Flag para indicar si debemos usar el proxy (siempre true en desarrollo para evitar CORS)
 export const USE_PROXY = true;

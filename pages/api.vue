@@ -4,5 +4,5 @@
 </template>
 
 <script setup>
-import DynamicPageWrapper from '~/components/api/DynamicPageWrapper.vue';
+import DynamicPageWrapper from '~/components/api/core/DynamicPageWrapper.vue';
 </script>

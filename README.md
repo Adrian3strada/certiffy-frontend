@@ -41,10 +41,19 @@ npm run dev
 │   └── services.js     # Servicios para interactuar con la API
 ├── assets/             # Recursos estáticos (imágenes, estilos)
 ├── components/         # Componentes Vue reutilizables
+│   │── api/             # Componentes para el consumo de API
+│   │   │── core/        # Componentes centrales del sistema
+│   │   │── blocks/      # Componentes básicos de contenido
+│   │   │── feature-blocks/ # Componentes especializados
+│   │   │── layout/      # Componentes de estructura (navbar, footer)
+│   │   │── shared/      # Componentes compartidos
+│   │   │── utils/       # Utilidades y helpers
+│   │── archived/        # Componentes archivados (no en uso activo)
 │   ├── admin/          # Componentes para el panel de administración
 │   ├── builder/        # Componentes para el constructor de páginas
 │   └── templates/      # Plantillas de componentes para las páginas
-├── composables/        # Composables de Vue para lógica reutilizable
+├── composables/        # Composables de Vue
+│   │── useWagtailApi.js # Composable para interactuar con la API de Wagtail
 ├── layouts/            # Layouts de la aplicación
 ├── pages/              # Páginas de la aplicación
 │   ├── admin/          # Páginas del panel de administración
@@ -56,13 +65,9 @@ npm run dev
 
 1. Inicia la aplicación con `npm run dev`
 2. Accede a http://localhost:3000
-3. Inicia sesión con las credenciales de demostración:
-   - Email: admin@example.com
-   - Contraseña: cualquier texto
-4. Explora el panel de administración en `/admin`
-5. Crea una nueva página seleccionando una plantilla
-6. Utiliza el constructor de páginas para añadir y personalizar componentes
-7. Guarda la página y visualízala en modo de vista previa
+3. Crea una nueva página seleccionando una plantilla
+4. Utiliza el constructor de páginas para añadir y personalizar componentes
+5. Guarda la página y visualízala en modo de vista previa
 
 ## Integración con backend real
 

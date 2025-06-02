@@ -9,6 +9,7 @@ export default defineNuxtConfig({
     '@quasar/extras/material-icons/material-icons.css',
     '@quasar/extras/mdi-v6/mdi-v6.css',
     'quasar/dist/quasar.css',
+    'assets/css/global.css',
   ],
   
   build: {
