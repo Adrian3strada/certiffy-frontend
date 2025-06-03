@@ -1,5 +1,5 @@
 <template>
-  <div class="api-image-component" :class="{ 'full-width': fullWidth }">
+  <div class="q-my-xl q-mx-auto" :style="{ maxWidth: fullWidth ? '100%' : '800px', width: '100%' }">
     <q-img
       v-if="imageUrl"
       :src="imageUrl"
@@ -11,13 +11,13 @@
       @error="handleImageError"
     >
       <template v-slot:error>
-        <div class="fallback-image flex column items-center justify-center">
+        <div class="bg-grey-2 flex flex-center column full-width" style="height: 300px; border-radius: 8px;">
           <q-icon name="image" size="3rem" color="grey-7" />
           <div class="q-mt-sm text-subtitle1 text-grey-7">{{ imageAlt || 'Imagen no disponible' }}</div>
         </div>
       </template>
     </q-img>
-    <div v-if="showCaption && imageAlt" class="image-caption text-center q-mt-sm">
+    <div v-if="showCaption && imageAlt" class="text-center q-mt-sm text-caption text-italic text-grey-8">
       {{ imageAlt }}
     </div>
   </div>
@@ -86,27 +86,4 @@ const imageAlt = computed(() => {
 });
 </script>
 
-<style scoped>
-.api-image-component {
-  margin: 2rem auto;
-  max-width: 800px;
-  width: 100%;
-}
 
-.api-image-component.full-width {
-  max-width: 100%;
-}
-
-.fallback-image {
-  width: 100%;
-  height: 300px;
-  background-color: #f5f5f5;
-  border-radius: 8px;
-}
-
-.image-caption {
-  color: #666;
-  font-size: 0.9rem;
-  font-style: italic;
-}
-</style>

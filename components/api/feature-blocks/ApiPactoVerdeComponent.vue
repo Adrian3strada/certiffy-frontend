@@ -1,7 +1,7 @@
 <template>
-  <section class="pacto-verde-component full-width-container">
+  <section style="width: 100vw; position: relative; left: 50%; right: 50%; margin-left: -50vw; margin-right: -50vw; padding: 0; overflow-x: hidden; background-color: var(--q-grey-1);">
     <!-- Banner Principal con la estructura que viene de la API -->
-    <div class="pacto-verde-banner relative-position" style="min-height: 350px;">
+    <div class="relative-position" style="min-height: 350px; overflow: hidden;">
       <!-- Imagen de fondo -->
       <q-img
         :src="imagenUrl"
@@ -25,8 +25,9 @@
               :to="boton.url"
               :color="boton.style || 'primary'"
               outline
-              class="q-mx-sm"
+              class="q-mx-sm q-transition"
               no-caps
+              :class="{'scale-hover': $q.screen.gt.xs}"
             />
           </div>
         </div>
@@ -96,86 +97,4 @@ const imagenUrl = computed(() => {
 
 </script>
 
-<style scoped>
-/* Contenedor para ancho completo */
-.full-width-container {
-  width: 100vw;
-  position: relative;
-  left: 50%;
-  right: 50%;
-  margin-left: -50vw;
-  margin-right: -50vw;
-  padding: 0;
-  overflow-x: hidden;
-}
 
-.pacto-verde-component {
-  width: 100%;
-  background-color: var(--q-grey-1);
-}
-
-.pacto-verde-banner {
-  border-radius: 0;
-  overflow: hidden;
-  margin: 0;
-  width: 100%;
-}
-
-.pacto-verde-component .certiffy-contenedor {
-  max-width: 1200px;
-  margin: 0 auto;
-  padding: 0 1rem;
-}
-
-.pacto-verde-component .category-card {
-  transition: transform 0.3s ease, box-shadow 0.3s ease;
-}
-
-.pacto-verde-component .category-card:hover {
-  transform: translateY(-5px);
-  box-shadow: 0 5px 15px rgba(0,0,0,0.1);
-}
-
-.pacto-verde-component .category-chip {
-  transition: transform 0.2s ease;
-}
-
-.pacto-verde-component .category-chip:hover {
-  transform: scale(1.05);
-}
-
-/* Estilos responsivos para dispositivos móviles */
-@media (max-width: 599px) {
-  .pacto-verde-component .feature-text {
-    font-size: 0.9rem !important;
-  }
-  
-  .pacto-verde-component .feature-item {
-    min-height: 40px !important;
-    padding: 8px 0 !important;
-  }
-  
-  .pacto-verde-component .feature-icon {
-    font-size: 1rem !important;
-  }
-  
-  .pacto-verde-component .header-categories {
-    margin-top: 2rem !important;
-  }
-  
-  .pacto-verde-component .certiffy-contenedor {
-    padding: 0 0.5rem;
-  }
-}
-
-/* Ajustes para tablets */
-@media (min-width: 600px) and (max-width: 1023px) {
-  .pacto-verde-component .feature-text {
-    font-size: 1rem !important;
-  }
-  
-  .pacto-verde-component .feature-item {
-    min-height: 48px !important;
-  }
-}
-</style>

@@ -1,7 +1,7 @@
 <template>
-  <div class="imagen-texto-izquierda-container">
+  <div class="q-mx-auto q-my-sm q-px-sm" style="max-width: 1080px; width: 100%; position: relative;">
     <!-- Depuración si está habilitado -->
-    <div v-if="props.debugMode || internalDebugMode" class="debug-info q-mb-xs">
+    <div v-if="props.debugMode || internalDebugMode" class="q-mb-xs bg-grey-2 rounded-borders q-pa-sm">
       <div class="text-subtitle2 text-primary q-pb-xs">Componente: ApiImagenTextoIzquierda</div>
       <q-toggle v-model="internalDebugMode" label="Mostrar debug interno" dense size="sm" />
       <div v-if="internalDebugMode" class="q-mt-xs">
@@ -22,7 +22,7 @@
     </div>
     
     <!-- Estado de error -->
-    <div v-else-if="error" class="error-container q-pa-xs">
+    <div v-else-if="error" class="bg-red-1 rounded-borders q-pa-xs">
       <div class="text-negative text-caption">
         <q-icon name="error" size="1rem" />
         <span class="q-ml-sm">{{ error }}</span>
@@ -30,21 +30,32 @@
     </div>
     
     <!-- Contenido principal -->
-    <div v-else class="custom-layout">
+    <div v-else class="row items-center q-col-gutter-md bg-white rounded-borders shadow-1 overflow-hidden">
       <!-- Texto izquierda -->
-      <div class="texto-lado">
-        <h2 v-if="title" class="text-subtitle1 text-weight-bold titulo-seccion">{{ title }}</h2>
-        <div v-if="content" class="content-text" v-html="content"></div>
+      <div class="col-12 col-md-7 q-px-md order-2 order-md-1">
+        <div v-if="title" class="q-mb-sm">
+          <h2 class="text-subtitle1 text-weight-bold text-dark q-mb-xs" style="position: relative; display: inline-block;">
+            {{ title }}
+            <div class="q-mt-xs bg-primary" style="width: 30px; height: 2px; border-radius: 1px;"></div>
+          </h2>
+        </div>
+        <div v-if="content" class="text-body2 text-grey-8" v-html="content"></div>
       </div>
       
       <!-- Imagen derecha -->
-      <div class="imagen-lado">
-        <img 
-          :src="imageUrl" 
-          :alt="imageAlt" 
-          class="imagen-normal" 
-          @error="handleImageError"
-        />
+      <div class="col-12 col-md-5 order-1 order-md-2">
+        <div class="q-hoverable">
+          <q-img 
+            :src="imageUrl" 
+            :alt="imageAlt" 
+            class="rounded-borders shadow-2 q-transition" 
+            spinner-color="primary"
+            @error="handleImageError"
+            :ratio="4/5"
+            style="transition: transform 0.3s ease;"
+            :class="{'scale-hover': $q.screen.gt.xs}"
+          />
+        </div>
       </div>
     </div>
   </div>
@@ -156,149 +167,4 @@ onMounted(() => {
 });
 </script>
 
-<style scoped>
-.imagen-texto-izquierda-container {
-  margin: 0.5rem auto;
-  position: relative;
-  max-width: 1080px;
-  width: 100%;
-  padding: 0 0.5rem;
-}
 
-/* Nuevo layout personalizado */
-.custom-layout {
-  display: flex;
-  flex-direction: row;
-  align-items: center;
-  gap: 1rem;
-  background-color: #fff;
-  border-radius: 6px;
-  overflow: hidden;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
-}
-
-.imagen-lado {
-  flex: 0 0 45%;
-  position: relative;
-  overflow: hidden;
-  max-height: none;
-  display: flex;
-  align-items: center;
-}
-
-.texto-lado {
-  flex: 0 0 62%;
-  padding: 1rem 1.25rem 1rem 0.5rem;
-}
-
-/* Estilos para la imagen estándar */
-.imagen-normal {
-  width: 100%;
-  height: auto;
-  aspect-ratio: 4/5;
-  object-fit: fill;
-  display: block;
-  transition: transform 0.3s ease;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
-  border-radius: 4px; /* Opcional: añadir bordes redondeados */
-}
-
-.imagen-lado:hover .imagen-normal {
-  transform: scale(1.02);
-}
-
-.titulo-seccion {
-  position: relative;
-  display: inline-block;
-  margin-bottom: 0.5rem;
-  font-weight: 600;
-  color: #263238;
-  font-size: 1rem;
-}
-
-.titulo-seccion::after {
-  content: '';
-  position: absolute;
-  bottom: -4px;
-  left: 0;
-  width: 30px;
-  height: 2px;
-  background: var(--q-primary);
-  border-radius: 1px;
-}
-
-.content-text {
-  font-size: 0.85rem;
-  line-height: 1.4;
-  color: #455a64;
-}
-
-.content-text p {
-  margin-bottom: 0.5rem;
-}
-
-.content-text a {
-  color: var(--q-primary);
-  text-decoration: none;
-  font-weight: 500;
-  transition: color 0.2s ease;
-}
-
-.content-text a:hover {
-  color: var(--q-secondary);
-  text-decoration: underline;
-}
-
-/* Estilo para debug */
-.debug-info {
-  font-size: 0.7rem;
-  background: rgba(0, 0, 0, 0.03);
-  border-radius: 4px;
-  padding: 0.25rem;
-  margin-bottom: 0.25rem;
-}
-
-/* Estilo para error */
-.error-container {
-  font-size: 0.75rem;
-  background: rgba(255, 0, 0, 0.03);
-  border-radius: 4px;
-  padding: 0.25rem;
-}
-
-@media (max-width: 767px) {
-  .imagen-texto-izquierda-container {
-    margin: 0.5rem auto;
-    padding: 0 0.25rem;
-  }
-  
-  .custom-layout {
-    flex-direction: column-reverse; /* Invertido para móvil: primero imagen, luego texto */
-    gap: 0.5rem;
-  }
-  
-  .imagen-lado {
-    flex: 0 0 100%;
-    width: 100%;
-  }
-  
-  .texto-lado {
-    flex: 0 0 100%;
-    width: 100%;
-    padding: 0.75rem 0.5rem;
-  }
-  
-  .imagen-normal {
-    max-height: 180px;
-  }
-  
-  .titulo-seccion {
-    font-size: 0.9rem;
-  }
-  
-  .content-text {
-    font-size: 0.8rem;
-    line-height: 1.3;
-  }
-}
-</style>

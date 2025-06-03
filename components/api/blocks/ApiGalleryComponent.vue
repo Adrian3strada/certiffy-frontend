@@ -1,5 +1,5 @@
 <template>
-  <div class="api-gallery-component q-my-xl">
+  <div class="q-my-xl q-mx-auto" style="max-width: 1200px;">
     <h4 class="text-center q-mb-md" v-if="galleryTitle">{{ galleryTitle }}</h4>
     
     <!-- Carrusel de imágenes para pantallas pequeñas -->
@@ -11,7 +11,8 @@
       infinite
       swipeable
       control-color="primary"
-      class="rounded-borders mobile-carousel"
+      class="rounded-borders"
+      style="height: 350px;"
       v-if="$q.screen.lt.md"
     >
       <q-carousel-slide 
@@ -23,20 +24,20 @@
         <q-img
           :src="formatImageUrl(item.image?.url)"
           :alt="item.image?.title || ''"
-          class="gallery-image"
+          class="rounded-borders q-transition"
           fit="contain"
           spinner-color="primary"
           spinner-size="42px"
         >
           <template v-if="item.caption" v-slot:caption>
-            <div class="image-caption">{{ item.caption }}</div>
+            <div class="bg-black-6 q-pa-sm">{{ item.caption }}</div>
           </template>
         </q-img>
       </q-carousel-slide>
     </q-carousel>
     
     <!-- Grid de imágenes para pantallas medianas y grandes -->
-    <div class="row q-col-gutter-md desktop-gallery" v-else>
+    <div class="row q-col-gutter-md" v-else>
       <div 
         v-for="(item, index) in galleryImages" 
         :key="index"
@@ -45,15 +46,19 @@
         <q-img
           :src="formatImageUrl(item.image?.url)"
           :alt="item.image?.title || ''"
-          class="gallery-image"
+          class="rounded-borders cursor-pointer q-transition"
+          :class="{'q-hoverable': true}"
+          style="transition: transform 0.3s ease, box-shadow 0.3s ease;"
           fit="cover"
           spinner-color="primary"
           spinner-size="42px"
           :ratio="4/3"
           @click="openLightbox(index)"
+          @mouseover="e => { e.target.style.transform = 'translateY(-5px)'; e.target.style.boxShadow = '0 10px 20px rgba(0, 0, 0, 0.15)'; }"
+          @mouseout="e => { e.target.style.transform = 'translateY(0)'; e.target.style.boxShadow = 'none'; }"
         >
           <template v-if="item.caption" v-slot:caption>
-            <div class="image-caption">{{ item.caption }}</div>
+            <div class="bg-black-6 q-pa-sm">{{ item.caption }}</div>
           </template>
         </q-img>
       </div>
@@ -61,16 +66,16 @@
     
     <!-- Lightbox para ver imágenes en tamaño completo -->
     <q-dialog v-model="lightboxOpen" full-width full-height>
-      <q-card class="lightbox-card">
-        <q-card-section class="lightbox-header row items-center">
-          <div class="text-h6 lightbox-title">{{ currentImage?.image?.title || 'Imagen' }}</div>
+      <q-card class="bg-dark text-white">
+        <q-card-section class="bg-black-8 row items-center">
+          <div class="text-h6">{{ currentImage?.image?.title || 'Imagen' }}</div>
           <q-space />
           <q-btn icon="close" flat round dense v-close-popup />
         </q-card-section>
         
         <q-separator />
         
-        <q-card-section class="lightbox-content">
+        <q-card-section class="flex flex-center" style="height: calc(100vh - 100px); padding: 0;">
           <q-carousel
             v-model="lightboxSlide"
             animated
@@ -79,7 +84,7 @@
             infinite
             swipeable
             control-color="white"
-            class="lightbox-carousel"
+            class="full-width full-height bg-transparent"
           >
             <q-carousel-slide 
               v-for="(item, index) in galleryImages" 
@@ -90,12 +95,12 @@
               <q-img
                 :src="formatImageUrl(item.image?.url)"
                 :alt="item.image?.title || ''"
-                class="lightbox-image"
+                style="max-height: 85vh;"
                 fit="contain"
                 spinner-color="white"
                 spinner-size="42px"
               />
-              <div v-if="item.caption" class="lightbox-caption">
+              <div v-if="item.caption" class="absolute-bottom bg-black-6 text-white q-pa-md text-center">
                 {{ item.caption }}
               </div>
             </q-carousel-slide>
@@ -172,73 +177,4 @@ function openLightbox(index) {
 }
 </script>
 
-<style scoped>
-.api-gallery-component {
-  max-width: 1200px;
-  margin: 0 auto;
-}
 
-.gallery-image {
-  border-radius: 8px;
-  transition: transform 0.3s ease, box-shadow 0.3s ease;
-}
-
-.desktop-gallery .gallery-image {
-  cursor: pointer;
-}
-
-.desktop-gallery .gallery-image:hover {
-  transform: translateY(-5px);
-  box-shadow: 0 10px 20px rgba(0, 0, 0, 0.15);
-}
-
-.image-caption {
-  background-color: rgba(0, 0, 0, 0.6);
-  padding: 8px;
-}
-
-.lightbox-card {
-  background-color: #1e1e1e;
-  color: white;
-}
-
-.lightbox-header {
-  background-color: rgba(0, 0, 0, 0.8);
-}
-
-.lightbox-content {
-  height: calc(100vh - 100px);
-  padding: 0;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-}
-
-.lightbox-carousel {
-  height: 100%;
-  width: 100%;
-  background: transparent;
-}
-
-.lightbox-image {
-  max-height: 85vh;
-}
-
-.lightbox-caption {
-  position: absolute;
-  bottom: 0;
-  left: 0;
-  right: 0;
-  background-color: rgba(0, 0, 0, 0.6);
-  color: white;
-  padding: 16px;
-  text-align: center;
-}
-
-/* Estilos responsivos */
-@media (max-width: 767px) {
-  .mobile-carousel {
-    height: 350px;
-  }
-}
-</style>

@@ -1,6 +1,6 @@
 <template>
-  <section class="cards-ed-component q-pa-md">
-    <div class="row q-col-gutter-md q-col-gutter-lg-xl justify-center">
+  <section class="q-pa-md">
+    <div class="row q-col-gutter-md q-col-gutter-lg-xl justify-center" style="max-width: 1200px; margin: 0 auto;">
       <div 
         v-for="(tarjeta, index) in tarjetas" 
         :key="index" 
@@ -14,16 +14,16 @@
           :color-accion-primaria="tarjeta.enlace?.style || 'primary'"
           :efecto-hover="true"
           :borde="true"
-          tarjeta-clase="card-ed h-100"
+          tarjeta-clase="h-100 q-hoverable"
         >
           <template v-slot:contenido-personalizado>
-            <q-list v-if="tarjeta.textos_adicionales && tarjeta.textos_adicionales.length" padding separator class="feature-list">
-              <q-item v-for="(texto, idx) in tarjeta.textos_adicionales" :key="idx" class="feature-item">
+            <q-list v-if="tarjeta.textos_adicionales && tarjeta.textos_adicionales.length" padding separator class="q-mt-md rounded-borders">
+              <q-item v-for="(texto, idx) in tarjeta.textos_adicionales" :key="idx" clickable class="q-hoverable" :class="{'q-py-sm': $q.screen.lt.sm}">
                 <q-item-section avatar>
-                  <q-icon name="check_circle" color="positive" size="sm" class="feature-icon" />
+                  <q-icon name="check_circle" color="positive" :size="$q.screen.lt.sm ? 'xs' : 'sm'" class="q-mr-sm" />
                 </q-item-section>
                 <q-item-section>
-                  <q-item-label class="feature-text" v-html="texto"></q-item-label>
+                  <q-item-label :class="{'text-caption': $q.screen.lt.sm, 'text-body2': !$q.screen.lt.sm}" v-html="texto"></q-item-label>
                 </q-item-section>
               </q-item>
             </q-list>
@@ -82,59 +82,4 @@ const processImageUrl = (url) => {
 };
 </script>
 
-<style scoped>
-.cards-ed-component {
-  width: 100%;
-  margin: 0 auto;
-  max-width: 1200px;
-}
 
-.feature-list {
-  margin-top: 1rem;
-  border-radius: 4px;
-}
-
-.feature-item {
-  min-height: 48px;
-  transition: background-color 0.2s ease;
-}
-
-.feature-item:hover {
-  background-color: rgba(0, 0, 0, 0.03);
-}
-
-.feature-icon {
-  margin-right: 8px;
-}
-
-.feature-text {
-  font-size: 0.95rem;
-}
-
-/* Estilos responsivos para dispositivos móviles */
-@media (max-width: 599px) {
-  .feature-text {
-    font-size: 0.9rem !important;
-  }
-  
-  .feature-item {
-    min-height: 40px !important;
-    padding: 8px 0 !important;
-  }
-  
-  .feature-icon {
-    font-size: 1rem !important;
-  }
-}
-
-/* Ajustes para tablets */
-@media (min-width: 600px) and (max-width: 1023px) {
-  .feature-text {
-    font-size: 0.92rem !important;
-  }
-  
-  .feature-item {
-    min-height: 44px !important;
-  }
-}
-</style>

@@ -1,25 +1,44 @@
 <template>
-  <div class="api-hero-banner-container">
+  <div style="width: 100vw; position: relative; left: 50%; right: 50%; margin-left: -50vw; margin-right: -50vw; margin-top: -24px; padding: 0; overflow-x: hidden;">
     <!-- Hero banner dinámico con imagen y superposición de texto -->
     <div 
-      class="hero-banner" 
-      :style="{ backgroundImage: imagenUrl ? `url(${imagenUrl})` : '' }"
-      :class="{ 'compact': compact }"
+      class="relative-position overflow-hidden" 
+      :style="{ 
+        backgroundImage: imagenUrl ? `url(${imagenUrl})` : '',
+        backgroundPosition: 'center',
+        backgroundSize: 'cover',
+        backgroundRepeat: 'no-repeat',
+        height: compact ? '300px' : '400px',
+        width: '100%',
+      }"
     >
-      <div class="hero-overlay" :class="{ 'overlay-light': lightOverlay }"></div>
-      <div class="hero-content">
-        <div class="hero-inner">
-          <div class="hero-text-container hero-text-centered">
-              <h1 class="hero-title" v-if="block?.value?.imagen?.title">
+      <div 
+        class="absolute-full" 
+        :style="{ 
+          backgroundColor: lightOverlay ? 'rgba(0, 0, 0, 0.2)' : 'rgba(0, 0, 0, 0.4)', 
+          zIndex: 2 
+        }"
+      ></div>
+      <div class="absolute-full flex flex-center" style="z-index: 3; padding: 0 2rem;">
+        <div class="flex justify-center full-width">
+          <div class="text-center" style="max-width: 600px;">
+              <h1 
+                class="text-white text-weight-bold q-ma-none q-mb-md text-h3" 
+                style="text-shadow: 0 2px 4px rgba(0, 0, 0, 0.5);" 
+                v-if="block?.value?.imagen?.title"
+              >
                 {{ block.value.imagen.title }}
               </h1>
-              <div class="hero-text" v-if="block?.value?.texto">
-                <p>{{ block.value.texto }}</p>
+              <div class="q-mb-lg" v-if="block?.value?.texto">
+                <p class="text-white text-body1 q-ma-none" style="line-height: 1.5; text-shadow: 0 1px 3px rgba(0, 0, 0, 0.5);">
+                  {{ block.value.texto }}
+                </p>
               </div>
-              <div class="hero-actions" v-if="showAction">
+              <div class="q-mt-md" v-if="showAction">
                 <q-btn 
                   color="primary" 
-                  class="q-py-sm q-px-md" 
+                  class="q-py-sm q-px-md q-transition" 
+                  :class="{'q-hoverable': true}"
                   size="lg" 
                   no-caps
                   :to="actionLink"
@@ -95,125 +114,3 @@ const imagenUrl = computed(() => {
   return null;
 });
 </script>
-
-<style scoped>
-.api-hero-banner-container {
-  width: 100vw;
-  position: relative;
-  left: 50%;
-  right: 50%;
-  margin-left: -50vw;
-  margin-right: -50vw;
-  margin-top: -24px;
-  padding: 0;
-  overflow-x: hidden;
-}
-
-.hero-banner {
-  position: relative;
-  width: 100%;
-  height: 400px;
-  overflow: hidden;
-  background-position: center;
-  background-size: cover;
-  background-repeat: no-repeat;
-  border-radius: 0;
-  margin: 0;
-}
-
-.hero-banner.compact {
-  height: 300px;
-}
-
-.hero-overlay {
-  position: absolute;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-  background-color: rgba(0, 0, 0, 0.4);
-  z-index: 2;
-}
-
-.hero-overlay.overlay-light {
-  background-color: rgba(0, 0, 0, 0.2);
-}
-
-.hero-content {
-  position: relative;
-  z-index: 3;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  height: 100%;
-  color: white;
-  padding: 0 2rem;
-}
-
-.hero-inner {
-  width: 100%;
-  display: flex;
-  justify-content: center;
-}
-
-.hero-text-container {
-  max-width: 600px;
-}
-
-.hero-text-centered {
-  text-align: center;
-}
-
-.hero-title {
-  font-size: 2.5rem;
-  font-weight: bold;
-  margin: 0 0 1rem 0;
-  text-shadow: 0 2px 4px rgba(0, 0, 0, 0.5);
-  color: #ffffff;
-}
-
-.hero-text {
-  margin-bottom: 1.5rem;
-}
-
-.hero-text p {
-  font-size: 1.2rem;
-  line-height: 1.5;
-  text-shadow: 0 1px 3px rgba(0, 0, 0, 0.5);
-  margin: 0;
-  color: #ffffff;
-}
-
-.hero-actions {
-  margin-top: 1.5rem;
-}
-
-/* Responsive styles */
-@media (max-width: 767px) {
-  .hero-banner {
-    height: 350px;
-  }
-  
-  .hero-title {
-    font-size: 2rem;
-  }
-  
-  .hero-text p {
-    font-size: 1.1rem;
-  }
-}
-
-@media (max-width: 480px) {
-  .hero-banner {
-    height: 300px;
-  }
-  
-  .hero-title {
-    font-size: 1.8rem;
-  }
-  
-  .hero-text p {
-    font-size: 1rem;
-  }
-}
-</style>

@@ -1,12 +1,12 @@
 <template>
-  <section class="q-py-md api-video-component">
+  <section class="q-py-md">
     <div class="q-mx-auto" style="max-width: 1200px">
       
       <!-- Diseño principal con carrusel, textos y video -->
-      <q-card flat bordered class="hero-card q-mb-lg shadow-3">
+      <q-card flat bordered class="q-mb-lg shadow-3 overflow-hidden rounded-borders" style="height: 650px; position: relative; background-color: transparent; border: none;">
         <!-- Carrusel como fondo -->
-        <div class="carousel-background">
-          <!-- Usar URLs directas en lugar de la función -->
+        <div class="absolute-full" style="z-index: 1">
+          <!-- Carrusel de imágenes -->
           <q-carousel
             v-model="activeSlide"
             animated
@@ -15,20 +15,21 @@
             control-color="white"
             control-type="unelevated"
             control-text-color="primary"
-            class="bg-grey-3 full-height carousel-control-fix"
+            class="bg-grey-3 full-height"
             height="650px"
             padding
             :autoplay="autoplayDuration"
             @mouseenter="pauseAutoplay"
             @mouseleave="resumeAutoplay"
+            style="z-index: 3; position: relative"
           >
             <q-carousel-slide 
               v-for="(item, index) in carouselImages" 
               :key="index" 
               :name="index" 
-              class="carousel-slide"
+              class="q-pa-none relative-position"
             >
-              <!-- Usar el proxy de imágenes para evitar problemas de CORS -->
+              <!-- Usar el proxy de imágenes -->
               <q-img 
                 :src="`/api/proxy-image?url=${encodeURIComponent(item.image.url)}`" 
                 spinner-color="primary"
@@ -36,10 +37,15 @@
                 class="absolute-full"
                 fit="cover"
               >
-                <!-- Mostrar el caption de la imagen si existe (ahora en la parte superior) -->
-                <div v-if="item.caption" class="caption-overlay absolute-top text-center">
+                <!-- Caption en la parte superior -->
+                <div v-if="item.caption" class="absolute-top text-center w-100" 
+                     style="background: linear-gradient(to bottom, rgba(0,0,0,0.85) 0%, rgba(0,0,0,0.7) 50%, rgba(0,0,0,0.4) 80%, transparent 100%); padding: 2rem 1rem 4rem; z-index: 4;">
                   <div class="q-mx-auto" style="max-width: 1000px;">
-                    <h3 class="text-h3 text-white text-weight-bold q-mb-none">{{ item.caption }}</h3>
+                    <h3 class="text-h3 text-white text-weight-bold q-mb-none" 
+                        style="text-shadow: 2px 2px 4px rgba(0,0,0,0.9); line-height: 1.4; max-width: 90%; margin: 0 auto; letter-spacing: 0.5px;"
+                        :class="{'text-h4': $q.screen.lt.md, 'text-h5': $q.screen.lt.sm}">
+                      {{ item.caption }}
+                    </h3>
                   </div>
                 </div>
                 
@@ -56,28 +62,35 @@
             </q-carousel-slide>
           </q-carousel>
           
-          <!-- Overlay suave para mejorar la legibilidad -->
-          <div class="bg-overlay"></div>
+          <!-- Overlay para legibilidad -->
+          <div class="absolute-full" 
+               style="background: linear-gradient(to right, rgba(0,0,0,0.8) 30%, rgba(0,0,0,0.5) 70%, rgba(0,0,0,0.3) 100%); z-index: 2; pointer-events: none;"></div>
         </div>
         
         <!-- Contenido principal -->
-        <div class="content-container">
-          <!-- Sólo mostramos el título principal en la parte superior, los captions aparecen en cada slide -->
-          <div class="title-container q-pa-xl">
-            <h2 v-if="showMainTitle" class="text-h3 text-weight-bold q-mb-lg text-white main-title">{{ mainTitle }}</h2>
+        <div class="relative-position full-height" style="z-index: 3">
+          <!-- Título principal -->
+          <div class="q-pa-xl">
+            <h2 v-if="showMainTitle" class="text-h3 text-weight-bold q-mb-lg text-white"
+                :class="{'text-h4': $q.screen.lt.md, 'text-h5': $q.screen.lt.sm}">
+              {{ mainTitle }}
+            </h2>
           </div>
           
-          <!-- Video en la esquina inferior derecha -->
-          <div class="video-corner-container">
-            <q-card flat class="video-card bg-transparent">
+          <!-- Video en la esquina -->
+          <div class="absolute-bottom-right q-mb-md q-mr-md" 
+               style="width: 320px; z-index: 10;"
+               :class="{'absolute-bottom q-mb-xl': $q.screen.lt.md}">
+            <q-card flat class="bg-transparent" style="backdrop-filter: blur(5px); border-radius: 12px; background-color: rgba(0,0,0,0.6);">
               <q-card-section>
-                <!-- Video con miniatura y botón de reproducción -->
-                <div class="video-container">
-                  <!-- Miniatura del video -->
-                  <div v-if="!videoActive" class="video-thumbnail-container">
+                <!-- Video con miniatura y botón -->
+                <div class="relative-position rounded-borders overflow-hidden" style="width: 320px; height: 180px;">
+                  <!-- Miniatura -->
+                  <div v-if="!videoActive" class="full-width full-height">
                     <q-img
                       :src="videoUrl ? getYouTubeThumbnail(videoUrl) : 'https://cdn.quasar.dev/img/parallax2.jpg'"
-                      class="video-thumbnail rounded-borders"
+                      class="full-width full-height rounded-borders q-hoverable q-transition"
+                      style="border: 2px solid white; box-shadow: 0 5px 15px rgba(0,0,0,0.3); transition: transform 0.3s ease;"
                       height="180px"
                       width="320px"
                     >
@@ -98,7 +111,8 @@
                           icon="play_arrow"
                           size="lg"
                           @click="activateVideo"
-                          class="play-button q-hoverable"
+                          class="q-hoverable"
+                          style="transform: scale(1.5); transition: transform 0.3s ease; box-shadow: 0 0 20px rgba(0,0,0,0.5);"
                         />
                       </div>
                     </q-img>
@@ -110,13 +124,14 @@
                     :src="videoUrl"
                     frameborder="0"
                     allowfullscreen
-                    class="video-iframe"
+                    class="rounded-borders full-width full-height"
+                    style="border: none; box-shadow: 0 5px 15px rgba(0,0,0,0.3);"
                     width="320"
                     height="180"
                   ></iframe>
                   
-                  <!-- Placeholder cuando no hay video -->
-                  <div v-if="!videoUrl && !videoActive" class="video-placeholder flex flex-center">
+                  <!-- Placeholder sin video -->
+                  <div v-if="!videoUrl && !videoActive" class="full-width full-height flex flex-center bg-grey-3">
                     <div class="text-center">
                       <q-icon name="videocam_off" size="2rem" color="grey-5" />
                       <div class="text-caption q-mt-sm">Video no disponible</div>
@@ -299,231 +314,3 @@ const activateVideo = () => {
   videoActive.value = true;
 };
 </script>
-
-<style scoped>
-/* Estilos para el componente principal */
-.api-video-component .hero-card {
-  position: relative;
-  overflow: hidden;
-  border-radius: 12px;
-  background-color: transparent;
-  border: none;
-  height: 650px;
-}
-
-/* Estilos para el carrusel de fondo */
-.api-video-component .carousel-background {
-  position: absolute;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-  z-index: 1;
-}
-
-/* Asegurar que los controles del carrusel sean accesibles */
-.api-video-component .carousel-control-fix {
-  z-index: 3 !important;
-  position: relative;
-}
-
-.api-video-component .carousel-control-fix :deep(.q-carousel__navigation) {
-  z-index: 10 !important;
-  position: absolute;
-  bottom: 30px;
-  left: 0;
-  right: 0;
-  pointer-events: all;
-  padding-bottom: 15px;
-}
-
-.api-video-component .carousel-control-fix :deep(.q-carousel__navigation-inner) {
-  height: 20px; /* Dar más espacio a los indicadores */
-}
-
-.api-video-component .carousel-control-fix :deep(.q-carousel__arrow) {
-  z-index: 10 !important;
-  color: white;
-  background: rgba(0,0,0,0.5);
-  pointer-events: all;
-  margin: 0 15px;
-}
-
-/* Overlay para mejorar legibilidad del texto */
-.api-video-component .bg-overlay {
-  position: absolute;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-  background: linear-gradient(to right, rgba(0,0,0,0.8) 30%, rgba(0,0,0,0.5) 70%, rgba(0,0,0,0.3) 100%);
-  z-index: 2;
-  pointer-events: none; /* Para que se puedan hacer clic en los controles */
-}
-
-/* Estilos para el caption de cada imagen (ahora en la parte superior) */
-.api-video-component .caption-overlay {
-  background: linear-gradient(to bottom, rgba(0,0,0,0.85) 0%, rgba(0,0,0,0.7) 50%, rgba(0,0,0,0.4) 80%, transparent 100%);
-  padding: 2rem 1rem 4rem;
-  width: 100%;
-  text-align: center;
-  z-index: 4;
-}
-
-.api-video-component .caption-overlay h3 {
-  text-shadow: 2px 2px 4px rgba(0,0,0,0.9);
-  line-height: 1.4;
-  max-width: 90%;
-  margin: 0 auto;
-  font-size: 2.5rem;
-  letter-spacing: 0.5px;
-}
-
-/* Contenedor del contenido principal */
-.api-video-component .content-container {
-  position: relative;
-  z-index: 3;
-  height: 100%;
-}
-
-/* Contenedor de texto */
-.api-video-component .text-container {
-  width: 100%;
-  max-width: 65%;
-}
-
-/* Posicionamiento del video en la esquina */
-.api-video-component .video-corner-container {
-  position: absolute;
-  bottom: 30px;
-  right: 30px;
-  width: 320px;
-  z-index: 10;
-}
-
-/* Estilos para los textos */
-.api-video-component .text-content {
-  color: white;
-  text-shadow: 1px 1px 3px rgba(0,0,0,0.5);
-}
-
-/* Estilos para el contenedor de video */
-.api-video-component .video-container {
-  width: 320px;
-  height: 180px;
-  border-radius: 8px;
-  overflow: hidden;
-  position: relative;
-}
-
-.api-video-component .video-thumbnail-container {
-  width: 100%;
-  height: 100%;
-}
-
-.api-video-component .video-thumbnail {
-  border: 2px solid white;
-  box-shadow: 0 5px 15px rgba(0,0,0,0.3);
-  transition: transform 0.3s ease;
-}
-
-.api-video-component .video-thumbnail:hover {
-  transform: scale(1.02);
-}
-
-.api-video-component .video-iframe {
-  border: none;
-  border-radius: 8px;
-  box-shadow: 0 5px 15px rgba(0,0,0,0.3);
-}
-
-.api-video-component .play-button {
-  transform: scale(1.5);
-  transition: transform 0.3s ease;
-  box-shadow: 0 0 20px rgba(0,0,0,0.5);
-}
-
-.api-video-component .play-button:hover {
-  transform: scale(1.8);
-}
-
-.api-video-component .video-card {
-  backdrop-filter: blur(5px);
-  border-radius: 12px;
-  background-color: rgba(0,0,0,0.6);
-}
-
-/* Estilos responsivos */
-@media (max-width: 1023px) {
-  .api-video-component .hero-card {
-    height: auto;
-    min-height: 600px;
-  }
-  
-  .api-video-component .text-container {
-    max-width: 100%;
-    padding-bottom: 250px;
-  }
-  
-  .api-video-component .video-corner-container {
-    bottom: 60px;
-    right: 50%;
-    transform: translateX(50%);
-  }
-  
-  .api-video-component .carousel-background {
-    position: absolute;
-    height: 100%;
-  }
-  
-  .api-video-component .bg-overlay {
-    background: linear-gradient(to bottom, rgba(0,0,0,0.5) 0%, rgba(0,0,0,0.8) 100%);
-  }
-}
-
-@media (max-width: 599px) {
-  .api-video-component .hero-card {
-    min-height: 700px;
-  }
-  
-  .api-video-component .text-container {
-    padding-bottom: 220px;
-  }
-  
-  .api-video-component .video-corner-container {
-    width: 280px;
-    bottom: 30px;
-  }
-  
-  .api-video-component .video-container {
-    width: 280px;
-    height: 158px;
-  }
-  
-  .api-video-component .video-iframe,
-  .api-video-component .video-thumbnail {
-    width: 280px;
-    height: 158px;
-  }
-  
-  .api-video-component .play-button {
-    transform: scale(1.2);
-  }
-  
-  .api-video-component .play-button:hover {
-    transform: scale(1.4);
-  }
-  
-  .api-video-component .q-pa-xl {
-    padding: 16px;
-  }
-  
-  .api-video-component .text-h3 {
-    font-size: 1.5rem;
-  }
-  
-  .api-video-component .text-h5 {
-    font-size: 1.1rem;
-  }
-}
-</style>

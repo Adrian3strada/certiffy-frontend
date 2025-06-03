@@ -1,5 +1,5 @@
 <template>
-  <div class="api-carousel-component">
+  <div>
     <div v-if="loading" class="flex flex-center q-pa-xl full-height">
       <q-spinner color="primary" size="3em" />
     </div>
@@ -8,9 +8,9 @@
       <div class="text-negative text-h6">{{ error }}</div>
     </div>
     
-    <div v-else class="full-width-container">
+    <div v-else style="width: 100vw; position: relative; left: 50%; right: 50%; margin-left: -50vw; margin-right: -50vw; padding: 0;">
       <!-- Hero Banner con imagen de fondo y video en esquina -->
-      <div v-if="showCarousel && carouselData && carouselData.images && carouselData.images.length > 0" class="hero-banner-container full-width">
+      <div v-if="showCarousel && carouselData && carouselData.images && carouselData.images.length > 0" class="relative-position full-width shadow-10" style="overflow: hidden;">
         <q-carousel
           v-model="slide"
           animated
@@ -20,7 +20,7 @@
           swipeable
           control-color="white"
           navigation-icon="circle"
-          class="hero-carousel"
+          style="overflow: hidden; width: 100%; height: 100vh; min-height: 600px; max-height: 100vh;"
           :autoplay="autoplay"
           @mouseenter="autoplay = false"
           @mouseleave="autoplay = props.autoplayDuration"
@@ -34,10 +34,10 @@
             v-for="(item, index) in carouselData.images" 
             :key="index" 
             :name="index" 
-            class="hero-slide"
+            class="relative-position full-height full-width"
           >
             <!-- Imagen de fondo a pantalla completa -->
-            <div class="hero-background">
+            <div class="absolute-full" style="z-index: 1;">
               <q-img 
                 :src="getImageUrl(item.image)" 
                 spinner-color="primary"
@@ -47,24 +47,66 @@
             </div>
             
             <!-- Overlay con gradiente para legibilidad del texto -->
-            <div class="hero-overlay"></div>
-                        <!-- Contenido superpuesto con layout moderno -->
-            <div class="hero-content">
-              <div class="hero-flex-container">
+            <div class="absolute-full" style="z-index: 2; background: linear-gradient(90deg, rgba(0,0,0,0.85) 0%, rgba(0,0,0,0.65) 40%, rgba(0,0,0,0.4) 100%);"></div>
+            
+            <!-- Contenido superpuesto con layout moderno -->
+            <div class="absolute-full" style="z-index: 3; padding: 0;">
+              <div class="relative-position full-width full-height column justify-between">
                 <!-- Texto principal del Hero Banner -->
-                <div class="hero-text">
-                  <h2 v-if="item.caption" class="hero-caption text-white text-weight-bold">{{ item.caption }}</h2>
+                <div 
+                  class="absolute-bottom-left q-mb-xl q-ml-xl" 
+                  style="max-width: 650px;"
+                  :class="{
+                    'absolute-bottom text-center q-mb-xl self-center': $q.screen.lt.md,
+                    'q-mx-auto': $q.screen.lt.md
+                  }"
+                  :style="{
+                    'max-width': $q.screen.lt.md ? '85%' : '650px',
+                    'bottom': $q.screen.lt.sm ? '30%' : $q.screen.lt.md ? '25%' : '10%',
+                  }"
+                >
+                  <h2 
+                    v-if="item.caption" 
+                    class="text-white text-weight-bold q-ma-none" 
+                    style="text-shadow: 2px 2px 4px rgba(0,0,0,0.5); letter-spacing: -1px;"
+                    :class="{
+                      'text-h2': $q.screen.gt.lg,
+                      'text-h3': $q.screen.gt.md && !$q.screen.gt.lg,
+                      'text-h4': $q.screen.gt.sm && !$q.screen.gt.md,
+                      'text-h5': $q.screen.gt.xs && !$q.screen.gt.sm,
+                      'text-h6': !$q.screen.gt.xs
+                    }"
+                  >
+                    {{ item.caption }}
+                  </h2>
                 </div>
                 
                 <!-- Video miniatura en esquina opuesta -->
-                <div v-if="showVideo && videoData && videoData.video_url && videoData.mostrar_video !== false" class="hero-video">
-                  <div class="video-container">
+                <div 
+                  v-if="showVideo && videoData && videoData.video_url && videoData.mostrar_video !== false" 
+                  class="absolute-bottom-right q-mb-xl q-mr-xl shadow-15 overflow-hidden rounded-borders" 
+                  style="z-index: 4;"
+                  :class="{
+                    'absolute-bottom text-center q-mb-xl self-center': $q.screen.lt.md
+                  }"
+                  :style="{
+                    'width': $q.screen.lt.md ? '65%' : '32%',
+                    'max-width': $q.screen.lt.md ? '450px' : '420px',
+                    'min-width': '250px',
+                    'right': $q.screen.lt.md ? '50%' : '5%',
+                    'transform': $q.screen.lt.md ? 'translateX(50%)' : 'none',
+                    'bottom': $q.screen.lt.sm ? '15%' : '10%',
+                    'width': $q.screen.lt.sm ? '85%' : $q.screen.lt.md ? '65%' : '32%'
+                  }"
+                >
+                  <div class="relative-position" style="padding-bottom: 56.25%; height: 0; overflow: hidden;">
                     <iframe
                       :src="processVideoUrl(videoData.video_url)"
                       frameborder="0"
                       allowfullscreen
                       allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-                      class="video-iframe"
+                      class="absolute-full"
+                      style="width: 100%; height: 100%; border: 0;"
                     ></iframe>
                   </div>
                 </div>
@@ -75,13 +117,11 @@
       </div>
       
       <!-- Contenido de texto -->
-      <div v-if="showParagraphs && paragraphsData && paragraphsData.length > 0" class="text-content q-mt-xl">
-        <div v-for="(paragraph, index) in paragraphsData" :key="index" class="q-mb-lg">
-          <div v-html="paragraph.value" class="text-content-item"></div>
+      <div v-if="showParagraphs && paragraphsData && paragraphsData.length > 0" class="q-mt-xl q-mx-auto" style="max-width: 800px; padding: 0 1.5rem;">
+        <div v-for="(paragraph, index) in paragraphsData" :key="index" class="q-mb-lg text-body1">
+          <div v-html="processedParagraphs[index]" class="q-my-md"></div>
         </div>
       </div>
-      
-      <!-- Se eliminó la sección duplicada del video que aparecía debajo del carousel -->
     </div>
   </div>
 </template>
@@ -183,6 +223,35 @@ const carouselHeight = computed(() => {
 // Título a mostrar (personalizado o de la API)
 const displayTitle = computed(() => {
   return props.customTitle || pageData.value?.title || 'Carrusel API';
+});
+
+// Procesar los párrafos para aplicar estilos de Quasar
+const processedParagraphs = computed(() => {
+  if (!paragraphsData.value || !Array.isArray(paragraphsData.value)) return [];
+  
+  return paragraphsData.value.map(paragraph => {
+    if (!paragraph.value) return '';
+    
+    // Reemplazar las etiquetas HTML con clases de Quasar
+    let processed = paragraph.value
+      // Headings
+      .replace(/<h1([^>]*)>/g, '<h1 class="text-h3 text-weight-bold q-my-md text-certiffy-azul"$1>')
+      .replace(/<h2([^>]*)>/g, '<h2 class="text-h4 text-weight-bold q-my-md text-certiffy-azul"$1>')
+      .replace(/<h3([^>]*)>/g, '<h3 class="text-h5 text-weight-bold q-my-md text-certiffy-azul"$1>')
+      .replace(/<h4([^>]*)>/g, '<h4 class="text-h6 text-weight-bold q-my-md text-certiffy-azul"$1>')
+      // Paragraphs
+      .replace(/<p([^>]*)>/g, '<p class="text-body1 q-my-md"$1>')
+      // Lists
+      .replace(/<ul([^>]*)>/g, '<ul class="q-ml-md q-my-md"$1>')
+      .replace(/<ol([^>]*)>/g, '<ol class="q-ml-md q-my-md"$1>')
+      .replace(/<li([^>]*)>/g, '<li class="q-my-sm"$1>')
+      // Links
+      .replace(/<a([^>]*)>/g, '<a class="text-certiffy-verde text-weight-medium q-transition"$1>')
+      // Images
+      .replace(/<img([^>]*)>/g, '<img class="rounded-borders q-my-md shadow-2"$1>');
+    
+    return processed;
+  });
 });
 
 // Actualizar el ancho de la ventana cuando cambia el tamaño
@@ -360,355 +429,4 @@ const fetchData = async () => {
 };
 </script>
 
-<style scoped>
-/* Estilos base del componente */
-.api-carousel-component {
-  width: 100%;
-  position: relative;
-  overflow: visible;
-  height: auto;
-  padding: 0;
-  margin: 0;
-}
 
-/* Contenedor para ancho completo */
-.full-width-container {
-  width: 100vw;
-  position: relative;
-  left: 50%;
-  right: 50%;
-  margin-left: -50vw;
-  margin-right: -50vw;
-  padding: 0;
-}
-
-/* Hero Banner Container */
-.hero-banner-container {
-  position: relative;
-  width: 100vw;
-  margin: 0;
-  padding: 0;
-  overflow: hidden;
-  box-shadow: 0 8px 30px rgba(0,0,0,0.2);
-}
-
-/* Estilos para el hero carousel */
-.hero-carousel {
-  overflow: hidden;
-  width: 100%;
-  height: 100vh;
-  min-height: 600px;
-  max-height: 100vh;
-  position: relative;
-}
-
-/* Estilo del slide del hero */
-.hero-slide {
-  position: relative;
-  height: 100%;
-  width: 100%;
-  overflow: hidden;
-}
-
-/* Fondo del hero con imagen */
-.hero-background {
-  position: absolute;
-  top: 0;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  z-index: 1;
-}
-
-/* Overlay con gradiente para mejorar legibilidad */
-.hero-overlay {
-  position: absolute;
-  top: 0;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  background: linear-gradient(90deg, rgba(0,0,0,0.85) 0%, rgba(0,0,0,0.65) 40%, rgba(0,0,0,0.4) 100%);
-  z-index: 2;
-}
-
-/* Contenido del hero (texto y video) */
-.hero-content {
-  position: absolute;
-  top: 0;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  z-index: 3;
-  padding: 0;
-}
-
-/* Contenedor flexible para alinear texto y video */
-.hero-flex-container {
-  position: relative;
-  width: 100%;
-  height: 100%;
-  display: flex;
-  flex-direction: column;
-  justify-content: space-between;
-  overflow: hidden;
-}
-
-/* Área del texto principal */
-.hero-text {
-  position: absolute;
-  bottom: 10%;
-  left: 5%;
-  max-width: 650px;
-  margin: 0;
-  
-  @media (max-width: 992px) {
-    bottom: 25%;
-    left: 50%;
-    transform: translateX(-50%);
-    text-align: center;
-    max-width: 85%;
-  }
-  
-  @media (max-width: 576px) {
-    bottom: 30%;
-    max-width: 90%;
-  }
-}
-
-/* Estilo del texto/caption */
-.hero-caption {
-  font-size: 3.5rem;
-  line-height: 1.2;
-  font-weight: 800;
-  text-shadow: 2px 2px 4px rgba(0,0,0,0.5);
-  letter-spacing: -1px;
-  margin: 0;
-  
-  @media (max-width: 1200px) {
-    font-size: 3rem;
-  }
-  
-  @media (max-width: 992px) {
-    font-size: 2.5rem;
-  }
-  
-  @media (max-width: 768px) {
-    font-size: 2rem;
-    line-height: 1.3;
-  }
-  
-  @media (max-width: 576px) {
-    font-size: 1.75rem;
-    line-height: 1.4;
-  }
-  
-  @media (max-width: 480px) {
-    font-size: 1.5rem;
-  }
-}
-
-/* Área del video en miniatura */
-.hero-video {
-  position: absolute;
-  bottom: 10%;
-  right: 5%;
-  width: 32%;
-  max-width: 420px;
-  min-width: 250px;
-  z-index: 4;
-  box-shadow: 0 15px 30px rgba(0,0,0,0.35);
-  border-radius: 10px;
-  overflow: hidden;
-  
-  @media (max-width: 992px) {
-    bottom: 10%;
-    right: 50%;
-    transform: translateX(50%);
-    width: 65%;
-    max-width: 450px;
-  }
-  
-  @media (max-width: 576px) {
-    bottom: 15%;
-    width: 85%;
-  }
-}
-
-/* Tarjeta del video */
-.video-card {
-  border-radius: 12px;
-  overflow: hidden;
-  box-shadow: 0 10px 30px rgba(0,0,0,0.3);
-  border: 2px solid rgba(255,255,255,0.1);
-  margin: 0 auto;
-}
-
-/* Contenedor del video */
-.video-container {
-  position: relative;
-  padding-bottom: 56.25%; /* Aspect ratio 16:9 */
-  height: 0;
-  overflow: hidden;
-}
-
-.video-iframe {
-  position: absolute;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-}
-
-/* Estilos responsivos */
-@media (max-width: 1023px) {
-  .hero-content {
-    padding: 2rem;
-  }
-  
-  .hero-text {
-    width: 70%;
-  }
-  
-  .hero-caption {
-    font-size: 2.8rem;
-  }
-  
-  .hero-video {
-    width: 40%;
-  }
-}
-
-@media (max-width: 767px) {
-  .hero-content {
-    padding: 1.5rem;
-  }
-  
-  .hero-text {
-    width: 90%;
-  }
-  
-  .hero-caption {
-    font-size: 2rem;
-  }
-  
-  .hero-video {
-    width: 50%;
-    max-width: 300px;
-    min-width: 200px;
-    bottom: 1.5rem;
-    right: 1.5rem;
-  }
-}
-
-@media (max-width: 599px) {
-  .hero-text {
-    width: 100%;
-  }
-  
-  .hero-caption {
-    font-size: 1.8rem;
-  }
-  
-  .hero-video {
-    width: 70%;
-    bottom: 1rem;
-    right: 1rem;
-  }
-}
-
-/* Estilos para el contenido de texto */
-.text-content {
-  background: white;
-  border-radius: 8px;
-  padding: 2rem;
-  box-shadow: 0 4px 16px rgba(0,0,0,0.05);
-}
-
-.text-content-item {
-  font-size: 1.1rem;
-  line-height: 1.8;
-  color: #333;
-}
-
-/* Responsive */
-@media (max-width: 1023px) {
-  .text-container {
-    max-width: 80%;
-    padding-left: 2rem;
-  }
-  
-  .slide-title {
-    font-size: 2.5rem;
-  }
-  
-  .slide-subtitle {
-    font-size: 1.5rem;
-  }
-}
-
-@media (max-width: 599px) {
-  .text-container {
-    max-width: 100%;
-    padding-left: 1rem;
-  }
-  
-  .slide-title {
-    font-size: 1.8rem;
-  }
-  
-  .slide-subtitle {
-    font-size: 1.2rem;
-  }
-  
-  .slide-caption {
-    font-size: 1rem;
-    margin-top: 1rem;
-  }
-}
-
-/* Estilos adicionales para bloques HTML anidados */
-
-/* Estilos para el contenido HTML de los párrafos */
-.api-carousel-component .text-content-item :deep(h3) {
-  font-size: 1.5rem;
-  line-height: 1.5;
-  margin-bottom: 1rem;
-}
-
-.api-carousel-component .text-content-item :deep(p) {
-  font-size: 1rem;
-  line-height: 1.6;
-  margin-bottom: 1rem;
-}
-
-/* Estilos responsivos para dispositivos móviles */
-@media (max-width: 599px) {
-  .api-carousel-component .component-title {
-    font-size: 1.5rem !important;
-    margin-bottom: 1rem !important;
-  }
-  
-  .api-carousel-component .carousel-slide {
-    padding: 8px !important;
-  }
-  
-  .api-carousel-component .text-content-item :deep(h3) {
-    font-size: 1.2rem !important;
-  }
-  
-  .api-carousel-component .text-content-item :deep(p) {
-    font-size: 0.9rem !important;
-  }
-}
-
-/* Ajustes para tablets */
-@media (min-width: 600px) and (max-width: 1023px) {
-  .api-carousel-component .component-title {
-    font-size: 1.8rem !important;
-  }
-  
-  .api-carousel-component .text-content-item :deep(h3) {
-    font-size: 1.3rem !important;
-  }
-}
-</style>

@@ -1,5 +1,5 @@
 <template>
-  <div class="api-button-component" :class="alignment">
+  <div class="q-my-xl q-mx-auto" style="max-width: 800px; width: 100%;" :class="alignment">
     <q-btn
       v-if="buttonText"
       :color="buttonColor"
@@ -8,11 +8,13 @@
       :href="isInternalLink ? undefined : buttonUrl"
       :target="isInternalLink ? undefined : '_blank'"
       :rel="isInternalLink ? undefined : 'noopener noreferrer'"
-      class="button-style"
+      class="text-body1 text-weight-medium q-letter-spacing-sm q-transition"
+      :class="{'q-hoverable': true}"
+      style="min-width: 180px; letter-spacing: 0.5px;"
       no-caps
       rounded
       unelevated
-      :padding="buttonPadding"
+      padding="md lg"
       @click="handleClick"
     />
   </div>
@@ -92,10 +94,7 @@ const buttonColor = computed(() => {
   return styleMap[buttonData.value.style] || 'primary';
 });
 
-// Padding del botón
-const buttonPadding = computed(() => {
-  return 'md lg';
-});
+
 
 // Manejar el clic en el botón
 const handleClick = (event) => {
@@ -107,25 +106,4 @@ const handleClick = (event) => {
 };
 </script>
 
-<style scoped>
-.api-button-component {
-  margin: 2rem auto;
-  max-width: 800px;
-  width: 100%;
-}
 
-.button-style {
-  font-size: 1rem;
-  font-weight: 500;
-  letter-spacing: 0.5px;
-  border-radius: 30px;
-  min-width: 180px;
-  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
-  transition: transform 0.3s ease, box-shadow 0.3s ease;
-}
-
-.button-style:hover {
-  transform: translateY(-3px);
-  box-shadow: 0 6px 15px rgba(0, 0, 0, 0.15);
-}
-</style>

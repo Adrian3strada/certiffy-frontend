@@ -1,17 +1,17 @@
 <template>
-  <div class="api-document-component q-my-lg">
-    <div class="document-container">
-      <q-card flat bordered class="document-card bg-white shadow-1">
-        <q-card-section class="document-header">
-          <div class="text-h6 document-title text-certiffy-azul" style="font-family: 'OpenSans-Bold', sans-serif;">
+  <div class="q-my-lg q-mx-xs" style="max-width: 100%;">
+    <div class="q-mb-md q-pa-sm" style="max-width: 500px;">
+      <q-card flat bordered class="bg-white shadow-1 q-transition" :class="{'q-hoverable': true}">
+        <q-card-section class="q-pb-xs" style="border-bottom: 1px solid rgba(0, 0, 0, 0.05);">
+          <div class="text-h6 text-certiffy-azul text-weight-bold text-truncate" style="font-family: 'OpenSans-Bold', sans-serif;">
             {{ documentTitle }}
           </div>
-          <div class="text-caption text-grey-7 document-info" v-if="documentInfo">
+          <div class="text-caption text-grey-7" v-if="documentInfo">
             {{ documentInfo }}
           </div>
         </q-card-section>
         
-        <q-card-section class="document-details">
+        <q-card-section class="q-pt-sm">
           <div class="row items-center">
             <q-icon 
               :name="getFileIcon()" 
@@ -19,8 +19,8 @@
               color="grey-7" 
               class="q-mr-sm"
             />
-            <div class="file-info">
-              <div class="file-name text-subtitle2" style="font-family: 'OpenSans-SemiBold', sans-serif;">{{ documentFileName }}</div>
+            <div class="col">
+              <div class="text-subtitle2 text-weight-medium text-truncate" style="font-family: 'OpenSans-SemiBold', sans-serif; max-width: 200px;">{{ documentFileName }}</div>
               <div class="text-caption text-grey-7">
                 {{ documentFileSize }}
               </div>
@@ -32,11 +32,12 @@
             :href="documentUrl" 
             target="_blank"
             color="certiffy-verde" 
-            class="q-px-md q-mt-sm download-btn hover-effect"
+            class="q-px-md q-mt-sm q-transition"
             no-caps
             rounded
             outline
             size="sm"
+            :class="{'q-hoverable': true}"
           >
             Descargar
           </q-btn>
@@ -156,91 +157,4 @@ function getFileIcon() {
 }
 </script>
 
-<style scoped>
-.api-document-component {
-  max-width: 100%;
-  margin: 0 auto;
-}
 
-.document-container {
-  max-width: 500px;
-  margin-bottom: 1rem;
-  padding: 0.5rem;
-}
-
-.document-card {
-  transition: all 0.2s ease;
-  border-radius: 8px;
-  overflow: hidden;
-  border: 1px solid #e0e0e0;
-}
-
-.document-card:hover {
-  box-shadow: 0 5px 15px rgba(10, 26, 66, 0.1);
-  transform: translateY(-2px);
-}
-
-.document-header {
-  padding-bottom: 0.5rem;
-  border-bottom: 1px solid rgba(0, 0, 0, 0.05);
-}
-
-.document-title {
-  font-weight: 600;
-  font-size: 1.1rem;
-  line-height: 1.3;
-  margin-bottom: 0.2rem;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  display: -webkit-box;
-  -webkit-line-clamp: 1;
-  -webkit-box-orient: vertical;
-}
-
-.document-details {
-  display: flex;
-  flex-direction: column;
-  gap: 0.5rem;
-  padding-top: 0.5rem;
-}
-
-.file-info {
-  flex: 1;
-}
-
-.file-name {
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
-  max-width: 200px;
-}
-
-.download-btn {
-  align-self: flex-start;
-  transition: all 0.3s ease;
-  font-family: 'OpenSans-SemiBold', sans-serif;
-}
-
-.download-btn:hover {
-  background-color: rgba(61, 178, 73, 0.1);
-  transform: translateY(-1px);
-}
-
-/* Media queries para ajustar al diseño horizontal */
-@media (min-width: 768px) {
-  .api-document-component {
-    display: inline-block;
-    vertical-align: top;
-    width: 100%;
-    max-width: 32%;
-  }
-  
-  .document-container {
-    height: 100%;
-  }
-  
-  .document-card {
-    height: 100%;
-  }
-}
-</style>

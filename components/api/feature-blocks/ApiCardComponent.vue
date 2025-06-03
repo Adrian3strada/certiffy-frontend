@@ -1,9 +1,9 @@
 <template>
-  <section class="api-card-component q-py-md">
+  <section class="q-py-md">
     <div class="q-mx-auto" style="max-width: 1200px">
       <!-- Contenedor de tarjetas -->
       <div class="row q-col-gutter-md justify-center">
-        <!-- Tarjetas dinámicas (más alargadas) -->
+        <!-- Tarjetas dinámicas -->
         <div 
           v-for="(card, index) in cards" 
           :key="index"
@@ -13,37 +13,40 @@
           ]"
         >
           <q-card 
-            class="card-item full-height my-card elevation-3"
-            :class="card.estilo ? `custom-card-${card.estilo}` : 'custom-card-default'"
+            class="full-height q-transition q-hoverable rounded-borders overflow-hidden" 
+            :class="getCardClasses(card.estilo)"
+            style="width: 100%; max-width: 340px; margin: 0 auto;"
             bordered
+            flat
           >
-            <!-- Imagen (ahora ocupa todo el ancho) -->
-            <div class="card-image-container">
-              <q-img
-                v-if="card.imagen && card.imagen.url"
-                :src="`/api/proxy-image?url=${encodeURIComponent(card.imagen.url)}`"
-                class="card-image"
-                :ratio="1"
-                fit="cover"
-              >
-                <template v-slot:error>
-                  <div class="absolute-full flex flex-center bg-grey-3 text-dark">
-                    <q-icon name="image" size="3rem" color="grey-7" />
-                  </div>
-                </template>
-              </q-img>
-              <div v-else class="placeholder-image flex flex-center">
-                <q-icon name="image" size="3rem" color="grey-6" />
-              </div>
+            <!-- Imagen -->
+            <q-img
+              v-if="card.imagen && card.imagen.url"
+              :src="`/api/proxy-image?url=${encodeURIComponent(card.imagen.url)}`"
+              :ratio="1"
+              fit="cover"
+            >
+              <template v-slot:error>
+                <div class="absolute-full flex flex-center bg-grey-3 text-dark">
+                  <q-icon name="image" size="3rem" color="grey-7" />
+                </div>
+              </template>
+            </q-img>
+            <div v-else class="flex flex-center bg-grey-2" style="height: 240px">
+              <q-icon name="image" size="3rem" color="grey-6" />
             </div>
 
             <!-- Contenido de la tarjeta -->
             <q-card-section class="q-pa-md">
-              <div class="text-weight-bold card-title q-mb-sm" 
-                   :class="`text-${getTitleColor(card.estilo)}`">
+              <div class="text-weight-bold text-uppercase q-mb-sm" 
+                   :class="[
+                     `text-${getTitleColor(card.estilo)}`,
+                     'text-subtitle1'
+                   ]">
                 {{ card.titulo }}
               </div>
-              <p class="card-description ellipsis-3-lines">
+              <p class="text-grey-8 q-my-sm text-body2" 
+                 style="display: -webkit-box; -webkit-line-clamp: 3; -webkit-box-orient: vertical; overflow: hidden; text-overflow: ellipsis; line-height: 1.5;">
                 {{ card.descripcion }}
               </p>
               
@@ -51,7 +54,7 @@
                 v-if="card.enlace"
                 :color="getButtonColor(card.estilo)"
                 flat
-                class="q-mt-sm q-px-none"
+                class="q-mt-sm q-px-none q-transition"
                 :to="card.enlace"
                 :href="isExternalLink(card.enlace) ? card.enlace : undefined"
                 :target="isExternalLink(card.enlace) ? '_blank' : undefined"
@@ -104,118 +107,31 @@ function getTitleColor(style) {
 function getButtonColor(style) {
   return style || 'primary';
 }
+
+// Función para obtener clases de Quasar según el estilo
+function getCardClasses(style) {
+  const baseClasses = ['q-card--bordered', 'shadow-3'];
+  
+  // Agregar clases según el estilo
+  switch(style) {
+    case 'primary':
+      return [...baseClasses, 'bg-blue-1', 'border-top', 'border-primary', 'border-3'];
+    case 'secondary':
+      return [...baseClasses, 'bg-green-1', 'border-top', 'border-secondary', 'border-3'];
+    case 'warning':
+      return [...baseClasses, 'bg-amber-1', 'border-top', 'border-warning', 'border-3'];
+    case 'negative':
+      return [...baseClasses, 'bg-red-1', 'border-top', 'border-negative', 'border-3'];
+    case 'info':
+      return [...baseClasses, 'bg-cyan-1', 'border-top', 'border-info', 'border-3'];
+    case 'dark':
+      return [...baseClasses, 'bg-grey-2', 'border-top', 'border-dark', 'border-3'];
+    case 'accent':
+      return [...baseClasses, 'bg-deep-orange-1', 'border-top', 'border-accent', 'border-3'];
+    default:
+      return [...baseClasses, 'bg-white', 'border-top', 'border-primary', 'border-3'];
+  }
+}
 </script>
 
-<style scoped>
-.api-card-component .card-item {
-  transition: transform 0.3s ease, box-shadow 0.3s ease;
-  border-radius: 8px;
-  overflow: hidden;
-  height: auto;
-  width: 100%;
-  max-width: 340px;
-  margin: 0 auto;
-}
 
-/* Estilos personalizados para las tarjetas */
-.api-card-component .custom-card-default {
-  background-color: white;
-  border-top: 4px solid var(--q-primary);
-}
-
-.api-card-component .custom-card-primary {
-  background-color: var(--q-blue-1);
-  border-top: 4px solid var(--q-primary);
-}
-
-.api-card-component .custom-card-secondary {
-  background-color: var(--q-green-1);
-  border-top: 4px solid var(--q-secondary);
-}
-
-.api-card-component .custom-card-warning {
-  background-color: var(--q-amber-1);
-  border-top: 4px solid var(--q-warning);
-}
-
-.api-card-component .custom-card-negative {
-  background-color: var(--q-red-1);
-  border-top: 4px solid var(--q-negative);
-}
-
-.api-card-component .custom-card-info {
-  background-color: var(--q-cyan-1);
-  border-top: 4px solid var(--q-info);
-}
-
-.api-card-component .custom-card-dark {
-  background-color: var(--q-grey-2);
-  border-top: 4px solid var(--q-dark);
-}
-
-.api-card-component .card-item:hover {
-  transform: translateY(-5px);
-  box-shadow: 0 8px 20px rgba(0,0,0,0.15);
-}
-
-.api-card-component .card-image-container {
-  overflow: hidden;
-  width: 100%;
-}
-
-.api-card-component .placeholder-image {
-  height: 240px;
-  background-color: var(--q-grey-2);
-}
-
-.api-card-component .card-title {
-  font-size: 1rem;
-  line-height: 1.3;
-  text-transform: uppercase;
-  font-weight: bold;
-}
-
-.api-card-component .card-description {
-  font-size: 0.9rem;
-  line-height: 1.5;
-  color: var(--q-grey-8);
-  margin-bottom: 8px;
-}
-
-/* Clases para limitar líneas de texto */
-.ellipsis-2-lines {
-  display: -webkit-box;
-  -webkit-line-clamp: 2;
-  -webkit-box-orient: vertical;
-  overflow: hidden;
-  text-overflow: ellipsis;
-}
-
-.ellipsis-3-lines {
-  display: -webkit-box;
-  -webkit-line-clamp: 3;
-  -webkit-box-orient: vertical;
-  overflow: hidden;
-  text-overflow: ellipsis;
-}
-
-/* Estilos responsivos */
-@media (max-width: 599px) {
-  .api-card-component .card-item {
-    max-width: 100%;
-  }
-  
-  .api-card-component .card-image-container {
-    height: auto;
-  }
-  
-  .api-card-component .card-title {
-    font-size: 0.9rem;
-  }
-  
-  .api-card-component .card-description {
-    font-size: 0.8rem;
-    -webkit-line-clamp: 2;
-  }
-}
-</style>

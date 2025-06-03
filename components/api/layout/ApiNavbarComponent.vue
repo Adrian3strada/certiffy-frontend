@@ -1,19 +1,23 @@
 <template>
-  <header class="navbar-component bg-certiffy-azul text-white q-py-sm shadow-2">
+  <header class="bg-certiffy-azul text-white q-py-sm shadow-2 q-sticky" style="top: 0; z-index: 1000">
     <div class="q-px-md q-px-sm-lg q-mx-auto" style="max-width: 1200px; width: 100%">
       <div class="row full-width items-center">
         <!-- Logo (solo se muestra si viene de la API) -->
         <!-- Oculto para mantener consistencia con enfoque headless -->
-        <div class="col-auto text-certiffy-dorado" style="font-family: 'OpenSans-ExtraBold', sans-serif; font-size: 1.5rem; cursor: pointer;" @click="navigateToHome">CERTIFFY</div>
+        <div 
+          class="col-auto text-certiffy-dorado q-transition cursor-pointer" 
+          style="font-family: 'OpenSans-ExtraBold', sans-serif; font-size: 1.5rem;"
+          @click="navigateToHome"
+        >CERTIFFY</div>
         
         <q-space />
         
         <!-- Menú de navegación para pantallas medianas y grandes con submenús -->
-        <div class="col-auto gt-sm nav-tabs-container">
+        <div class="col-auto gt-sm">
           <q-tabs
             v-model="activeTab"
             inline-label
-            class="text-white nav-tabs"
+            class="text-white q-transition"
             indicator-color="accent"
             align="right"
             :dense="$q.screen.lt.md"
@@ -26,19 +30,20 @@
                 flat
                 no-caps
                 dropdown-icon="expand_more"
-                class="nav-dropdown text-white q-px-md"
+                class="text-white q-hoverable q-transition"
                 style="font-family: 'OpenSans-SemiBold', sans-serif;"
                 auto-close
                 :ripple="false"
+                :class="{'q-hoverable': true}"
               >
                 <q-list class="bg-dark">
                   <nuxt-link 
                     v-for="(child, childIndex) in item.children" 
                     :key="childIndex" 
                     :to="normalizeUrl(child.url)"
-                    class="text-decoration-none"
+                    class="no-decoration"
                   >
-                    <q-item clickable class="text-white dropdown-item">
+                    <q-item clickable class="text-white q-hoverable q-transition" v-ripple>
                       <q-item-section>{{ child.title }}</q-item-section>
                     </q-item>
                   </nuxt-link>
@@ -51,7 +56,7 @@
                 :to="normalizeUrl(item.url)"
                 :label="item.title"
                 no-caps
-                class="nav-tab q-px-md text-certiffy-dorado hover-effect"
+                class="q-px-md text-certiffy-dorado q-hoverable q-transition"
                 style="font-family: 'OpenSans-SemiBold', sans-serif;"
               />
             </template>
@@ -59,14 +64,14 @@
         </div>
         
         <!-- Botón de menú para móviles -->
-        <div class="col-auto lt-md menu-button-container">
+        <div class="col-auto lt-md">
           <q-btn
             flat
             round
             color="accent"
             icon="menu"
             @click="drawerOpen = !drawerOpen"
-            class="menu-button text-certiffy-dorado"
+            class="text-certiffy-dorado q-hoverable q-transition"
           />
         </div>
       </div>
@@ -79,11 +84,12 @@
       bordered
       :width="drawerWidth"
       :breakpoint="1024"
-      class="bg-certiffy-azul text-white mobile-drawer"
+      class="bg-certiffy-azul text-white"
+      show-if-above
     >
       <q-scroll-area class="fit">
         <q-list padding class="drawer-list">
-          <q-item-label header class="drawer-header text-certiffy-dorado q-mt-md" style="font-family: 'OpenSans-ExtraBold', sans-serif;">CERTIFFY</q-item-label>
+          <q-item-label header class="text-certiffy-dorado q-mt-md q-mb-md" style="font-family: 'OpenSans-ExtraBold', sans-serif;">CERTIFFY</q-item-label>
           
           <q-separator spaced dark />
           
@@ -109,7 +115,7 @@
                     class="drawer-item"
                   >
                     <q-item-section>
-                      <q-item-label class="drawer-item-label text-certiffy-dorado" style="font-family: 'OpenSans-SemiBold', sans-serif;">{{ child.title }}</q-item-label>
+                      <q-item-label class="text-certiffy-dorado" style="font-family: 'OpenSans-SemiBold', sans-serif;">{{ child.title }}</q-item-label>
                     </q-item-section>
                   </q-item>
                 </q-list>
@@ -121,7 +127,8 @@
               :to="normalizeUrl(item.url)"
               clickable
               v-close-popup
-              class="drawer-item"
+              class="text-white q-hoverable q-transition"
+              v-ripple
             >
               <q-item-section>
                 <q-item-label class="drawer-item-label text-certiffy-dorado" style="font-family: 'OpenSans-SemiBold', sans-serif;">{{ item.title }}</q-item-label>
@@ -263,114 +270,4 @@ const normalizeUrl = (url) => {
 };
 </script>
 
-<style scoped>
-/* Estilos según la guía de diseño Certiffy */
-.navbar-component {
-  position: sticky;
-  top: 0;
-  z-index: 1000;
-  transition: all 0.3s ease;
-}
 
-.navbar-component .logo-image {
-  transition: width 0.3s ease;
-}
-
-.navbar-component .nav-tabs {
-  transition: all 0.3s ease;
-}
-
-.navbar-component .nav-tab, 
-.navbar-component .nav-dropdown {
-  transition: background-color 0.2s ease, color 0.2s ease;
-}
-
-.navbar-component .nav-tab:hover,
-.navbar-component .nav-dropdown:hover {
-  background-color: rgba(223, 187, 67, 0.2);
-  transform: scale(1.05);
-}
-
-.navbar-component .menu-button {
-  transition: transform 0.2s ease;
-}
-
-.navbar-component .menu-button:hover {
-  transform: scale(1.1);
-  box-shadow: 0 0 8px rgba(223, 187, 67, 0.6);
-}
-
-.navbar-component .mobile-drawer .drawer-item {
-  transition: background-color 0.2s ease;
-}
-
-.navbar-component .mobile-drawer .drawer-item:hover {
-  background-color: rgba(223, 187, 67, 0.2);
-  transform: translateX(5px);
-}
-
-.dropdown-item {
-  transition: background-color 0.2s ease;
-}
-
-.dropdown-item:hover {
-  background-color: rgba(223, 187, 67, 0.2) !important;
-  transform: scale(1.02);
-}
-
-.text-decoration-none {
-  text-decoration: none;
-}
-
-.logo-link {
-  display: block;
-  text-decoration: none;
-}
-
-/* Clase para efectos hover */
-.hover-effect {
-  transition: all 0.3s ease;
-}
-
-.hover-effect:hover {
-  transform: scale(1.05);
-}
-
-/* Estilos para botones tipo CTA según guía */
-.certiffy-btn {
-  border-radius: 25px;
-  padding: 8px 16px;
-  font-family: 'OpenSans-Bold', sans-serif;
-  text-transform: uppercase;
-  transition: transform 0.3s ease, box-shadow 0.3s ease;
-}
-
-.certiffy-btn-primary {
-  background-color: #0A1A42;
-  color: white;
-  border: 2px solid #DFBB43;
-}
-
-.certiffy-btn-primary:hover {
-  transform: scale(1.05);
-  box-shadow: 0 4px 8px rgba(0,0,0,0.2);
-}
-
-.certiffy-btn-secondary {
-  background-color: #DFBB43;
-  color: #0A1A42;
-  border: 2px solid #0A1A42;
-}
-
-.certiffy-btn-secondary:hover {
-  transform: scale(1.05);
-  box-shadow: 0 4px 8px rgba(0,0,0,0.2);
-}
-
-/* Estilos responsivos para dispositivos móviles */
-@media (max-width: 599px) {
-  .navbar-component {
-    padding: 4px 0 !important;
-  }
-}
-</style>

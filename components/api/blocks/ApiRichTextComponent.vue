@@ -1,6 +1,6 @@
 <template>
-  <div class="api-rich-text-component">
-    <div v-if="content" class="rich-text-content" v-html="content"></div>
+  <div class="q-my-xl q-mx-auto q-px-md" style="max-width: 800px; width: 100%; overflow-wrap: break-word; word-wrap: break-word; word-break: break-word; hyphens: auto;">
+    <div v-if="content" class="text-body1" style="color: #333; line-height: 1.7;" v-html="processedContent"></div>
     <div v-else class="text-center q-pa-md text-grey-7">
       No hay contenido disponible
     </div>
@@ -42,105 +42,53 @@ const content = computed(() => {
   
   return '';
 });
+
+// Procesar el contenido para aplicar clases de Quasar a los elementos HTML
+const processedContent = computed(() => {
+  if (!content.value) return '';
+  
+  // Creamos un elemento temporal para manipular el HTML
+  const tempDiv = document.createElement('div');
+  tempDiv.innerHTML = content.value;
+  
+  // Aplicar estilos a los encabezados
+  const headings = tempDiv.querySelectorAll('h1, h2, h3, h4, h5, h6');
+  headings.forEach(heading => {
+    heading.classList.add('text-certiffy-azul', 'text-weight-bold', 'q-mt-md', 'q-mb-sm');
+    heading.style.maxWidth = '100%';
+    heading.style.overflowWrap = 'break-word';
+  });
+  
+  // Aplicar estilos a los párrafos
+  const paragraphs = tempDiv.querySelectorAll('p');
+  paragraphs.forEach(p => {
+    p.classList.add('q-mb-md');
+    p.style.maxWidth = '100%';
+    p.style.overflowWrap = 'break-word';
+  });
+  
+  // Aplicar estilos a las listas
+  const lists = tempDiv.querySelectorAll('ul, ol');
+  lists.forEach(list => {
+    list.classList.add('q-ml-lg', 'q-mb-lg');
+  });
+  
+  // Aplicar estilos a los enlaces
+  const links = tempDiv.querySelectorAll('a');
+  links.forEach(link => {
+    link.classList.add('text-primary', 'q-transition');
+    link.classList.add('q-hoverable');
+    link.style.textDecoration = 'none';
+  });
+  
+  // Aplicar estilos a las imágenes
+  const images = tempDiv.querySelectorAll('img');
+  images.forEach(img => {
+    img.classList.add('q-mb-md', 'q-mt-sm');
+    img.style.maxWidth = '100%';
+    img.style.height = 'auto';
+  });
+  
+  return tempDiv.innerHTML;
+});
 </script>
-
-<style scoped>
-.api-rich-text-component {
-  margin: 2rem auto;
-  max-width: 800px;
-  width: 100%;
-  padding: 0 1rem;
-  overflow-wrap: break-word;
-  word-wrap: break-word;
-  word-break: break-word;
-  hyphens: auto;
-}
-
-.rich-text-content {
-  color: #333;
-  line-height: 1.7;
-  max-width: 100%;
-  overflow-wrap: break-word;
-  word-wrap: break-word;
-  word-break: break-word;
-}
-
-.rich-text-content h1, 
-.rich-text-content h2, 
-.rich-text-content h3, 
-.rich-text-content h4, 
-.rich-text-content h5, 
-.rich-text-content h6 {
-  color: #005c5c;
-  margin-top: 1.5rem;
-  margin-bottom: 1rem;
-  font-weight: 600;
-  max-width: 100%;
-  overflow-wrap: break-word;
-  word-wrap: break-word;
-  word-break: break-word;
-}
-
-.rich-text-content p {
-  margin-bottom: 1rem;
-  overflow-wrap: break-word;
-  word-wrap: break-word;
-  word-break: break-word;
-  max-width: 100%;
-}
-
-.rich-text-content ul, 
-.rich-text-content ol {
-  margin-left: 1.5rem;
-  margin-bottom: 1.5rem;
-}
-
-.rich-text-content a {
-  color: #0066cc;
-  text-decoration: none;
-  border-bottom: 1px solid transparent;
-  transition: border-color 0.3s ease;
-}
-
-.rich-text-content a:hover {
-  border-bottom-color: #0066cc;
-}
-
-.rich-text-content img {
-  max-width: 100%;
-  height: auto;
-  border-radius: 8px;
-  margin: 1rem 0;
-  display: block;
-}
-
-.rich-text-content blockquote {
-  border-left: 4px solid #005c5c;
-  padding-left: 1rem;
-  margin-left: 0;
-  color: #555;
-  font-style: italic;
-}
-/* Media queries adicionales para asegurar texto contenido en pantallas pequeñas */
-@media (max-width: 640px) {
-  .api-rich-text-component {
-    padding: 0 0.75rem;
-  }
-
-  .rich-text-content h1 {
-    font-size: 1.75rem;
-  }
-
-  .rich-text-content h2 {
-    font-size: 1.5rem;
-  }
-
-  .rich-text-content h3 {
-    font-size: 1.25rem;
-  }
-
-  .rich-text-content h4 {
-    font-size: 1.1rem;
-  }
-}
-</style>

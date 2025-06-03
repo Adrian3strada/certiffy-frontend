@@ -1,7 +1,7 @@
 <template>
-  <div class="imagen-encima-texto-container">
+  <div class="q-ma-md q-mx-auto" style="max-width: 900px; width: 100%;">
     <!-- Depuración si está habilitado -->
-    <div v-if="props.debugMode || internalDebugMode" class="debug-info q-mb-xs">
+    <div v-if="props.debugMode || internalDebugMode" class="bg-grey-2 rounded-borders q-pa-xs q-mb-xs">
       <div class="text-subtitle2 text-primary q-pb-xs">Componente: ApiImagenEncimaTexto</div>
       <q-toggle v-model="internalDebugMode" label="Mostrar debug interno" dense size="sm" />
       <div v-if="internalDebugMode" class="q-mt-xs">
@@ -22,7 +22,7 @@
     </div>
     
     <!-- Estado de error -->
-    <div v-else-if="error" class="error-container q-pa-xs">
+    <div v-else-if="error" class="bg-red-1 rounded-borders q-pa-xs">
       <div class="text-negative text-caption">
         <q-icon name="error" size="1rem" />
         <span class="q-ml-sm">{{ error }}</span>
@@ -30,21 +30,22 @@
     </div>
     
     <!-- Contenido principal -->
-    <div v-else class="content-card">
+    <div v-else class="q-card shadow-4 q-hover rounded-borders overflow-hidden q-transition" style="transform-origin: center center;">
       <!-- Imagen arriba -->
-      <div class="imagen-container">
-        <img 
+      <div class="overflow-hidden">
+        <q-img 
           :src="imageUrl" 
           :alt="imageAlt" 
-          class="imagen-principal" 
+          class="q-transition-scale" 
           @error="handleImageError"
+          style="aspect-ratio: 16/9;"
         />
       </div>
       
       <!-- Texto abajo -->
-      <div class="texto-container">
-        <h2 v-if="title" class="titulo-seccion">{{ title }}</h2>
-        <div v-if="content" class="content-text" v-html="content"></div>
+      <div class="q-pa-md q-pa-sm-lg">
+        <h2 v-if="title" class="q-my-none q-mb-md text-weight-bold text-dark" style="font-size: 1.1rem; line-height: 1.3;">{{ title }}</h2>
+        <div v-if="content" class="text-body2 text-grey-9" style="line-height: 1.5;" v-html="content"></div>
       </div>
     </div>
   </div>
@@ -166,110 +167,4 @@ onMounted(() => {
 });
 </script>
 
-<style scoped>
-.imagen-encima-texto-container {
-  margin: 1rem auto;
-  position: relative;
-  max-width: 900px;
-  width: 100%;
-  padding: 0 0.5rem;
-}
 
-.content-card {
-  background: white;
-  border-radius: 8px;
-  overflow: hidden;
-  box-shadow: 0 3px 15px rgba(0, 0, 0, 0.08);
-  transition: transform 0.3s ease, box-shadow 0.3s ease;
-}
-
-.content-card:hover {
-  transform: translateY(-4px);
-  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.1);
-}
-
-.imagen-container {
-  position: relative;
-  width: 100%;
-  height: auto;
-  overflow: hidden;
-}
-
-.imagen-principal {
-  width: 100%;
-  height: auto;
-  aspect-ratio: 16/9;
-  object-fit: cover;
-  display: block;
-  transition: transform 0.4s ease;
-}
-
-.content-card:hover .imagen-principal {
-  transform: scale(1.03);
-}
-
-.texto-container {
-  padding: 1.25rem 1.5rem;
-}
-
-.titulo-seccion {
-  margin: 0 0 0.75rem;
-  font-size: 1.1rem;
-  font-weight: 700;
-  color: #263238;
-  position: relative;
-}
-
-.content-text {
-  font-size: 0.9rem;
-  line-height: 1.5;
-  color: #455a64;
-}
-
-.content-text p {
-  margin-bottom: 0.75rem;
-}
-
-.content-text b, .content-text strong {
-  color: #1f2937;
-  font-weight: 600;
-}
-
-/* Estilo para debug */
-.debug-info {
-  font-size: 0.7rem;
-  background: rgba(0, 0, 0, 0.03);
-  border-radius: 4px;
-  padding: 0.25rem;
-  margin-bottom: 0.25rem;
-}
-
-/* Estilo para error */
-.error-container {
-  font-size: 0.75rem;
-  background: rgba(255, 0, 0, 0.03);
-  border-radius: 4px;
-  padding: 0.25rem;
-}
-
-@media (max-width: 767px) {
-  .imagen-encima-texto-container {
-    margin: 0.75rem auto;
-    padding: 0 0.25rem;
-  }
-  
-  .texto-container {
-    padding: 1rem;
-  }
-  
-  .titulo-seccion {
-    font-size: 1rem;
-    margin-bottom: 0.5rem;
-  }
-  
-  .content-text {
-    font-size: 0.85rem;
-    line-height: 1.4;
-  }
-}
-</style>

@@ -1,8 +1,8 @@
 <template>
-  <section class="socios-component q-py-xl bg-grey-1 full-width-container">
+  <section class="q-py-xl bg-grey-1" style="width: 100vw; position: relative; left: 50%; right: 50%; margin-left: -50vw; margin-right: -50vw; overflow-x: hidden;">
     <div class="q-mx-auto q-px-md" style="max-width: 1200px">
       <div class="text-center q-mb-xl">
-        <div class="component-title text-h4 text-weight-bold">{{ titulo }}</div>
+        <div class="text-primary text-h4 text-weight-bold q-mb-lg">{{ titulo }}</div>
       </div>
       
       <div class="row q-col-gutter-md q-col-gutter-lg-lg justify-center items-center">
@@ -14,8 +14,10 @@
           <q-card 
             flat 
             bordered 
-            class="partner-card q-pa-md text-center shadow-1 q-hoverable"
-            :class="{ 'partner-card-active': activeCard === index }"
+            class="q-pa-md text-center shadow-1 q-hoverable rounded-borders"
+            :class="{ 'q-my-sm': activeCard === index }"
+            style="height: 180px; display: flex; align-items: center; justify-content: center; transition: all 0.3s ease;"
+            :style="activeCard === index ? 'transform: translateY(-5px); box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1) !important;' : ''"
             @mouseover="activeCard = index"
             @mouseleave="activeCard = null"
           >
@@ -24,19 +26,21 @@
                 :href="socio.url" 
                 target="_blank" 
                 rel="noopener noreferrer"
-                class="socio-link full-width flex flex-center"
+                class="full-width flex flex-center no-decoration"
               >
-                <div v-if="socio.imagen && socio.imagen.url" class="logo-container">
-                  <img 
+                <div v-if="socio.imagen && socio.imagen.url" class="full-width flex flex-center">
+                  <q-img 
                     :src="getLogoUrl(socio.imagen)"
-                    class="socio-logo"
                     :alt="socio.imagen.title || 'Logo de socio'"
+                    style="max-width: 100%; max-height: 100px; transition: transform 0.2s ease;"
+                    :style="activeCard === index ? 'transform: scale(1.05);' : ''"
+                    fit="contain"
                     @error="onImageError($event, index)"
-                  >
+                  />
                 </div>
-                <div v-else-if="!socioImgError[index]" class="fallback-image">
+                <div v-else-if="!socioImgError[index]" class="flex column flex-center bg-grey-2 rounded-borders full-width" style="height: 100px; transition: all 0.3s ease;" :style="activeCard === index ? 'background-color: rgba(0, 0, 0, 0.08);' : ''">
                   <q-icon name="business" size="2rem" color="grey-7" />
-                  <div class="text-subtitle2 text-bold q-mt-sm">{{ socio.imagen?.title || 'Partner' }}</div>
+                  <div class="text-subtitle2 text-weight-bold q-mt-sm">{{ socio.imagen?.title || 'Partner' }}</div>
                 </div>
               </a>
             </q-card-section>
@@ -103,87 +107,4 @@ const getLogoUrl = (image) => {
 };
 </script>
 
-<style scoped>
-/* Contenedor para ancho completo */
-.full-width-container {
-  width: 100vw;
-  position: relative;
-  left: 50%;
-  right: 50%;
-  margin-left: -50vw;
-  margin-right: -50vw;
-  padding: 0;
-  overflow-x: hidden;
-}
 
-.socios-component {
-  background-color: #f5f5f5;
-}
-
-.component-title {
-  color: var(--q-primary);
-  margin-bottom: 1.5rem;
-}
-
-.partner-card {
-  transition: all 0.3s ease;
-  height: 180px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  border-radius: 12px;
-}
-
-.partner-card-active {
-  transform: translateY(-5px);
-  box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1) !important;
-}
-
-.socio-link {
-  display: block;
-  width: 100%;
-  text-decoration: none;
-}
-
-.socio-logo {
-  max-width: 100%;
-  max-height: 100px;
-  object-fit: contain;
-  transition: transform 0.2s ease;
-}
-
-.partner-card:hover .socio-logo {
-  transform: scale(1.05);
-}
-
-.fallback-image {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  height: 100px;
-  width: 100%;
-  background-color: rgba(0, 0, 0, 0.05);
-  border-radius: 5px;
-  transition: all 0.3s ease;
-}
-
-.partner-card:hover .fallback-image {
-  background-color: rgba(0, 0, 0, 0.08);
-}
-
-/* Estilos responsivos */
-@media (max-width: 599px) {
-  .partner-card {
-    height: 150px;
-  }
-  
-  .socio-logo {
-    max-height: 80px;
-  }
-  
-  .component-title {
-    font-size: 1.8rem !important;
-  }
-}
-</style>

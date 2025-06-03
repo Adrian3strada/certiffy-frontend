@@ -1,22 +1,23 @@
 <template>
-  <div class="api-documents-container q-my-xl">
-    <div class="container-xl q-mx-auto">
-      <h3 v-if="title" class="documents-section-title text-certiffy-azul q-mb-md" style="font-family: 'OpenSans-Bold', sans-serif;">
+  <div class="q-my-xl" style="max-width: 800px; margin-left: auto; margin-right: auto;">
+    <div class="q-mx-auto q-px-sm-none q-px-md">
+      <div v-if="title" class="text-h5 text-certiffy-azul q-mb-md text-weight-bold" style="font-family: 'OpenSans-Bold', sans-serif;">
         {{ title }}
-      </h3>
+      </div>
       
-      <div class="documents-list">
-        <div 
+      <q-list separator class="q-py-md">
+        <q-item 
           v-for="(document, index) in documents" 
           :key="document.id || index"
-          class="document-item q-mb-md"
+          class="q-pa-none q-mb-md q-transition"
+          style="width: 100%;"
         >
           <ApiDocumentComponent 
             :block="document" 
             :apiBaseUrl="apiBaseUrl"
           />
-        </div>
-      </div>
+        </q-item>
+      </q-list>
     </div>
   </div>
 </template>
@@ -47,41 +48,4 @@ const hasDocuments = computed(() => {
 });
 </script>
 
-<style scoped>
-.api-documents-container {
-  margin: 2rem auto;
-  max-width: 800px;
-}
 
-.documents-section-title {
-  font-size: 1.5rem;
-  margin-bottom: 1.5rem;
-  color: var(--certiffy-azul);
-}
-
-.documents-list {
-  display: flex;
-  flex-direction: column;
-  gap: 15px;
-}
-
-.document-item {
-  width: 100%;
-  transition: transform 0.3s ease;
-}
-
-.document-item:hover {
-  transform: translateY(-2px);
-}
-
-/* Estilos para dispositivos móviles */
-@media (max-width: 767px) {
-  .api-documents-container {
-    padding: 0 10px;
-  }
-  
-  .document-item {
-    margin-bottom: 10px;
-  }
-}
-</style>
