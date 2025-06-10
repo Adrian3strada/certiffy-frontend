@@ -7,7 +7,7 @@ export default defineNuxtConfig({
 
   runtimeConfig: {
     public: {
-      apiBase: process.env.NUXT_PUBLIC_API_BASE || 'https://314f-2806-103e-1d-78f8-a0c7-3e7-3336-6389.ngrok-free.app' // Fallback si no está en .env
+      apiBase: process.env.NUXT_PUBLIC_API_BASE || 'https://1155-2806-266-480-8244-b06a-3530-343a-1cf.ngrok-free.app' // Fallback si no está en .env
     }
   },
   
