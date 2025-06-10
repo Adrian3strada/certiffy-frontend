@@ -23,15 +23,15 @@
         <!-- Menú de navegación para pantallas medianas y grandes con submenús -->
         <div class="col-9 gt-sm main-nav-container">
           <q-toolbar class="main-navbar q-mx-md">
-            <!-- Botón de inicio siempre presente -->
+            <!-- Botón de inicio dinámico desde la API -->
             <q-btn 
               label="Inicio"
-              to="/es/"
+              :to="homeUrl"
               flat
               no-caps
               :class="{
                 'main-nav-item text-white home-button': true,
-                'active-route': isActiveRoute('/es/') || isActiveRoute('/')
+                'active-route': isActiveRoute(homeUrl)
               }"
               style="font-family: 'OpenSans-SemiBold', sans-serif;"
             />
@@ -241,12 +241,14 @@ const windowWidth = ref(1024);
 // Variables para el selector de idiomas
 const currentLanguage = ref('es'); // Idioma por defecto
 const availableLanguages = ref([]);
+// URL para la página principal (dinámica)
+const homeUrl = ref('/');
 
 // Procesar elementos de navegación
 const processedNavItems = computed(() => {
-  // Si el navbar tiene una estructura anidada donde todos los elementos están bajo 'Inicio'
-  if (navItems.value.length === 1 && navItems.value[0].title === 'Inicio' && navItems.value[0].children) {
-    // Extraer los elementos hijos de 'Inicio' y mostrarlos como elementos principales
+  // Si el navbar tiene una estructura anidada donde todos los elementos están bajo 'Inicio' u otro elemento raíz
+  if (navItems.value.length === 1 && navItems.value[0].children && navItems.value[0].children.length > 0) {
+    // Extraer los elementos hijos del primer elemento y mostrarlos como elementos principales
     return navItems.value[0].children;
   }
   return navItems.value;
@@ -279,15 +281,33 @@ const fetchNavItems = async () => {
 
       navItems.value = extractedNavItems;
       menuItems.value = extractedNavItems;
-      console.log('Menú cargado correctamente:', menuItems.value.length, 'elementos');
+      
+      // Buscar la URL de inicio en los datos de navegación
+      const homeItem = extractedNavItems.find(item => 
+        item.title === 'Inicio' || 
+        item.title.toLowerCase() === 'home' || 
+        item.url === '/' || 
+        item.url === `/es/` || 
+        item.url === `/en/`
+      );
+      
+      // Actualizar URL de inicio si se encontró
+      if (homeItem && homeItem.url) {
+        homeUrl.value = normalizeUrl(homeItem.url);
+      } else {
+        homeUrl.value = `/${currentLanguage.value}/`;
+      }
+      
+      console.log('Menú cargado correctamente:', menuItems.value.length, 'elementos', 'Home URL:', homeUrl.value);
     } else {
       console.error('No se encontraron datos de navegación en la respuesta de la API', pagesData);
       // Fallback de navegación básica
+      homeUrl.value = `/${currentLanguage.value}/`;
       const fallbackItems = [
-        { title: 'Inicio', url: '/' },
-        { title: 'Acerca de', url: '/acerca/' },
-        { title: 'Servicios', url: '/servicios/' },
-        { title: 'Contacto', url: '/contacto/' },
+        { title: 'Inicio', url: homeUrl.value },
+        { title: 'Acerca de', url: `/${currentLanguage.value}/acerca/` },
+        { title: 'Servicios', url: `/${currentLanguage.value}/servicios/` },
+        { title: 'Contacto', url: `/${currentLanguage.value}/contacto/` },
       ];
       navItems.value = fallbackItems;
       menuItems.value = fallbackItems;
@@ -316,9 +336,9 @@ const fetchNavItems = async () => {
     
     // Establecer menú de respaldo
     const fallbackItems = [
-      { title: 'Inicio', url: '/' },
-      { title: 'Acerca de', url: '/acerca/' },
-      { title: 'Contacto', url: '/contacto/' },
+      { title: 'Inicio', url: `/${currentLanguage.value}/` },
+      { title: 'Acerca de', url: `/${currentLanguage.value}/acerca/` },
+      { title: 'Contacto', url: `/${currentLanguage.value}/contacto/` },
     ];
     navItems.value = fallbackItems;
     menuItems.value = fallbackItems;
@@ -473,8 +493,7 @@ function isActiveRoute(url) {
   // - coincide exactamente
   // - o si la URL de navegación es parte de la URL actual (para subpáginas)
   return normalizedCurrentPath === normalizedUrl || 
-         (normalizedUrl !== '/' && normalizedUrl !== '/es/' && 
-          normalizedUrl !== '/en/' && normalizedCurrentPath.startsWith(normalizedUrl));
+         (normalizedUrl !== '/' && normalizedCurrentPath.startsWith(normalizedUrl));
 }
 
 // Función para contacto WhatsApp
@@ -485,10 +504,10 @@ function contactWhatsApp() {
 }
 
 // Función para navegar al inicio
-function navigateToHome() {
-  const lang = currentLanguage.value || 'es';
-  router.push(`/${lang}/`);
-}
+const navigateToHome = () => {
+  // Ir a la página principal usando la URL de inicio dinámica
+  router.push(homeUrl.value || `/${currentLanguage.value}/`);
+};
 
 // Lifecycle hooks
 onMounted(() => {
