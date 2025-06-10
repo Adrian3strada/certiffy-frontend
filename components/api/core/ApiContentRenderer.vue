@@ -57,7 +57,7 @@ const props = defineProps({
   },
   apiBaseUrl: {
     type: String,
-    default: 'https://e412-2806-103e-1d-3687-f08f-4014-a8d6-4606.ngrok-free.app'
+    default: 'https://3d63-2806-103e-c-2117-fc9b-fb33-cf9f-9ebd.ngrok-free.app'
   },
   debugMode: {
     type: Boolean,

@@ -1,13 +1,25 @@
 <template>
-  <!-- Usar el DynamicPageWrapper para manejar toda la lógica de carga y renderizado de páginas -->
-  <DynamicPageWrapper />
+  <div>
+    <q-spinner-dots color="primary" size="3em" v-if="pending" />
+    <div v-else>
+      <!-- Esta página es un redirector al componente dynamic/[...slug].vue -->
+      <p>Redirigiendo...</p>
+    </div>
+  </div>
 </template>
 
 <script setup>
-import DynamicPageWrapper from '~/components/api/core/DynamicPageWrapper.vue';
+// Este componente simplemente redirecciona a la versión dinámica
+// Esto mantiene compatibilidad con URL existentes
+import { onMounted, ref } from 'vue';
 
-// Utilizar DynamicPageWrapper que maneja toda la lógica de carga de páginas
-// dinámicamente desde la API de Wagtail
+const route = useRoute();
+const pending = ref(true);
+
+onMounted(() => {
+  // Redirigir a la versión dinámica
+  navigateTo(`${route.path}`);
+});
 </script>
 
 <style scoped>

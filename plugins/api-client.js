@@ -1,5 +1,4 @@
 // Plugin para configurar el cliente HTTP y manejar las peticiones a la API
-import { API_BASE_URL } from '../composables/useWagtailApi';
 
 export default defineNuxtPlugin((nuxtApp) => {
   // Configurar interceptores globales para todas las peticiones fetch

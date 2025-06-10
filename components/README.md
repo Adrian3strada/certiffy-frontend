@@ -9,7 +9,7 @@ Contiene todos los componentes que consumen datos de la API de Wagtail.
 
 #### `/api/core`
 Componentes centrales del sistema que manejan la carga y renderizado dinámico de páginas:
-- `DynamicPageWrapper.vue` - Componente principal que carga las páginas desde la API
+- `DynamicBlockRenderer.vue` - Componente principal que renderiza los bloques de contenido dinámico
 - `DynamicBlockRenderer.vue` - Renderiza bloques complejos dinámicamente
 - `ApiContentRenderer.vue` - Renderiza contenido básico como texto, imágenes, etc.
 

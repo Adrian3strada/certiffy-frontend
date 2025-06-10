@@ -53,6 +53,7 @@
 
 <script setup>
 import { ref, onMounted } from 'vue';
+import { useRuntimeConfig } from '#app';
 
 const props = defineProps({
   block: {
@@ -61,7 +62,7 @@ const props = defineProps({
   },
   apiBaseUrl: {
     type: String,
-    default: process.env.NUXT_PUBLIC_API_BASE || ''
+    default: () => useRuntimeConfig().public.apiBase
   },
   debugMode: {
     type: Boolean,

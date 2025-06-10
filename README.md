@@ -38,7 +38,7 @@ npm run dev
 ├── assets/             # Recursos estáticos (imágenes, estilos)
 ├── components/         # Componentes Vue reutilizables
 │   ├── api/             # Componentes para el consumo de API
-│   │   ├── core/        # Componentes centrales del sistema (DynamicPageWrapper, DynamicBlockRenderer)
+│   │   └── core/        # Componentes centrales del sistema (DynamicBlockRenderer)
 │   │   ├── blocks/      # Componentes básicos (texto, imágenes, botones, hero banners)
 │   │   ├── feature-blocks/ # Componentes especializados (carruseles, tarjetas, testimonios)
 │   │   ├── layout/      # Componentes de estructura (navbar, footer)

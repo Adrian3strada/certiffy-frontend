@@ -1,20 +1,18 @@
 <template>
-  <section class="relative-position overflow-hidden" style="height: 100vh; width: 100%">
-    <!-- Carrusel de testimonios con diseño moderno -->
+  <section class="testimonials-section relative-position overflow-hidden">
+    <!-- Carrusel de testimonios con diseño moderno (sin controles ni flechas) -->
     <q-carousel
       v-model="activeSlide"
       animated
-      navigation
-      arrows
       control-color="white"
-      navigation-icon="circle"
       class="full-height"
-      :autoplay="autoplayDuration"
+      :autoplay="5000"
       @mouseenter="pauseAutoplay"
       @mouseleave="resumeAutoplay"
       transition-prev="fade"
       transition-next="fade"
       height="100vh"
+      infinite
       flat
     >
       <q-carousel-slide 
@@ -169,5 +167,38 @@ onUnmounted(() => {
   pauseAutoplay();
 });
 </script>
+
+<style scoped>
+.testimonials-section {
+  height: 100vh;
+  margin-left: calc(-55vw + 58%);
+  margin-right: calc(-53vw + 53%);
+  position: relative;
+  left: 0;
+  right: 0;
+}
+
+/* Asegurar que el carrusel y slides ocupen toda la altura */
+:deep(.q-carousel),
+:deep(.q-carousel__slide) {
+  height: 100vh !important;
+  width: 100vw !important;
+  max-width: 100vw;
+}
+
+/* Ajustar comportamiento responsivo */
+@media (max-width: 768px) {
+  .testimonials-section {
+    height: auto;
+    min-height: 100vh;
+  }
+  
+  :deep(.q-carousel),
+  :deep(.q-carousel__slide) {
+    height: auto !important;
+    min-height: 100vh !important;
+  }
+}
+</style>
 
 

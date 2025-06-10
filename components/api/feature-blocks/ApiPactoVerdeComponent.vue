@@ -1,5 +1,5 @@
 <template>
-  <section style="width: 100vw; position: relative; left: 50%; right: 50%; margin-left: -50vw; margin-right: -50vw; padding: 0; overflow-x: hidden; background-color: var(--q-grey-1);">
+  <section style="width: 101vw; position: relative; left: 50%; right: 50%; margin-left: -50vw; margin-right: -50vw; padding: 0; overflow-x: hidden;">
     <!-- Banner Principal con la estructura que viene de la API -->
     <div class="relative-position" style="min-height: 350px; overflow: hidden;">
       <!-- Imagen de fondo -->
@@ -38,7 +38,7 @@
 
 <script setup>
 import { ref, computed, onMounted, onUnmounted } from 'vue';
-import { API_BASE_URL } from '~/composables/useWagtailApi';
+import { useRuntimeConfig } from '#app'; // Import useRuntimeConfig
 
 const props = defineProps({
   // Bloque principal de datos
@@ -49,7 +49,7 @@ const props = defineProps({
   // URL base de la API
   apiBaseUrl: {
     type: String,
-    default: API_BASE_URL
+    default: () => useRuntimeConfig().public.apiBase // Use factory function for default
   }
 });
 
@@ -97,4 +97,27 @@ const imagenUrl = computed(() => {
 
 </script>
 
+<style scoped>
+/* Anular solo el fondo oscuro automático pero mantener otros efectos */
+:deep(.q-img) {
+  /* Mantenemos los efectos hover originales */
+  transition: all 0.3s ease-in-out;
+}
 
+:deep(.q-img__content > div:not(.absolute-full)) {
+  /* Removemos solo el fondo oscuro automático */
+  background: transparent !important;
+}
+
+/* Conservamos el fondo primario que se aplica explícitamente */
+:deep(.absolute-full.bg-primary) {
+  /* Este es el overlay que queremos mantener */
+  opacity: 0.75;
+  transition: opacity 0.3s ease;
+}
+
+:deep(.q-img:hover .absolute-full.bg-primary) {
+  /* Efecto hover para oscurecer un poco menos al pasar el ratón */
+  opacity: 0.65;
+}
+</style>

@@ -1,6 +1,7 @@
 // Composable para manejar páginas dinámicas desde Wagtail
 import { ref, computed } from 'vue';
-import { useWagtailApi, API_BASE_URL } from './useWagtailApi';
+import { useWagtailApi } from './useWagtailApi';
+import { useRuntimeConfig } from '#app';
 
 export function useDynamicPages() {
   // Obtener funciones del API de Wagtail
@@ -82,7 +83,8 @@ export function useDynamicPages() {
       console.log(`Solicitando página a: ${pageUrl}`);
       
       // Usar el proxy para evitar problemas de CORS
-      const proxyUrl = `/api/proxy-wagtail?url=${encodeURIComponent(API_BASE_URL + pageUrl)}`;
+      const runtimeConfig = useRuntimeConfig();
+      const proxyUrl = `/api/proxy-wagtail?url=${encodeURIComponent(runtimeConfig.public.apiBase + pageUrl)}`;
       console.log(`URL del proxy: ${proxyUrl}`);
       
       // Obtener la página desde la API usando el proxy

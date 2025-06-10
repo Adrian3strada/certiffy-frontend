@@ -36,8 +36,9 @@
 
 <script setup>
 import { ref, computed } from 'vue';
+import { useRuntimeConfig } from '#app';
 import ModuloTarjeta from '../shared/ModuloTarjeta.vue';
-import { API_BASE_URL } from '~/composables/useWagtailApi';
+// Usando useRuntimeConfig de Nuxt en lugar de una constante importada
 
 // Props para recibir datos de la API
 const props = defineProps({
@@ -76,7 +77,8 @@ const processImageUrl = (url) => {
     return url;
   } else {
     // Usar proxy para evitar problemas de CORS
-    const baseUrl = props.apiBaseUrl || API_BASE_URL;
+    const config = useRuntimeConfig();
+    const baseUrl = props.apiBaseUrl || config.public.apiBaseUrl || 'http://localhost:3000';
     return `/api/proxy-image?url=${encodeURIComponent(baseUrl + url)}`;
   }
 };

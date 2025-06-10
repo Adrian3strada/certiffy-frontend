@@ -1,5 +1,5 @@
 <template>
-  <div class="q-my-xl q-mx-auto" :style="{ maxWidth: fullWidth ? '100%' : '800px', width: '100%' }">
+  <section :id="'image-component-' + (id || Math.random().toString(36).substring(2, 9))" class="q-my-xl q-mx-auto" :style="{ maxWidth: fullWidth ? '100%' : '800px', width: '100%' }">
     <q-img
       v-if="imageUrl"
       :src="imageUrl"
@@ -20,20 +20,24 @@
     <div v-if="showCaption && imageAlt" class="text-center q-mt-sm text-caption text-italic text-grey-8">
       {{ imageAlt }}
     </div>
-  </div>
+  </section>
 </template>
 
 <script setup>
 import { ref, computed } from 'vue';
 
 const props = defineProps({
+  id: {
+    type: String,
+    default: ''
+  },
   block: {
     type: Object,
     required: true
   },
   apiBaseUrl: {
     type: String,
-    default: 'https://e412-2806-103e-1d-3687-f08f-4014-a8d6-4606.ngrok-free.app'
+    default: 'https://3d63-2806-103e-c-2117-fc9b-fb33-cf9f-9ebd.ngrok-free.app'
   },
   fullWidth: {
     type: Boolean,

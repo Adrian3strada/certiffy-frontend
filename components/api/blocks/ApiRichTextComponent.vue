@@ -1,16 +1,20 @@
 <template>
-  <div class="q-my-xl q-mx-auto q-px-md" style="max-width: 800px; width: 100%; overflow-wrap: break-word; word-wrap: break-word; word-break: break-word; hyphens: auto;">
+  <section :id="'rich-text-' + (id || Math.random().toString(36).substring(2, 9))" class="q-my-xl q-mx-auto q-px-md" style="max-width: 800px; width: 100%; overflow-wrap: break-word; word-wrap: break-word; word-break: break-word; hyphens: auto;">
     <div v-if="content" class="text-body1" style="color: #333; line-height: 1.7;" v-html="processedContent"></div>
     <div v-else class="text-center q-pa-md text-grey-7">
       No hay contenido disponible
     </div>
-  </div>
+  </section>
 </template>
 
 <script setup>
 import { computed } from 'vue';
 
 const props = defineProps({
+  id: {
+    type: String,
+    default: ''
+  },
   block: {
     type: Object,
     required: true
@@ -54,7 +58,7 @@ const processedContent = computed(() => {
   // Aplicar estilos a los encabezados
   const headings = tempDiv.querySelectorAll('h1, h2, h3, h4, h5, h6');
   headings.forEach(heading => {
-    heading.classList.add('text-certiffy-azul', 'text-weight-bold', 'q-mt-md', 'q-mb-sm');
+    heading.classList.add('text-primary', 'text-weight-bold', 'q-mt-md', 'q-mb-sm');
     heading.style.maxWidth = '100%';
     heading.style.overflowWrap = 'break-word';
   });

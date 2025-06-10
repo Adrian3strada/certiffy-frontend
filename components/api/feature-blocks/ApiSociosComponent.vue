@@ -1,5 +1,5 @@
 <template>
-  <section class="q-py-xl bg-grey-1" style="width: 100vw; position: relative; left: 50%; right: 50%; margin-left: -50vw; margin-right: -50vw; overflow-x: hidden;">
+  <section :id="'socios-' + (id || Math.random().toString(36).substring(2, 9))" class="q-py-xl bg-grey-1" style="width: 100vw; position: relative; left: 50%; right: 50%; margin-left: -50vw; margin-right: -50vw; overflow-x: hidden;">
     <div class="q-mx-auto q-px-md" style="max-width: 1200px">
       <div class="text-center q-mb-xl">
         <div class="text-primary text-h4 text-weight-bold q-mb-lg">{{ titulo }}</div>
@@ -14,10 +14,8 @@
           <q-card 
             flat 
             bordered 
-            class="q-pa-md text-center shadow-1 q-hoverable rounded-borders"
-            :class="{ 'q-my-sm': activeCard === index }"
-            style="height: 180px; display: flex; align-items: center; justify-content: center; transition: all 0.3s ease;"
-            :style="activeCard === index ? 'transform: translateY(-5px); box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1) !important;' : ''"
+            class="q-pa-md text-center shadow-1 q-hoverable rounded-borders socio-card"
+            :class="{ 'socio-card-active': activeCard === index }"
             @mouseover="activeCard = index"
             @mouseleave="activeCard = null"
           >
@@ -26,14 +24,15 @@
                 :href="socio.url" 
                 target="_blank" 
                 rel="noopener noreferrer"
-                class="full-width flex flex-center no-decoration"
+                class="full-width no-decoration"
+                style="display: block; text-align: center;"
               >
-                <div v-if="socio.imagen && socio.imagen.url" class="full-width flex flex-center">
+                <div v-if="socio.imagen && socio.imagen.url" class="logo-container">
                   <q-img 
                     :src="getLogoUrl(socio.imagen)"
                     :alt="socio.imagen.title || 'Logo de socio'"
-                    style="max-width: 100%; max-height: 100px; transition: transform 0.2s ease;"
-                    :style="activeCard === index ? 'transform: scale(1.05);' : ''"
+                    class="partner-logo"
+                    :class="{ 'partner-logo-active': activeCard === index }"
                     fit="contain"
                     @error="onImageError($event, index)"
                   />
@@ -55,6 +54,10 @@
 import { ref, computed } from 'vue';
 
 const props = defineProps({
+  id: {
+    type: String,
+    default: ''
+  },
   block: {
     type: Object,
     default: null
@@ -89,8 +92,8 @@ const onImageError = (event, index) => {
 const getLogoUrl = (image) => {
   if (!image || !image.url) return '';
   
-  // Construir URL base del API de Wagtail
-  const wagtailBaseUrl = 'https://e412-2806-103e-1d-3687-f08f-4014-a8d6-4606.ngrok-free.app';
+  // Usar la URL base de la API proporcionada en las props
+  const wagtailBaseUrl = props.apiBaseUrl;
   
   // Si es una URL absoluta, usar el proxy
   if (image.url.startsWith('http')) {
@@ -107,4 +110,49 @@ const getLogoUrl = (image) => {
 };
 </script>
 
+<style scoped>
+.logo-container {
+  width: 100%;
+  height: 100px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
 
+/* Estilos base de la tarjeta */
+.socio-card {
+  height: 180px;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+  transform: translateY(0);
+}
+
+/* Efecto suave al pasar el ratón sobre la tarjeta */
+.socio-card-active {
+  transform: translateY(-8px);
+  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.1) !important;
+}
+
+/* Estilo base para imágenes (blanco y negro) */
+.partner-logo {
+  max-width: 100%;
+  max-height: 100px;
+  display: inline-block;
+  transition: all 0.4s ease;
+  filter: grayscale(100%);
+}
+
+/* Imagen a color al pasar el ratón */
+.partner-logo-active {
+  filter: grayscale(0%);
+  transform: scale(1.03);
+}
+
+/* Animación suave en los contenedores alternos */
+.q-img {
+  object-fit: contain;
+  max-height: 100%;
+  max-width: 100%;
+}
+</style>

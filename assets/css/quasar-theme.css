@@ -1,0 +1,53 @@
+/* 
+ * Sobrescritura de variables de Quasar CSS
+ * Este archivo asegura que los colores definidos en plugins/quasar.js
+ * se apliquen correctamente en toda la aplicación
+ */
+
+ :root {
+  --q-primary: #0a1a42;
+  --q-secondary: #8FB4A2;
+  --q-accent: #FFB901;
+  --q-positive: #4CAF50;
+  --q-negative: #D64541;
+  --q-info: #3BAFDA;
+  --q-warning: #DFBB43;
+  --q-dark: #1d1d1d;
+  --q-dark-page: #121212;
+}
+
+
+/* Asegurar que los colores de la marca se apliquen en todo el tema de Quasar */
+.text-primary {
+  color: var(--q-primary) !important;
+}
+
+.bg-primary {
+  background-color: var(--q-primary) !important;
+}
+
+.text-secondary {
+  color: var(--q-secondary) !important;
+}
+
+.bg-secondary {
+  background-color: var(--q-secondary) !important;
+}
+
+.text-accent {
+  color: var(--q-accent) !important;
+}
+
+.bg-accent {
+  background-color: var(--q-accent) !important;
+}
+
+.text-warning {
+  color: var(--q-warning) !important;
+}
+
+.bg-warning {
+  background-color: var(--q-warning) !important;
+}
+
+/* Otros colores del sistema si es necesario */

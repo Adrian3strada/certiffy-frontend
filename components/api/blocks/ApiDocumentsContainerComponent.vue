@@ -1,7 +1,7 @@
 <template>
-  <div class="q-my-xl" style="max-width: 800px; margin-left: auto; margin-right: auto;">
+  <section :id="'documents-container-' + (id || Math.random().toString(36).substring(2, 9))" class="q-my-xl" style="max-width: 800px; margin-left: auto; margin-right: auto;">
     <div class="q-mx-auto q-px-sm-none q-px-md">
-      <div v-if="title" class="text-h5 text-certiffy-azul q-mb-md text-weight-bold" style="font-family: 'OpenSans-Bold', sans-serif;">
+      <div v-if="title" class="text-h5 text-primary q-mb-md text-weight-bold" style="font-family: 'OpenSans-Bold', sans-serif;">
         {{ title }}
       </div>
       
@@ -19,15 +19,19 @@
         </q-item>
       </q-list>
     </div>
-  </div>
+  </section>
 </template>
 
 <script setup>
 import { computed } from 'vue';
 import ApiDocumentComponent from './ApiDocumentComponent.vue';
-import { API_BASE_URL } from '~/composables/useWagtailApi';
+import { useRuntimeConfig } from '#app'; // Import useRuntimeConfig
 
 const props = defineProps({
+  id: {
+    type: String,
+    default: ''
+  },
   title: {
     type: String,
     default: ''
@@ -38,7 +42,7 @@ const props = defineProps({
   },
   apiBaseUrl: {
     type: String,
-    default: API_BASE_URL
+    default: () => useRuntimeConfig().public.apiBase // Use factory function for default
   }
 });
 

@@ -1,5 +1,4 @@
 // Composable para determinar el entorno y proporcionar funciones específicas
-import { API_BASE_URL } from './useWagtailApi';
 import { API_ROUTES } from '~/config/api';
 
 export function useEnvironment() {

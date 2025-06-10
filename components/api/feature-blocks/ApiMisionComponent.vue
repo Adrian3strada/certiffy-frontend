@@ -23,7 +23,7 @@
 
 <script setup>
 import { computed } from 'vue';
-import { API_BASE_URL } from '~/composables/useWagtailApi';
+import { useRuntimeConfig } from '#app'; // Import useRuntimeConfig
 
 const props = defineProps({
   block: {
@@ -32,7 +32,7 @@ const props = defineProps({
   },
   apiBaseUrl: {
     type: String,
-    default: API_BASE_URL
+    default: () => useRuntimeConfig().public.apiBase // Use factory function for default
   }
 });
 

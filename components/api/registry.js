@@ -18,6 +18,7 @@ import ApiCardsEDComponent from './feature-blocks/ApiCardsEDComponent.vue';
 import ApiCarouselComponent from './feature-blocks/ApiCarouselComponent.vue';
 import ApiGrupoTarjetasFondo from './feature-blocks/ApiGrupoTarjetasFondo.vue';
 import ApiImagenEncimaTexto from './feature-blocks/ApiImagenEncimaTexto.vue';
+import ApiImagenTexto from './feature-blocks/ApiImagenTexto.vue';
 import ApiImagenTextoDerecha from './feature-blocks/ApiImagenTextoDerecha.vue';
 import ApiImagenTextoIzquierda from './feature-blocks/ApiImagenTextoIzquierda.vue';
 import ApiMisionComponent from './feature-blocks/ApiMisionComponent.vue';
@@ -43,11 +44,13 @@ export const componentMap = {
   'image': ApiImageComponent,
   'modulo_video': ApiModulosVideoComponent,
   'modulo_certiffy': ApiModulosVideoComponent, // Nuevo tipo de bloque
+  'modulos_certiffy': ApiModulosVideoComponent, // Variante en plural del tipo de bloque
   'rich_text': ApiRichTextComponent,
   
   // Bloques especializados - nombres estandarizados
   'card': ApiCardComponent,
   'cards': ApiCardComponent,
+  'grupo_de_noticias': ApiCardComponent,
   'cardsED': ApiCardsEDComponent,
   'carousel': ApiCarouselComponent,
   'mision': ApiMisionComponent,
@@ -64,7 +67,7 @@ export const componentMap = {
   'paragraph': ApiRichTextComponent,
   'heading': ApiRichTextComponent,
   'image_text': ApiHeroBannerComponent,
-  'ImagenTexto': ApiHeroBannerComponent,
+  'ImagenTexto': ApiImagenTexto,
   'documento': ApiDocumentComponent,
   'Document': ApiDocumentComponent,
   'galeria': ApiGalleryComponent,

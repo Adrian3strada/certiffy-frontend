@@ -1,5 +1,5 @@
 <template>
-  <div style="width: 100vw; position: relative; left: 50%; right: 50%; margin-left: -50vw; margin-right: -50vw; margin-top: -24px; padding: 0; overflow-x: hidden;">
+  <section :id="'hero-banner-' + (id || Math.random().toString(36).substring(2, 9))" style="width: 100vw; position: relative; left: 50%; right: 50%; margin-left: -50vw; margin-right: -50vw; margin-top: -24px; padding: 0; overflow-x: hidden;">
     <!-- Hero banner dinámico con imagen y superposición de texto -->
     <div 
       class="relative-position overflow-hidden" 
@@ -51,15 +51,19 @@
         </div>
       </div>
     </div>
-  </div>
+  </section>
 </template>
 
 <script setup>
 import { computed } from 'vue';
-import { API_BASE_URL } from '~/composables/useWagtailApi';
+import { useRuntimeConfig } from '#app';
 
 // Props para el componente
 const props = defineProps({
+  id: {
+    type: String,
+    default: ''
+  },
   block: {
     type: Object,
     required: true
@@ -103,11 +107,13 @@ const imagenUrl = computed(() => {
     // Siempre usar el proxy para evitar problemas de CORS
     // Si es una URL relativa (/media/...), añadir la URL base
     if (imagen.url.startsWith('/')) {
-      return `/api/proxy-image?url=${encodeURIComponent(API_BASE_URL + imagen.url)}`;
+      const runtimeConfig = useRuntimeConfig();
+      return `/api/proxy-image?url=${encodeURIComponent(runtimeConfig.public.apiBase + imagen.url)}`;
     } else if (imagen.url.startsWith('http')) {
       return `/api/proxy-image?url=${encodeURIComponent(imagen.url)}`;
     } else {
-      return `/api/proxy-image?url=${encodeURIComponent(API_BASE_URL + '/' + imagen.url)}`;
+      const runtimeConfig = useRuntimeConfig(); // Asegurarse que runtimeConfig está disponible aquí también si es un bloque else diferente
+      return `/api/proxy-image?url=${encodeURIComponent(runtimeConfig.public.apiBase + '/' + imagen.url)}`;
     }
   }
   

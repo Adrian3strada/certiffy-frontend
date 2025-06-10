@@ -3,7 +3,7 @@
     <div class="q-mb-md q-pa-sm" style="max-width: 500px;">
       <q-card flat bordered class="bg-white shadow-1 q-transition" :class="{'q-hoverable': true}">
         <q-card-section class="q-pb-xs" style="border-bottom: 1px solid rgba(0, 0, 0, 0.05);">
-          <div class="text-h6 text-certiffy-azul text-weight-bold text-truncate" style="font-family: 'OpenSans-Bold', sans-serif;">
+          <div class="text-h6 text-primary text-weight-bold text-truncate" style="font-family: 'OpenSans-Bold', sans-serif;">
             {{ documentTitle }}
           </div>
           <div class="text-caption text-grey-7" v-if="documentInfo">
@@ -31,7 +31,7 @@
             v-if="documentUrl"
             :href="documentUrl" 
             target="_blank"
-            color="certiffy-verde" 
+            color="secondary" 
             class="q-px-md q-mt-sm q-transition"
             no-caps
             rounded
@@ -49,7 +49,7 @@
 
 <script setup>
 import { computed } from 'vue';
-import { API_BASE_URL } from '~/composables/useWagtailApi';
+import { useRuntimeConfig } from '#app'; // Import useRuntimeConfig
 
 // Propiedades del componente
 const props = defineProps({
@@ -59,7 +59,7 @@ const props = defineProps({
   },
   apiBaseUrl: {
     type: String,
-    default: API_BASE_URL
+    default: () => useRuntimeConfig().public.apiBase // Use factory function for default
   }
 });
 

@@ -152,7 +152,7 @@
 
 <script setup>
 import { ref, computed } from 'vue';
-import { API_BASE_URL } from '~/composables/useWagtailApi';
+import { useRuntimeConfig } from '#app'; // Import useRuntimeConfig
 
 const props = defineProps({
   // Bloques de contenido de la API de Wagtail
@@ -163,7 +163,7 @@ const props = defineProps({
   // API Base URL para imágenes
   apiBaseUrl: {
     type: String,
-    default: API_BASE_URL
+    default: () => useRuntimeConfig().public.apiBase // Use factory function for default
   },
   // Título principal
   title: {

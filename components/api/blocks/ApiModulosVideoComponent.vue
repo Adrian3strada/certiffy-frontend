@@ -1,81 +1,51 @@
 <template>
-  <section class="q-px-md q-mb-xl" style="width: 100vw; position: relative; left: 50%; right: 50%; margin-left: -50vw; margin-right: -50vw; overflow-x: hidden;">
-    <!-- Hero banner con imagen de fondo y título -->
-    <div class="relative-position" style="height: 300px; overflow: hidden; margin-bottom: 2rem;" :style="{ backgroundImage: heroImageUrl ? `url(${heroImageUrl})` : '', backgroundPosition: 'center', backgroundSize: 'cover', backgroundRepeat: 'no-repeat' }">
-      <div class="absolute-full" style="background: linear-gradient(rgba(0,0,0,0.4), rgba(0,0,0,0.6)); z-index: 2;"></div>
-      <div class="absolute-full flex flex-center" style="z-index: 3;">
-        <h1 class="text-white text-center text-weight-bold q-ma-none" style="font-size: 2.5rem; text-shadow: 2px 2px 4px rgba(0,0,0,0.5);" v-if="titulo">{{ titulo }}</h1>
-      </div>
-    </div>
-    
-    <div class="q-mx-auto q-mt-lg" style="max-width: 1200px;">
-      <!-- Card única que contiene todo el contenido -->
-      <q-card class="shadow-4 q-border-radius-md">
-        <div class="row q-pa-xl q-col-gutter-lg justify-between items-center">
-          <!-- Columna izquierda: Video o imagen del contenido principal -->
-          <div class="col-12 col-md-6">
-            <div>
-              <!-- Video cuando el tipo es "video" -->
-              <div v-if="esContenidoVideo" class="relative-position" style="padding-bottom: 56.25%; height: 0; overflow: hidden; max-width: 100%;">
-                <iframe 
-                  :src="videoUrl" 
-                  frameborder="0" 
-                  allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" 
-                  allowfullscreen
-                  class="absolute-full"
-                  style="border: none;"
-                ></iframe>
-              </div>
-              
-              <!-- Imagen cuando el tipo es "imagen" -->
-              <div v-else-if="esContenidoImagen" class="q-px-md">
-                <q-img
-                  :src="contenidoPrincipalUrl"
-                  :alt="contenidoPrincipalTitle || 'Imagen de módulo'"
-                  fit="contain"
-                  style="max-height: 400px; width: 100%;"
-                />
-              </div>
-              
-              <!-- Fallback cuando no hay contenido principal -->
-              <div v-else class="flex flex-center" style="height: 300px;">
-                <div class="text-center">
-                  <q-icon name="image" size="5rem" color="grey-5" />
-                  <div class="text-grey-7 q-mt-sm">Sin contenido multimedia</div>
-                </div>
-              </div>
-            </div>
-          </div>
-          
-          <!-- Columna derecha: Descripción y botones -->
-          <div class="col-12 col-md-5">
-            <!-- Descripción del módulo -->
-            <p v-if="descripcion" class="text-body1 q-mb-xl">{{ descripcion }}</p>
+  <section class="q-py-xl modulos-certiffy" style="width: 100vw; margin-left: calc(-50vw + 50%); margin-right: calc(-50vw + 48%); background-color: #f5f5f5; overflow-x: hidden;">
+    <div class="q-container q-mx-auto q-px-md" style="max-width: 1200px;">
+      <!-- Título de la sección -->
+      <h2 class="text-center text-primary text-weight-bold q-mb-md" v-if="tituloSeccion">{{ tituloSeccion }}</h2>
+      
+      <!-- Texto principal -->
+      <div class="text-center q-mb-xl" v-if="textoPrincipal" v-html="textoPrincipal"></div>
+            <!-- Módulos con imágenes y botones -->
+            <div class="row q-col-gutter-lg justify-center q-mt-xl">
+        <div v-for="(modulo, index) in modulos" :key="index" class="col-12 col-sm-4">
+          <div class="modulo-card q-pa-md flex flex-center column items-center">
+            <!-- Imagen del módulo -->
+            <q-img
+              :src="getImageUrl(modulo.imagen)"
+              :alt="modulo.imagen?.title || 'Icono del módulo'"
+              :ratio="1"
+              spinner-color="primary"
+              class="q-mb-md modulo-imagen"
+              style="max-width: 180px; width: 100%; border-radius: 8px; box-shadow: 0 4px 10px rgba(0,0,0,0.08);"
+            />
             
-            <!-- Sección de botones/links -->
-            <div v-if="botones && botones.length > 0" class="q-mt-lg">
-              <div class="text-h5 text-certiffy-azul text-weight-bold q-mb-md" style="font-family: 'OpenSans-Bold', sans-serif;">Módulos disponibles:</div>
-              
-              <div class="q-gutter-lg q-mt-md">
-                <q-btn
-                  v-for="(boton, index) in botones"
-                  :key="index"
-                  :color="getButtonColor(boton.style)"
-                  :label="boton.text"
-                  class="q-transition"
-                  :class="{'q-hoverable': true}"
-                  @click="openLink(boton.url)"
-                  no-caps
-                  rounded
-                  unelevated
-                  size="large"
-                  padding="md lg"
-                />
-              </div>
-            </div>
+            <!-- Botón del módulo -->
+            <q-btn
+              :label="modulo.titulo"
+              color="primary"
+              class="full-width modulo-boton"
+              :to="formatEnlace(modulo.enlace)"
+              no-caps
+              unelevated
+            />
           </div>
         </div>
-      </q-card>
+      </div>
+      <!-- Sección del video -->
+      <div v-if="videoUrl" class="q-mb-xl">
+        <div class="video-container" style="max-width: 900px; margin: 0 auto; border-radius: 16px; overflow: hidden; box-shadow: 0 4px 20px rgba(0,0,0,0.1);">
+          <iframe
+            :src="videoUrl"
+            frameborder="0"
+            allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+            allowfullscreen
+            style="width: 100%; aspect-ratio: 16/9;"
+          ></iframe>
+        </div>
+      </div>
+      
+
     </div>
   </section>
 </template>
@@ -83,11 +53,17 @@
 <script setup>
 import { ref, computed } from 'vue';
 import { useRouter } from 'vue-router';
-import { API_BASE_URL } from '~/composables/useWagtailApi';
+import { useRuntimeConfig } from '#app';
 
 const router = useRouter();
+const runtimeConfig = useRuntimeConfig();
 
+// Props del componente
 const props = defineProps({
+  id: {
+    type: String,
+    default: ''
+  },
   block: {
     type: Object,
     default: null
@@ -98,109 +74,178 @@ const props = defineProps({
   }
 });
 
-// URL para el Hero Banner (imagen de fondo principal)
-const heroImageUrl = computed(() => {
-  const imagen = props.block?.value?.imagen;
-  if (!imagen || !imagen.url) return null;
+// Título de la sección
+const tituloSeccion = computed(() => {
+  return props.block?.value?.titulo_seccion || 'Plataforma Certiffy';
+});
+
+// Texto principal (HTML)
+const textoPrincipal = computed(() => {
+  return props.block?.value?.texto_principal || '';
+});
+
+// URL del video de YouTube o otro proveedor
+const videoUrl = computed(() => {
+  return props.block?.value?.video_url || '';
+});
+
+// Módulos de Certiffy
+const modulos = computed(() => {
+  return props.block?.value?.modulos || [];
+});
+
+// Función para obtener la URL de la imagen con proxy cuando sea necesario
+const getImageUrl = (imagen) => {
+  if (!imagen || !imagen.url) return '';
   
   const imagenUrl = imagen.url;
   
-  // Siempre usar el proxy para evitar problemas de CORS
+  // Usar proxy para imágenes relativas que requieren la API base
   if (imagenUrl.startsWith('/')) {
-    return `/api/proxy-image?url=${encodeURIComponent(API_BASE_URL + imagenUrl)}`;
+    return `/api/proxy-image?url=${encodeURIComponent(runtimeConfig.public.apiBase + imagenUrl)}`;
   } else if (imagenUrl.startsWith('http')) {
-    return `/api/proxy-image?url=${encodeURIComponent(imagenUrl)}`;
+    return imagenUrl; // URL absoluta, no necesita proxy
   } else {
-    return `/api/proxy-image?url=${encodeURIComponent(API_BASE_URL + '/' + imagenUrl)}`;
-  }
-});
-
-// Verificar si el contenido principal es un video
-const esContenidoVideo = computed(() => {
-  const contenidoPrincipal = props.block?.value?.contenido_principal;
-  return contenidoPrincipal && contenidoPrincipal.tipo === 'video';
-});
-
-// Verificar si el contenido principal es una imagen
-const esContenidoImagen = computed(() => {
-  const contenidoPrincipal = props.block?.value?.contenido_principal;
-  return contenidoPrincipal && contenidoPrincipal.tipo === 'imagen';
-});
-
-// URL del video (cuando es de tipo video)
-const videoUrl = computed(() => {
-  const contenidoPrincipal = props.block?.value?.contenido_principal;
-  if (!esContenidoVideo.value || !contenidoPrincipal.video_url) return null;
-  
-  return contenidoPrincipal.video_url;
-});
-
-// URL de la imagen para el contenido principal (cuando es de tipo imagen)
-const contenidoPrincipalUrl = computed(() => {
-  const contenidoPrincipal = props.block?.value?.contenido_principal;
-  if (!esContenidoImagen.value || !contenidoPrincipal.imagen_url) return null;
-  
-  const imagenUrl = contenidoPrincipal.imagen_url;
-  
-  // Siempre usar el proxy para evitar problemas de CORS
-  if (imagenUrl.startsWith('/')) {
-    return `/api/proxy-image?url=${encodeURIComponent(API_BASE_URL + imagenUrl)}`;
-  } else if (imagenUrl.startsWith('http')) {
-    return `/api/proxy-image?url=${encodeURIComponent(imagenUrl)}`;
-  } else {
-    return `/api/proxy-image?url=${encodeURIComponent(API_BASE_URL + '/' + imagenUrl)}`;
-  }
-});
-
-// Título de la imagen del contenido principal
-const contenidoPrincipalTitle = computed(() => {
-  const contenidoPrincipal = props.block?.value?.contenido_principal;
-  if (esContenidoImagen.value) {
-    return contenidoPrincipal?.imagen_title || '';
-  } else if (esContenidoVideo.value) {
-    return contenidoPrincipal?.video_caption || '';
-  }
-  return '';
-});
-
-// Título del componente (para la sección de contenido)
-const titulo = computed(() => {
-  return props.block?.value?.titulo || '';
-});
-
-// Descripción del componente
-const descripcion = computed(() => {
-  return props.block?.value?.descripcion || '';
-});
-
-// Botones disponibles
-const botones = computed(() => {
-  return props.block?.value?.botones || [];
-});
-
-// Función para manejar los clics en botones
-const openLink = (url) => {
-  // Abrir links internos con el router y externos en nueva pestaña
-  if (url && url.startsWith('http')) {
-    window.open(url, '_blank');
-  } else {
-    router.push(url);
+    return `/api/proxy-image?url=${encodeURIComponent(runtimeConfig.public.apiBase + '/' + imagenUrl)}`;
   }
 };
 
-// Función para determinar el color del botón según el estilo
-const getButtonColor = (style) => {
-  switch (style) {
-    case 'primary':
-      return 'primary';
-    case 'secondary':
-      return 'secondary';
-    case 'accent':
-      return 'accent';
-    case 'info':
-      return 'info';
-    default:
-      return 'primary';
+// Formatear enlace para el router (quitar domain para enlaces internos)
+const formatEnlace = (url) => {
+  if (!url) return '/';
+  
+  // Si es una URL absoluta con el dominio de la API, convertirla a ruta relativa
+  if (url.includes('localhost:8000')) {
+    // Quitar el dominio y puerto para tener solo la ruta
+    return url.split('localhost:8000')[1] || '/';
   }
+  
+  // Si es una URL externa completa, usarla tal cual
+  if (url.startsWith('http')) {
+    return url;
+  }
+  
+  // Para rutas relativas, usarlas directamente
+  return url;
 };
 </script>
+
+<style scoped>
+.modulos-certiffy {
+  position: relative;
+  padding: 4rem 0;
+  background-color: #f5f5f5;
+}
+
+.modulos-certiffy h2 {
+  font-size: 2rem;
+  margin-bottom: 1.5rem;
+  color: var(--q-primary);
+}
+
+/* Contenedor de video */
+.video-container {
+  position: relative;
+  padding-bottom: 56.25%; /* 16:9 aspect ratio */
+  height: 0;
+  overflow: hidden;
+  border-radius: 10px;
+  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.15);
+  margin-bottom: 2rem;
+}
+
+.video-container iframe {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  border: none;
+}
+
+/* Estilos para los módulos */
+.modulo-card {
+  background-color: white;
+  border-radius: 12px;
+  transition: all 0.3s ease;
+  height: 100%;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 2rem 1rem;
+}
+
+.modulo-card:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.15);
+}
+
+.modulo-imagen {
+  transition: transform 0.3s ease;
+  width: 80%;
+  max-width: 160px;
+  margin-bottom: 1.5rem;
+  border-radius: 8px;
+}
+
+.modulo-card:hover .modulo-imagen {
+  transform: scale(1.05);
+}
+
+/* Estilo de botones */
+.modulo-boton {
+  border-radius: 8px;
+  padding: 12px 20px;
+  font-weight: 500;
+  font-size: 1.1rem;
+  transition: all 0.3s ease;
+  width: 100%;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.modulo-boton:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
+}
+
+/* Estilos responsivos */
+@media (max-width: 767px) {
+  .modulos-certiffy h2 {
+    font-size: 1.6rem;
+  }
+  
+  .modulo-card {
+    margin-bottom: 1.5rem;
+    padding: 1.5rem 1rem;
+  }
+  
+  .modulo-imagen {
+    max-width: 120px;
+    margin-bottom: 1rem;
+  }
+}
+
+.q-btn {
+  transition: all 0.2s ease;
+}
+
+.q-btn:hover {
+  transform: translateY(-2px);
+  background: rgba(255,255,255,0.25) !important;
+  box-shadow: 0 8px 25px rgba(0,0,0,0.15);
+}
+
+/* Responsive adjustments */
+@media (max-width: 1023px) {
+  .col-lg-8 {
+    flex: 0 0 100%;
+    max-width: 100%;
+  }
+  .col-lg-4 {
+    flex: 0 0 100%;
+    max-width: 100%;
+  }
+}
+</style>

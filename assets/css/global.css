@@ -1,6 +1,93 @@
 /* Estilos globales para el contenido y componentes */
-@import url('./certiffy-theme.css');
+@import url('./fonts.css');
+@import url('./quasar-theme.css');
 
+/* Reset para eliminar espacios no deseados */
+html, body {
+  margin: 0;
+  padding: 0;
+  width: 100%;
+  height: 100%;
+  overflow-x: hidden;
+}
+
+/* Configuración base para todo el sitio */
+html, body {
+  width: 100%;
+  max-width: 100%;
+  overflow-x: hidden;
+  margin: 0;
+  padding: 0;
+}
+
+/* Fix específico para la barra vertical derecha - Webkit/Blink */
+::-webkit-scrollbar {
+  width: 0 !important;
+  display: none !important;
+  background: transparent !important;
+}
+
+/* Fix para Firefox */
+* {
+  scrollbar-width: none !important;
+}
+
+/* Fix para IE/Edge antiguo */
+* {
+  -ms-overflow-style: none !important;
+}
+
+/* Asegurar que el scroll vertical funcione en Quasar */
+body, .q-layout, .q-page-container, .q-page {
+  overflow-y: auto !important;
+}
+
+/* Eliminar borde derecho que puede causar la línea */
+.q-layout, .q-page-container, .q-page {
+  border-right: 0 !important;
+  margin-right: 0 !important;
+}
+
+/* Fix específico para Chrome */
+body::-webkit-scrollbar { 
+  display: none !important; 
+  width: 0 !important; 
+}
+
+/* Fix para barras laterales en contenedores */
+.q-layout__section--marginal::-webkit-scrollbar,
+.q-drawer::-webkit-scrollbar {
+  display: none !important;
+  width: 0 !important;
+}
+
+/* Compensar el espacio del navbar fijo */
+body {
+  padding-top: 50px; /* Ajustar según la altura real del navbar */
+  box-sizing: border-box;
+  max-width: 100vw;
+  font-family: 'OpenSans-SemiBold', sans-serif;
+}
+
+/* Implementación de la tipografía requerida */
+.text-h1, .text-h2, .text-h3, .text-h4,
+h1, h2, h3, h4, .q-title, .q-headline {
+  font-family: 'OpenSans-ExtraBold', sans-serif !important;
+  font-weight: 800;
+}
+
+.text-h5, .text-h6, .text-subtitle1, .text-subtitle2,
+h5, h6, .q-subheading {
+  font-family: 'OpenSans-Bold', sans-serif !important;
+  font-weight: 700;
+}
+
+p, span, .text-body1, .text-body2, .q-body, .q-body--dark, 
+button, input, textarea, select, .q-field__native,
+.q-item__label, .q-option-label, .q-menu {
+  font-family: 'OpenSans-SemiBold', sans-serif !important;
+  font-weight: 600;
+}
 
 /* Mantener la estructura del contenido normal con ancho limitado */
 .content-block {

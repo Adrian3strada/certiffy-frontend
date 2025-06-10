@@ -15,7 +15,7 @@
         <q-img
           :src="imagenUrl"
           :ratio="mediaRatio"
-          spinner-color="primary"
+          spinner-color="accent"
           spinner-size="42px"
           :height="alturaImagen"
           :fit="ajusteImagen"
@@ -69,7 +69,7 @@
           <q-btn 
             v-if="accionPrimaria"
             :label="accionPrimaria" 
-            :color="colorAccionPrimaria" 
+            :color="'secondary'" 
             :to="rutaAccionPrimaria" 
             :outline="outlineAccionPrimaria"
             class="certiffy-tarjeta__boton"
@@ -77,7 +77,7 @@
           <q-btn 
             v-if="accionSecundaria"
             :label="accionSecundaria" 
-            :color="colorAccionSecundaria" 
+            :color="'warning'" 
             :to="rutaAccionSecundaria" 
             :outline="outlineAccionSecundaria"
             flat
@@ -120,11 +120,11 @@ const props = defineProps({
   // Acciones
   accionPrimaria: { type: String, default: '' },
   rutaAccionPrimaria: { type: [String, Object], default: '#' },
-  colorAccionPrimaria: { type: String, default: 'primary' },
+  colorAccionPrimaria: { type: String, default: 'secondary' },
   outlineAccionPrimaria: { type: Boolean, default: false },
   accionSecundaria: { type: String, default: '' },
   rutaAccionSecundaria: { type: [String, Object], default: '#' },
-  colorAccionSecundaria: { type: String, default: 'secondary' },
+  colorAccionSecundaria: { type: String, default: 'warning' },
   outlineAccionSecundaria: { type: Boolean, default: true }
 });
 

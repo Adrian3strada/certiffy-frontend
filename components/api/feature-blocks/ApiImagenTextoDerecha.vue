@@ -1,5 +1,5 @@
 <template>
-  <div class="q-mx-auto q-my-sm q-px-sm" style="max-width: 1080px; width: 100%; position: relative;">
+  <section :id="'imagen-texto-derecha-' + (id || Math.random().toString(36).substring(2, 9))" class="q-mx-auto q-my-sm q-px-sm" style="max-width: 1080px; width: 100%; position: relative;">
     <!-- Depuración si está habilitado -->
     <div v-if="props.debugMode || internalDebugMode" class="q-mb-xs bg-grey-2 rounded-borders q-pa-sm">
       <div class="text-subtitle2 text-primary q-pb-xs">Componente: ApiImagenTextoDerecha</div>
@@ -58,21 +58,25 @@
         <div v-if="content" class="text-body2 text-grey-8" v-html="content"></div>
       </div>
     </div>
-  </div>
+  </section>
 </template>
 
 <script setup>
 import { ref, computed, onMounted } from 'vue';
-import { useFetch } from '#app';
+import { useFetch, useRuntimeConfig } from '#app'; // Added useRuntimeConfig
 
 const props = defineProps({
   block: {
     type: Object,
     required: true
   },
+  id: {
+    type: String,
+    default: ''
+  },
   apiBaseUrl: {
     type: String,
-    default: process.env.NUXT_PUBLIC_API_BASE || ''
+    default: () => useRuntimeConfig().public.apiBase
   },
   debugMode: {
     type: Boolean,

@@ -6,6 +6,7 @@
     <!-- Caso especial: Carrusel -->
     <ApiCarouselComponent 
       v-if="block && block.type && block.type.toLowerCase() === 'carousel' && block.value"
+      :block="block"
       :carouselData="block.value"
       :videoData="block.value"
       :showCarousel="true"
@@ -17,6 +18,7 @@
     <!-- Caso especial: Video -->
     <ApiVideoComponent 
       v-else-if="block && block.type && block.type.toLowerCase() === 'video'"
+      :block="block"
       :blocks="[block]"
       :api-base-url="apiBaseUrl"
       :title="blockTitle"
@@ -56,6 +58,21 @@ import { useComponentRegistry } from '~/composables/useComponentRegistry';
 
 // Importar el registro centralizado de componentes
 import { registerAllComponents, getComponentByType, hasComponentForType as registryHasComponent } from '../registry.js';
+
+// Registro siempre antes de cualquier renderizado
+registerAllComponents();
+
+// Debug helpers
+function componentExists(type) {
+  const exists = registryHasComponent(type);
+  console.log('[DynamicBlockRenderer] Tipo:', type, '¿Registrado?', exists);
+  return exists;
+}
+function getComponentForBlockType(type) {
+  const comp = getComponentByType(type);
+  console.log('[DynamicBlockRenderer] Componente para', type, ':', comp);
+  return comp;
+}
 
 // Componentes para casos especiales que necesitan tratamiento específico
 import ApiCarouselComponent from '../feature-blocks/ApiCarouselComponent.vue';
@@ -123,25 +140,6 @@ watch(() => props.block?.type, (newType) => {
 });
 
 /**
- * Verifica si existe un componente registrado para el tipo de bloque
- * @param {String} blockType - Tipo de bloque a verificar
- * @returns {Boolean} - True si existe un componente registrado
- */
-const componentExists = (blockType) => {
-  if (!blockType) return false;
-  
-  // Normalizar el tipo a minúsculas
-  const normalizedType = blockType.toLowerCase();
-  
-  // Verificar en ambos registros (local y centralizado)
-  return hasComponentForType(normalizedType) || registryHasComponent(normalizedType);
-};
-
-/**
- * Obtiene el componente apropiado para el tipo de bloque
- * @param {String} blockType - Tipo de bloque
- * @returns {Component|String} - Componente Vue o 'div' como fallback
- */
 const getComponentForBlockType = (blockType) => {
   if (!blockType) return 'div';
   
@@ -208,7 +206,7 @@ const detectNewComponent = (blockType) => {
 
 <style scoped>
 .dynamic-block-renderer {
-  width: 100%;
+  width: 103%;
 }
 
 .unknown-block-type {

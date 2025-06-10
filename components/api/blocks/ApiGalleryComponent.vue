@@ -1,5 +1,5 @@
 <template>
-  <div class="q-my-xl q-mx-auto" style="max-width: 1200px;">
+  <section :id="'gallery-' + (id || Math.random().toString(36).substring(2, 9))" class="q-my-xl q-mx-auto" style="max-width: 1200px;">
     <h4 class="text-center q-mb-md" v-if="galleryTitle">{{ galleryTitle }}</h4>
     
     <!-- Carrusel de imágenes para pantallas pequeñas -->
@@ -108,22 +108,26 @@
         </q-card-section>
       </q-card>
     </q-dialog>
-  </div>
+  </section>
 </template>
 
 <script setup>
 import { ref, computed } from 'vue';
-import { API_BASE_URL } from '~/composables/useWagtailApi';
+import { useRuntimeConfig } from '#app'; // Import useRuntimeConfig
 
 // Propiedades del componente
 const props = defineProps({
+  id: {
+    type: String,
+    default: ''
+  },
   block: {
     type: Object,
     required: true
   },
   apiBaseUrl: {
     type: String,
-    default: API_BASE_URL
+    default: () => useRuntimeConfig().public.apiBase // Use factory function for default
   },
   title: {
     type: String,

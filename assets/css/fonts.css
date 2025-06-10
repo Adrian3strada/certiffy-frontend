@@ -1,0 +1,25 @@
+/* 
+ * Definición de fuentes para el sitio
+ */
+
+/* Definición de fuentes */
+@font-face {
+  font-family: 'OpenSans-ExtraBold';
+  src: url('/assets/OpenSans-ExtraBold.ttf') format('truetype');
+  font-weight: 800;
+  font-style: normal;
+}
+
+@font-face {
+  font-family: 'OpenSans-Bold';
+  src: url('/assets/OpenSans-Bold.ttf') format('truetype');
+  font-weight: 700;
+  font-style: normal;
+}
+
+@font-face {
+  font-family: 'OpenSans-SemiBold';
+  src: url('/assets/OpenSans-SemiBold.ttf') format('truetype');
+  font-weight: 600;
+  font-style: normal;
+}

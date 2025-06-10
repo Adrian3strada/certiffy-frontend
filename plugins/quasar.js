@@ -23,15 +23,18 @@ export default defineNuxtPlugin((nuxtApp) => {
           timeout: 2500
         },
         brand: {
-          primary: '#0d3122',
-          secondary: '#80bb39',
-          accent: '#9C27B0',
+          // Colores principales del diseño
+          primary: '#0a1a42',   // Azul marino (anteriormente certiffy-azul-marino)
+          secondary: '#8FB4A2', // Verde (anteriormente certiffy-verde)
+          accent: '#FFB901',    // Amarillo (anteriormente certiffy-amarillo)
+          warning: '#DFBB43',   // Dorado (anteriormente certiffy-dorado)
+          
+          // Colores de sistema
           dark: '#1D1D1D',
           'dark-page': '#121212',
           positive: '#21BA45',
           negative: '#C10015',
-          info: '#31CCEC',
-          warning: '#F2C037'
+          info: '#31CCEC'
         },
         loadingBar: {
           color: 'blue',

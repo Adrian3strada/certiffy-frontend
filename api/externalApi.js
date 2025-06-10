@@ -1,52 +1,15 @@
 // Servicio para interactuar con la API externa
-const API_BASE_URL = 'https://e412-2806-103e-1d-3687-f08f-4014-a8d6-4606.ngrok-free.app/api/v2';
-
-// Crear una versión de respaldo con los datos de ejemplo que proporcionaste
-const MOCK_DATA = {
-  "id": 15,
-  "meta": {
-    "type": "home.HomePage",
-    "detail_url": "https://e412-2806-103e-1d-3687-f08f-4014-a8d6-4606.ngrok-free.app/api/v2/pages/15/",
-    "html_url": "http://127.0.0.1/",
-    "slug": "homepage",
-    "show_in_menus": false,
-    "seo_title": "",
-    "search_description": "",
-    "first_published_at": "2025-05-16T19:59:35.798033Z",
-    "alias_of": null,
-    "parent": null
-  },
-  "title": "HOMEPAGE",
-  "intro_text": "<p data-block-key=\"1vuf4\">CERTIFFY</p><hr/><p data-block-key=\"cd7hf\"></p><p data-block-key=\"ejvg2\"></p><p data-block-key=\"bpzcz\"></p><p data-block-key=\"cor2f\"></p>",
-  "video_url": "https://www.youtube.com/watch?v=X6dM7OjHNsE",
-  "carousel_images": [
-    {
-      "type": "image",
-      "value": 1,
-      "id": "cea1b6f6-d630-428a-95b1-b380b9bcff0c"
-    },
-    {
-      "type": "image",
-      "value": 2,
-      "id": "d4d701bf-2bdc-43e9-9d44-d5f4b0e5fe4f"
-    },
-    {
-      "type": "image",
-      "value": 3,
-      "id": "483251f4-d522-4905-8575-edf765784cc8"
-    }
-  ]
-};
+// API_BASE_URL will be passed into methods by the calling code using runtimeConfig.
 
 export const externalApiService = {
   // Obtener una página por ID
-  async getPageById(id) {
+  async getPageById(apiBase, id) {
     try {
-      console.log(`Intentando obtener página con ID ${id} de ${API_BASE_URL}/pages/${id}/`);
+      console.log(`Intentando obtener página con ID ${id} de ${apiBase}/pages/${id}/`);
       
       try {
         // Intentar obtener datos de la API externa
-        const response = await fetch(`${API_BASE_URL}/pages/${id}/`, {
+        const response = await fetch(`${apiBase}/pages/${id}/`, {
           method: 'GET',
           headers: {
             'Accept': 'application/json',
@@ -93,13 +56,13 @@ export const externalApiService = {
   },
   
   // Obtener todas las páginas (si la API lo soporta)
-  async getAllPages() {
+  async getAllPages(apiBase) {
     try {
-      console.log(`Intentando obtener todas las páginas de ${API_BASE_URL}/pages/`);
+      console.log(`Intentando obtener todas las páginas de ${apiBase}/pages/`);
       
       try {
         // Intentar obtener datos de la API externa
-        const response = await fetch(`${API_BASE_URL}/pages/`, {
+        const response = await fetch(`${apiBase}/pages/`, {
           method: 'GET',
           headers: {
             'Accept': 'application/json',
