@@ -28,7 +28,7 @@ export function useMediaUrl() {
       // Construir la URL absoluta usando la config de runtime
       return `${apiBaseUrl}${formattedPath}`;
     } catch (e) {
-      console.error('Error al construir URL absoluta:', e);
+      // console.error('Error al construir URL absoluta:', e);
       return '';
     }
   };
@@ -48,7 +48,7 @@ export function useMediaUrl() {
       // Devolver la URL para el proxy
       return `/api/proxy-image?url=${encodeURIComponent(absoluteUrl)}`;
     } catch (e) {
-      console.error('Error al crear URL proxy para imagen:', e);
+      // console.error('Error al crear URL proxy para imagen:', e);
       return '';
     }
   };

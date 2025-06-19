@@ -551,7 +551,8 @@ const mainVideoLoaded = ref(false);
     }
     
     // Fallback a placeholder
-    return `https://via.placeholder.com/800x450?text=Image+Not+Found`;
+    const config = useRuntimeConfig();
+    return config.public.defaultPlaceholderImage || '';
   };
 
   // Función para procesar la URL del video y añadir parámetros de autoplay
@@ -567,6 +568,7 @@ const mainVideoLoaded = ref(false);
       } else { // Main video en modal
         params = `autoplay=1&controls=1&showinfo=1&rel=0`;
       }
+      // Usar los endpoints oficiales de YouTube para el embed
       return `https://www.youtube.com/embed/${youtubeVideoId}?${params}`;
     } else if (url.includes('vimeo.com')) { // Es Vimeo
       const vimeoVideoIdMatch = url.match(/vimeo.com\/(?:video\/)?(\d+)/);
@@ -578,12 +580,13 @@ const mainVideoLoaded = ref(false);
         } else { // Main video en modal
           params = `autoplay=1&title=0&byline=0&portrait=0`; // Muestra controles, permite sonido
         }
+        // Usar los endpoints oficiales de Vimeo para el embed
         return `https://player.vimeo.com/video/${vimeoVideoId}?${params}`;
       }
     }
     
     // Si no es YouTube ni Vimeo, o no se pudo procesar, devolver la URL original (o manejar error)
-    console.warn('Could not process video URL:', url);
+    // console.warn('Could not process video URL:', url);
     return url; // O retornar un string vacío o una URL de error
   };
 
@@ -611,11 +614,11 @@ const mainVideoLoaded = ref(false);
   };
 
   const fetchData = async () => {
-    console.log('[ApiCarouselComponent] carouselData:', props.carouselData);
+    // console.log('[ApiCarouselComponent] carouselData:', props.carouselData);
     try {
       // Si tenemos datos proporcionados directamente como props, usarlos
       if (props.carouselData) {
-        console.log('Usando datos de carrusel proporcionados directamente:', props.carouselData);
+        // console.log('Usando datos de carrusel proporcionados directamente:', props.carouselData);
         carouselData.value = props.carouselData;
         
         // Si tenemos datos de video proporcionados directamente
@@ -693,8 +696,8 @@ const mainVideoLoaded = ref(false);
         }
       }
       
-      console.log('Datos de carousel cargados:', carouselData.value);
-      console.log('Datos de video cargados:', videoData.value);
+      // console.log('Datos de carousel cargados:', carouselData.value);
+      // console.log('Datos de video cargados:', videoData.value);
       
       // Emitir evento de datos cargados
       emit('data-loaded', { 
@@ -703,7 +706,7 @@ const mainVideoLoaded = ref(false);
         videoData: videoData.value 
       });
     } catch (err) {
-      console.error('Error al cargar datos del API:', err);
+      // console.error('Error al cargar datos del API:', err);
       error.value = `Error al cargar datos: ${err.message}`;
       emit('data-error', err);
     }

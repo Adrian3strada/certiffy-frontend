@@ -127,7 +127,7 @@ function componentExists(type) {
   // Normalizar el tipo a minúsculas para buscar en el registro
   const normalizedType = type.toLowerCase();
   const exists = hasComponentForType(normalizedType);
-  console.log('[DynamicBlockRenderer] Tipo:', type, 'Normalizado:', normalizedType, '¿Registrado?', exists);
+  // console.log('[DynamicBlockRenderer] Tipo:', type, 'Normalizado:', normalizedType, '¿Registrado?', exists);
   return exists;
 }
 
@@ -135,7 +135,7 @@ function getComponentForBlockType(type) {
   // Normalizar el tipo a minúsculas para buscar en el registro
   const normalizedType = type.toLowerCase();
   const comp = getComponentForType(normalizedType);
-  console.log('[DynamicBlockRenderer] Componente para', type, 'Normalizado:', normalizedType, ':', comp);
+  // console.log('[DynamicBlockRenderer] Componente para', type, 'Normalizado:', normalizedType, ':', comp);
   return comp;
 }
 
@@ -215,10 +215,10 @@ const detectNewComponent = (blockType) => {
     //     registerComponent(blockType, module.default);
     //   })
     //   .catch(error => {
-    //     console.warn(`No se pudo cargar dinámicamente: ${blockType}`, error);
+    //     // console.warn(`No se pudo cargar dinámicamente: ${blockType}`, error);
     //   });
   } catch (error) {
-    console.warn(`Error al intentar detectar componente para: ${blockType}`, error);
+    // console.warn(`Error al intentar detectar componente para: ${blockType}`, error);
   }
 };
 </script>

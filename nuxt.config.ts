@@ -7,7 +7,7 @@ export default defineNuxtConfig({
 
   runtimeConfig: {
     public: {
-      apiBase: process.env.NUXT_PUBLIC_API_BASE || 'https://8238-2806-103e-1d-60a8-8835-550a-ee2a-b870.ngrok-free.app' // Fallback si no está en .env
+      apiBase: process.env.NUXT_PUBLIC_API_BASE || '' // Debe configurarse en variables de entorno
     }
   },
   
@@ -57,13 +57,13 @@ export default defineNuxtConfig({
       // Proxy para API de Wagtail v2 (navbar, footer, eventos, etc)
       '/api/v2/**': {
         proxy: {
-          to: 'https://8238-2806-103e-1d-60a8-8835-550a-ee2a-b870.ngrok-free.app/api/v2/**',
+          to: `${process.env.NUXT_PUBLIC_API_BASE || ''}/api/v2/**`,
           headers: {
             'ngrok-skip-browser-warning': 'true',
             'Cache-Control': 'no-store, no-cache, must-revalidate, proxy-revalidate',
             'Access-Control-Allow-Origin': '*',
-            'Access-Control-Allow-Methods': 'GET, HEAD, OPTIONS',
-            'Access-Control-Allow-Headers': 'Content-Type, Authorization'
+            'Access-Control-Allow-Methods': 'GET, POST, PUT, DELETE, OPTIONS',
+            'Access-Control-Allow-Headers': 'Content-Type, Authorization, Accept-Language'
           }
         },
         cors: true
@@ -71,6 +71,7 @@ export default defineNuxtConfig({
       // Configuración para proxy-wagtail (páginas y otros recursos de Wagtail)
       '/api/proxy-wagtail': {
         proxy: {
+          to: `${process.env.NUXT_PUBLIC_API_BASE || ''}/api/proxy-wagtail`,
           // No especificamos 'to' directamente, se maneja en el server middleware
         },
         cors: true,

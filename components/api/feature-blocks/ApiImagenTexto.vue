@@ -30,7 +30,7 @@
         <div class="absolute-full flex column justify-center items-center text-center" 
              style="background: rgba(0, 0, 0, 0.4); padding: 2rem;">
           <div class="q-mx-auto q-pa-lg bg-black-6" style="max-width: 800px; border-radius: 8px;">
-            <h2 v-if="title" class="text-h3 text-white text-weight-bold q-mb-md" 
+            <h2 v-if="title" class="text-h2 text-white text-weight-bold q-mb-md" 
                 :class="alineacionClass"
                 style="text-shadow: 0 2px 4px rgba(0, 0, 0, 0.5);"
                 v-html="title">
@@ -315,7 +315,7 @@ const props = defineProps({
     type: String,
     default: () => {
       const config = useRuntimeConfig();
-      return config.public.apiBase || 'http://localhost:3000';
+      return config.public.apiBase || '';
     }
   }
 });
@@ -375,7 +375,7 @@ const extractTitle = (html) => {
     }
     return null;
   } catch (err) {
-    console.warn('Error al extraer título:', err);
+    // console.warn('Error al extraer título:', err);
     return null;
   }
 };
@@ -403,33 +403,33 @@ const getImageUrl = (imagen) => {
     
     return imgUrl;
   } catch (error) {
-    console.error('Error al procesar URL de imagen:', error);
+    // console.error('Error al procesar URL de imagen:', error);
     return '';
   }
 };
 
 // Manejadores de eventos
 const handleImageError = () => {
-  console.error('Error al cargar la imagen principal');
+  // console.error('Error al cargar la imagen principal');
   error.value = 'No se pudo cargar la imagen';
 };
 
 const handleGaleriaError = (index) => {
-  console.error(`Error al cargar la imagen de la galería en posición ${index}`);
+  // console.error(`Error al cargar la imagen de la galería en posición ${index}`);
 };
 
 // Método para abrir el lightbox
 const openLightbox = (slideIndex) => {
   lightboxSlide.value = slideIndex;
   lightboxOpen.value = true;
-  console.log(`Abriendo lightbox en slide ${slideIndex}`);
+  // console.log(`Abriendo lightbox en slide ${slideIndex}`);
 };
 
 // Inicialización
 onMounted(() => {
   loading.value = true;
   try {
-    console.log('Procesando bloque ImagenTexto:', props.block);
+    // console.log('Procesando bloque ImagenTexto:', props.block);
     
     const blockData = props.block.value || props.block;
     
@@ -451,7 +451,7 @@ onMounted(() => {
     // Procesar imágenes
     // Primero procesamos el array de imágenes
     if (Array.isArray(blockData.imagenes) && blockData.imagenes.length > 0) {
-      console.log('Encontradas imágenes en array:', blockData.imagenes);
+      // console.log('Encontradas imágenes en array:', blockData.imagenes);
       imagenes.value = blockData.imagenes;
       
       // Usar la primera imagen como imagen principal si no hay una específica
@@ -473,12 +473,12 @@ onMounted(() => {
           } else {
             imageUrl.value = imgUrl;
           }
-          console.log('Imagen principal establecida desde array:', imageUrl.value);
+          // console.log('Imagen principal establecida desde array:', imageUrl.value);
         }
       }
     } else if (Array.isArray(blockData.galeria) && blockData.galeria.length > 0) {
       // Compatibilidad con formato anterior
-      console.log('Encontradas imágenes en galería:', blockData.galeria);
+      // console.log('Encontradas imágenes en galería:', blockData.galeria);
       imagenes.value = blockData.galeria;
     } else {
       imagenes.value = [];
@@ -501,13 +501,13 @@ onMounted(() => {
         } else {
           imageUrl.value = imgUrl;
         }
-        console.log('Imagen principal establecida desde campo imagen:', imageUrl.value);
+        // console.log('Imagen principal establecida desde campo imagen:', imageUrl.value);
       }
     }
     
     loading.value = false;
   } catch (err) {
-    console.error('Error al procesar el bloque:', err);
+    // console.error('Error al procesar el bloque:', err);
     error.value = 'Error al cargar el componente: ' + err.message;
     loading.value = false;
   }

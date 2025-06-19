@@ -41,8 +41,9 @@ interface PageData {
 }
 
 const route = useRoute()
-const { fetchAllPages, fetchPageBySlug, fetchPageDetails, findPageIdForRoute, knownRoutes } = useWagtail()
+const { fetchPageBySlug, fetchPageDetails, findHomePageId, findPageIdForRoute, fetchAllPages } = useWagtail()
 const { normalizeUrl } = useWagtailApi()
+const knownRoutes = ref([])
 
 const isLoading = ref(true)
 const error = ref('')
@@ -76,16 +77,17 @@ async function loadPageData() {
     const locale = routeParams.value.locale;
     const path = routeParams.value.path;
     const slug = routeParams.value.slug;
-    console.log(`Cargando datos de página para idioma: ${locale}, slug: ${slug}, path: ${path}`);
     
     // Caso especial: detectar si es la página principal con prefijo de idioma (ej: /es/)
-    // Esto ocurre cuando el path es /<idioma>/ o cuando el slug está vacío
     const isHomePage = !slug || slug === '' || path === `/${locale}/` || path === `/${locale}`;
     if (isHomePage) {
-      console.log(`Detectada página principal con prefijo de idioma: ${locale}. Usando ID fijo.`);
-      const homePageId = 3; // ID fijo de la página de inicio
-      pageData.value = await fetchPageDetails(homePageId, locale, true);
-      console.log(`Datos cargados para la página principal con ID ${homePageId} en idioma ${locale}:`, pageData.value);
+      const homePageId = await findHomePageId(locale);
+      if (homePageId) {
+        pageData.value = await fetchPageDetails(homePageId, locale);
+      } else {
+        // Intentar buscar la página por slug "home" como alternativa
+        pageData.value = await fetchPageBySlug('home', locale);
+      }
       isLoading.value = false;
       return;
     }
@@ -93,33 +95,55 @@ async function loadPageData() {
     // 1. Usar pageId del middleware si existe
     if (route.meta && typeof route.meta === 'object' && 'pageId' in route.meta && route.meta.pageId) {
       const pageId = Number(route.meta.pageId);
-      console.log(`Usando pageId del middleware: ${pageId}`);
       pageData.value = await fetchPageDetails(pageId, locale);
       if (!pageData.value) throw new Error(`No se encontró la página con ID ${route.meta.pageId} para idioma ${locale}`);
       isLoading.value = false
       return
     }
     
-    // 2. Buscar el ID usando el path normalizado
-    const pageId = findPageIdForRoute(path);
-    if (pageId) {
-      console.log(`Encontrado pageId ${pageId} para ruta ${path}`);
-      pageData.value = await fetchPageDetails(pageId, locale);
-      isLoading.value = false
-      return
+    // 2. Buscar el ID usando el path normalizado con varias estrategias
+    let pageId = null;
+    // Probar estrategias en orden
+    const pathVariants = [
+      path,
+      path.endsWith('/') ? path.slice(0, -1) : path,
+      !path.endsWith('/') ? path + '/' : path
+    ];
+    
+    // Intentar encontrar ID con las variantes de ruta
+    for (const pathVariant of pathVariants) {
+      pageId = findPageIdForRoute(pathVariant);
+      if (pageId) break;
     }
     
-    // 3. Buscar por slug
+    if (pageId) {
+      pageData.value = await fetchPageDetails(pageId, locale);
+      isLoading.value = false;
+      return;
+    }
+    
+    // 3. Buscar por slug con diferentes estrategias
     if (slug) {
-      console.log(`Buscando página por slug: ${slug} en idioma ${locale}`);
-      pageData.value = await fetchPageBySlug(slug, locale);
-      isLoading.value = false
-      return
+      // Intentar con diferentes variantes del slug para manejar varias profundidades de ruta
+      const slugVariants = [
+        slug,                   // Ruta completa
+        slug.replace(/\/+$/, ''), // Sin slash final
+        slug.split('/').pop() || '' // Último segmento de la ruta
+      ];
+      
+      for (const variant of slugVariants) {
+        if (!variant) continue;
+        pageData.value = await fetchPageBySlug(variant, locale);
+        if (pageData.value) break;
+      }
+      
+      isLoading.value = false;
+      return;
     }
     
     throw new Error(`No se pudo determinar qué página cargar para idioma ${locale}`)
   } catch (err) {
-    console.error('Error al cargar página:', err);
+    // console.error('Error al cargar página:', err);
     error.value = err instanceof Error ? err.message : 'Error desconocido';
   } finally {
     isLoading.value = false
@@ -137,17 +161,21 @@ watch(
   () => [route.fullPath, Object.keys(knownRoutes).length, routeParams.value.locale],
   async () => {
     const locale = routeParams.value.locale;
-    console.log(`Detectado cambio en ruta o idioma: ${locale}, cargando páginas...`)
+    console.log(`[Debug] Detectado cambio en ruta: ${route.fullPath}, idioma: ${locale}`);
     // Cargar todas las páginas para el idioma actual cuando cambie la ruta o el idioma
-    await fetchAllPages(locale)
-    await loadPageData()
+    await fetchAllPages(locale);
+    // Forzar refresco completo para páginas anidadas
+    console.log(`[Debug] Realizando carga de datos para la nueva ruta`);
+    await loadPageData();
   },
   { deep: true }
 )
 
 watch(
   pageData,
-  (val) => console.log('[DynamicPageData]', val)
+  (val) => {
+    // console.log('[DynamicPageData]', val)
+  }
 )
 
 const DynamicPageContent = defineAsyncComponent(() => 

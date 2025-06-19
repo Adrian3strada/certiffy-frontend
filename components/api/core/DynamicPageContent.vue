@@ -78,41 +78,41 @@ const debugMode = computed(() => {
 
 // Función para contar y registrar los bloques
 function logPageBlocks() {
-  console.log('[DynamicPageContent] Datos de página recibidos:', props.pageData);
-  console.log('[DynamicPageContent] Tipo de pageData:', typeof props.pageData);
-  console.log('[DynamicPageContent] pageData tiene body?', !!props.pageData?.body);
+  // console.log('[DynamicPageContent] Datos de página recibidos:', props.pageData);
+  // console.log('[DynamicPageContent] Tipo de pageData:', typeof props.pageData);
+  // console.log('[DynamicPageContent] pageData tiene body?', !!props.pageData?.body);
   
   if (props.pageData?.body) {
-    console.log('[DynamicPageContent] Tipo de body:', typeof props.pageData.body);
-    console.log('[DynamicPageContent] body es array?', Array.isArray(props.pageData.body));
+    // console.log('[DynamicPageContent] Tipo de body:', typeof props.pageData.body);
+    // console.log('[DynamicPageContent] body es array?', Array.isArray(props.pageData.body));
   }
   
   if (!props.pageData?.body || !Array.isArray(props.pageData.body)) {
-    console.log('[DynamicPageContent] No hay bloques para renderizar o body no es un array');
-    console.log('[DynamicPageContent] Contenido de body:', props.pageData?.body);
+    // console.log('[DynamicPageContent] No hay bloques para renderizar o body no es un array');
+    // console.log('[DynamicPageContent] Contenido de body:', props.pageData?.body);
     return;
   }
   
   const counts = {};
-  console.log(`[DynamicPageContent] Total de bloques en pageData.body: ${props.pageData.body.length}`);
+  // console.log(`[DynamicPageContent] Total de bloques en pageData.body: ${props.pageData.body.length}`);
   
   props.pageData.body.forEach((block, index) => {
     if (block) {
-      console.log(`[DynamicPageContent] Bloque #${index}:`, block);
+      // console.log(`[DynamicPageContent] Bloque #${index}:`, block);
       
       if (block.type) {
         const type = block.type.toLowerCase();
         counts[type] = (counts[type] || 0) + 1;
-        console.log(`[DynamicPageContent] Bloque #${index}: tipo=${block.type}, id=${block.id}, normalizado=${type}`);
+        // console.log(`[DynamicPageContent] Bloque #${index}: tipo=${block.type}, id=${block.id}, normalizado=${type}`);
       } else {
-        console.log(`[DynamicPageContent] Bloque #${index} no tiene tipo definido:`, block);
+        // console.log(`[DynamicPageContent] Bloque #${index} no tiene tipo definido:`, block);
       }
     } else {
-      console.log(`[DynamicPageContent] Bloque #${index} es null o undefined`);
+      // console.log(`[DynamicPageContent] Bloque #${index} es null o undefined`);
     }
   });
   
-  console.log('[DynamicPageContent] Conteo de bloques por tipo:', counts);
+  // console.log('[DynamicPageContent] Conteo de bloques por tipo:', counts);
 }
 
 // Ejecutar al montar el componente
@@ -122,7 +122,7 @@ onMounted(() => {
 
 // Observar cambios en pageData
 watch(() => props.pageData, () => {
-  console.log('[DynamicPageContent] pageData ha cambiado, recalculando bloques...');
+  // console.log('[DynamicPageContent] pageData ha cambiado, recalculando bloques...');
   logPageBlocks();
 }, { deep: true });
 </script>

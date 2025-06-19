@@ -67,7 +67,7 @@
                 <!-- Imagen de fondo -->
                 <q-img
                   :src="tarjeta.imageUrl"
-                  error-src="https://placehold.co/600x400/333333/666666?text=No+Image"
+                  :error-src="defaultImagePlaceholder"
                   spinner-color="white"
                   spinner-size="42px"
                   class="full-height"
@@ -206,7 +206,7 @@ const extractTitle = (htmlContent) => {
     }
     return null;
   } catch (err) {
-    console.warn('Error al extraer título:', err);
+    // console.warn('Error al extraer título:', err);
     return null;
   }
 };
@@ -224,7 +224,7 @@ const formatDate = (dateString) => {
     const date = parseISO(dateString);
     return format(date, "d 'de' MMMM, yyyy", { locale: es });
   } catch (error) {
-    console.error('Error al formatear fecha:', error);
+    // console.error('Error al formatear fecha:', error);
     return dateString;
   }
 };
@@ -235,7 +235,7 @@ const getCardUrl = (tarjeta) => {
     if (!tarjeta || !tarjeta.url) return '#';
     
     const config = useRuntimeConfig();
-    const frontendBaseUrl = config.public.frontendUrl || 'http://localhost:3000';
+    const frontendBaseUrl = config.public.frontendUrl || '';
     
     let url = tarjeta.url;
     
@@ -246,7 +246,7 @@ const getCardUrl = (tarjeta) => {
     
     return url;
   } catch (error) {
-    console.error('Error al procesar URL:', error);
+    // console.error('Error al procesar URL:', error);
     return '#';
   }
 };
@@ -346,7 +346,7 @@ onMounted(async () => {
       
       if (imageUrl && !imageUrl.startsWith('http')) {
         const config = useRuntimeConfig();
-        const baseUrl = config.public.apiBase || 'http://localhost:3000';
+        const baseUrl = config.public.apiBase || '';
         
         let url = imageUrl;
         
@@ -373,7 +373,7 @@ onMounted(async () => {
       calculateDimensions();
     });
   } catch (err) {
-    console.error('Error al cargar las tarjetas:', err);
+    // console.error('Error al cargar las tarjetas:', err);
     error.value = 'Error al cargar los datos: ' + (err.message || 'Desconocido');
   } finally {
     loading.value = false;

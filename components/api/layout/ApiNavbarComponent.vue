@@ -219,6 +219,7 @@ import { ref, computed, onMounted, onUnmounted, watch } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
 import { useNavbar } from '~/composables/useNavbar';
 import { useLocales } from '~/composables/useLocales';
+import { useWagtail } from '~/composables/useWagtail';
 import { useQuasar } from 'quasar';
 
 const $q = useQuasar();
@@ -234,9 +235,9 @@ const drawerOpen = ref(false);
 const { navbarData, logoUrl, navItems, isLoading: loading, error, refresh: fetchNavbar } = useNavbar();
 
 // Logs para depurar datos recibidos
-console.log('ApiNavbarComponent - logoUrl:', logoUrl.value);
-console.log('ApiNavbarComponent - navItems:', JSON.stringify(navItems.value, null, 2));
-console.log('ApiNavbarComponent - navbarData:', JSON.stringify(navbarData, null, 2));
+// console.log('ApiNavbarComponent - logoUrl:', logoUrl.value);
+// console.log('ApiNavbarComponent - navItems:', JSON.stringify(navItems.value, null, 2));
+// console.log('ApiNavbarComponent - navbarData:', JSON.stringify(navbarData, null, 2));
 const { localesData, isLoading: loadingLocales } = useLocales();
 
 // Computed properties para obtener los datos
@@ -261,7 +262,7 @@ const availableLanguages = computed(() => {
   
   // Si no hay idiomas de la API, usar los predeterminados
   if (!apiLanguages.length) {
-    console.log('Usando idiomas predeterminados porque la API no devolvió ninguno');
+    // console.log('Usando idiomas predeterminados porque la API no devolvió ninguno');
     return defaultLanguages;
   }
   
@@ -285,7 +286,7 @@ const processedNavItems = computed(() => {
   // Verificar si hay datos de navegación
   if (!navItems.value || !navItems.value.length) return [];
   
-  console.log('Procesando elementos de navegación:', JSON.stringify(navItems.value, null, 2));
+  // console.log('Procesando elementos de navegación:', JSON.stringify(navItems.value, null, 2));
   
   // En la estructura actual de la API, navItems.value es un array que contiene un único elemento
   // que a su vez tiene un array de children que son los elementos principales del menú
@@ -309,7 +310,7 @@ const processedNavItems = computed(() => {
     // Combinar el elemento raíz y sus hijos en un solo array
     const menuItems = [rootItem, ...childrenItems];
     
-    console.log('Elementos procesados (con raíz):', JSON.stringify(menuItems, null, 2));
+    // console.log('Elementos procesados (con raíz):', JSON.stringify(menuItems, null, 2));
     return menuItems;
   }
   
@@ -320,7 +321,7 @@ const processedNavItems = computed(() => {
     children: item.children || []
   }));
   
-  console.log('Elementos procesados (fallback):', JSON.stringify(menuItems, null, 2));
+  // console.log('Elementos procesados (fallback):', JSON.stringify(menuItems, null, 2));
   return menuItems;
 });
 
@@ -350,17 +351,22 @@ async function changeLanguage(langCode) {
   const previousLanguage = currentLanguage.value;
   
   try {
-    console.log(`Cambiando idioma de ${previousLanguage} a ${langCode}...`);
+    // console.log(`Cambiando idioma de ${previousLanguage} a ${langCode}...`);
     localStorage.setItem('currentLocale', langCode); // Usamos currentLocale para mantener coherencia con el composable
+    
+    // Limpiar todas las cachés para forzar la recarga de los datos en el nuevo idioma
+    const wagtailUtils = useWagtail();
+    wagtailUtils.clearCaches();
+    // console.log('Cachés de páginas limpiadas para el cambio de idioma');
     
     // Actualizar el navbar con los elementos del nuevo idioma
     // Esto asegura que los elementos del menú se actualicen inmediatamente sin necesidad de recargar la página
     try {
       // Llamar a fetchNavbar con el nuevo idioma para actualizar los datos del navbar
       await fetchNavbar(langCode);
-      console.log(`Navbar actualizado para idioma ${langCode}`);
+      // console.log(`Navbar actualizado para idioma ${langCode}`);
     } catch (navbarError) {
-      console.error(`Error al actualizar navbar para idioma ${langCode}:`, navbarError);
+      // console.error(`Error al actualizar navbar para idioma ${langCode}:`, navbarError);
       // Continuar con la navegación a pesar del error
     }
     
@@ -378,7 +384,7 @@ async function changeLanguage(langCode) {
     // Si estamos en la página de inicio, ir a la raíz del nuevo idioma
     if (isHomePage) {
       newPath = `/${langCode}`;
-      console.log(`Página de inicio detectada, cambiando a: ${newPath}`);
+      // console.log(`Página de inicio detectada, cambiando a: ${newPath}`);
     }
     // Si la ruta tiene prefijo de idioma, extraer la parte después del prefijo
     else if (hasLanguagePrefix) {
@@ -391,12 +397,12 @@ async function changeLanguage(langCode) {
         // Agregar el nuevo prefijo de idioma
         newPath = `/${langCode}${pathWithoutLang}`;
       }
-      console.log(`Ruta con prefijo de idioma detectada, cambiando a: ${newPath}`);
+      // console.log(`Ruta con prefijo de idioma detectada, cambiando a: ${newPath}`);
     }
     // Para otras rutas sin prefijo de idioma
     else {
       newPath = `/${langCode}${currentPath.startsWith('/') ? currentPath : '/' + currentPath}`;
-      console.log(`Otra ruta detectada, cambiando a: ${newPath}`);
+      // console.log(`Otra ruta detectada, cambiando a: ${newPath}`);
     }
     
     // Asegurarse de que la nueva ruta comienza con / y no tiene dobles slashes
@@ -405,7 +411,7 @@ async function changeLanguage(langCode) {
     }
     newPath = newPath.replace(/\/\//g, '/');
     
-    console.log(`Navegando a nueva ruta: ${newPath}`);
+    // console.log(`Navegando a nueva ruta: ${newPath}`);
     
     // Actualizar la ruta usando el router
     await router.push(newPath);
@@ -415,10 +421,10 @@ async function changeLanguage(langCode) {
       window.location.href = newPath;
     }
     
-    console.log(`Idioma cambiado a ${langCode}`);
+    // console.log(`Idioma cambiado a ${langCode}`);
   } catch (err) {
     // Si hay un error, revertir al idioma anterior
-    console.error('Error al cambiar de idioma:', err);
+    // console.error('Error al cambiar de idioma:', err);
   }
 }
 
@@ -490,7 +496,7 @@ function getLanguageDisplayName(langCode) {
     // Último recurso: mostrar el código en mayúscula como nombre
     return langCode.toUpperCase();
   } catch (error) {
-    console.error('Error al obtener nombre de idioma:', error);
+    // console.error('Error al obtener nombre de idioma:', error);
     // Si algo falla, usar el mapa estático o el código
     return languageMap[langCode] || langCode.toUpperCase();
   }
@@ -512,7 +518,7 @@ const navigateToHome = () => {
  * Maneja errores de carga de imágenes
  */
 const handleImageError = (event) => {
-  console.error('Error al cargar imagen del navbar:', event.target.src);
+  // console.error('Error al cargar imagen del navbar:', event.target.src);
   // Marcar la imagen como no válida para usar el respaldo
   event.target.style.display = 'none';
 };

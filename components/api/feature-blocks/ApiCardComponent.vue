@@ -220,7 +220,7 @@ const cards = computed(() => {
   const block = props.block?.value;
   
   // Debug: log para ver la estructura de datos
-  console.log('Block data:', block);
+  // console.log('Block data:', block);
   
   // Si estamos trabajando con noticias (nuevo formato)
   if (block?.tipo === 'grupo_de_noticias' && Array.isArray(block?.noticias)) {
@@ -229,12 +229,12 @@ const cards = computed(() => {
       let titulo = noticia.titulo || '';
       
       // Para debug
-      console.log(`Procesando noticia ${index}:`, { 
+      /* console.log(`Procesando noticia ${index}:`, { 
         tipo: noticia.tipo, 
         titulo: noticia.titulo,
         categoria: noticia.categoria,
         descripcion: noticia.descripcion
-      });
+      }); */
       
       // Si es un evento y no tiene título, usar el título del evento
       if (noticia.tipo === 'evento' && !titulo) {
@@ -254,20 +254,20 @@ const cards = computed(() => {
       };
     });
     
-    console.log('Mapped cards:', mappedCards);
+    // console.log('Mapped cards:', mappedCards);
     return mappedCards;
   }
   
   // Si estamos trabajando con tarjetas (formato original)
   if (block?.tarjetas && Array.isArray(block.tarjetas)) {
-    console.log('Using tarjetas format:', block.tarjetas);
+    // console.log('Using tarjetas format:', block.tarjetas);
     return block.tarjetas.map((tarjeta, index) => ({
       ...tarjeta,
       _index: index
     }));
   }
   
-  console.warn('No cards found in block');
+  // console.warn('No cards found in block');
   return [];
 });
 
@@ -275,7 +275,7 @@ const cards = computed(() => {
 function getImageUrl(card) {
   // Asegurarnos de que hay una imagen para procesar
   if (!card.imagen) {
-    console.log('Card sin imagen:', card.titulo || 'Sin título');
+    // console.log('Card sin imagen:', card.titulo || 'Sin título');
     return null;
   }
   
@@ -292,11 +292,11 @@ function getImageUrl(card) {
 
   // Verificar que se encontró una URL
   if (!imageUrl) {
-    console.log('No se encontró URL para la imagen:', card);
+    // console.log('No se encontró URL para la imagen:', card);
     return null;
   }
   
-  console.log('URL original de la imagen:', imageUrl);
+  // console.log('URL original de la imagen:', imageUrl);
 
   // Si ya es una URL absoluta
   if (imageUrl.startsWith('http')) {
@@ -313,7 +313,7 @@ function getImageUrl(card) {
 // Manejo simplificado de errores de imágenes
 function handleImageError(evt, card, index) {
   const title = card.titulo || 'Sin título';
-  console.error(`Error de imagen para tarjeta "${title}". URL fallida:`, evt.target.src);
+  // console.error(`Error de imagen para tarjeta "${title}". URL fallida:`, evt.target.src);
   
   // Identificar la imagen por índice y título
   const imageKey = `${index}_${title.replace(/\s+/g, '_')}`;
@@ -346,22 +346,22 @@ function handleImageError(evt, card, index) {
       if (!imageUrl.startsWith('http')) {
         const path = imageUrl.startsWith('/') ? imageUrl : `/${imageUrl}`;
         newUrl = `${props.apiBaseUrl}${path}`;
-        console.log(`Reintento 1: Cargando directamente desde API: ${newUrl}`);
+        // console.log(`Reintento 1: Cargando directamente desde API: ${newUrl}`);
       } else {
         // Si es absoluta, intentar directamente
         newUrl = imageUrl;
-        console.log(`Reintento 1: Cargando URL absoluta directa: ${newUrl}`);
+        // console.log(`Reintento 1: Cargando URL absoluta directa: ${newUrl}`);
       }
     }
   } else if (attempts === 2) {
     // Segundo intento: Usar una URL alternativa si está disponible
     if (props.fallbackUrl) {
       newUrl = props.fallbackUrl;
-      console.log(`Reintento 2: Usando URL de respaldo: ${newUrl}`);
+      // console.log(`Reintento 2: Usando URL de respaldo: ${newUrl}`);
     }
   } else {
     // Tercer intento o posterior: marcar como fallida definitivamente
-    console.log(`Todos los reintentos fallidos para la imagen de la tarjeta "${title}". Usando imagen de respaldo.`);
+    // console.log(`Todos los reintentos fallidos para la imagen de la tarjeta "${title}". Usando imagen de respaldo.`);
     imageStates[imageKey].failed = true;
     
     // Usar imagen de respaldo SVG local
@@ -379,18 +379,18 @@ function handleImageError(evt, card, index) {
   // Marcar como fallida después de todos los intentos
   if (imageStates[imageKey].attempts >= 3) {
     imageStates[imageKey].failed = true;
-    console.log('Image definitively failed after all attempts for card:', card.titulo || 'Sin título');
+    // console.log('Image definitively failed after all attempts for card:', card.titulo || 'Sin título');
     
     // Mostrar imagen de respaldo si está disponible
     if (props.fallbackImage) {
-      console.log('Using fallback image');
+      // console.log('Using fallback image');
       evt.target.src = props.fallbackImage;
     }
   }
 }
 
 function handleImageLoad(evt, card, index) {
-  console.log('Image loaded successfully for card:', card.titulo);
+  // console.log('Image loaded successfully for card:', card.titulo);
   const imageKey = `${index}_${card.titulo}`;
   if (imageStates[imageKey]) {
     imageStates[imageKey].failed = false;
@@ -410,7 +410,7 @@ function isExternalLink(url) {
       const urlObj = new URL(url.startsWith('//') ? `https:${url}` : url);
       return urlObj.hostname !== window.location.hostname;
     } catch (e) {
-      console.error('Error al verificar si la URL es externa:', e);
+      // console.error('Error al verificar si la URL es externa:', e);
     }
   }
   
@@ -427,7 +427,7 @@ function getCardUrl(card) {
   if (!url || url === '#') return url;
   
   // Mostrar la URL original para depuración
-  console.log('URL original:', url);
+  // console.log('URL original:', url);
   
   // Si la URL comienza con http:// o https://, procesar
   if (url.startsWith('http://') || url.startsWith('https://')) {
@@ -440,17 +440,17 @@ function getCardUrl(card) {
         const currentHost = window.location.hostname;
         const currentPort = window.location.port;
         
-        console.log('Dominio actual:', currentHost, 'Puerto actual:', currentPort);
-        console.log('Dominio URL:', urlObj.hostname, 'Puerto URL:', urlObj.port);
+        // console.log('Dominio actual:', currentHost, 'Puerto actual:', currentPort);
+        // console.log('Dominio URL:', urlObj.hostname, 'Puerto URL:', urlObj.port);
         
         // Si es del mismo dominio, extraer solo la ruta
         if (urlObj.hostname === currentHost) {
           url = urlObj.pathname;
-          console.log('URL convertida a ruta relativa:', url);
+          // console.log('URL convertida a ruta relativa:', url);
         }
       }
     } catch (e) {
-      console.error('Error al procesar URL externa:', e);
+      // console.error('Error al procesar URL externa:', e);
       return url; // Devolver la URL original en caso de error
     }
   }
@@ -458,17 +458,17 @@ function getCardUrl(card) {
   // Si la URL comienza con /es/ o similar, eliminar el prefijo de idioma
   if (url.match(/^\/[a-z]{2}\//)) {
     url = url.substring(3); // Eliminar los primeros 3 caracteres (ej: /es/)
-    console.log('URL sin prefijo de idioma:', url);
+    // console.log('URL sin prefijo de idioma:', url);
   }
   
   // Forzar que la URL sea relativa (sin dominio)
   if (url.startsWith('http://127.0.0.1:8000')) {
     url = url.replace('http://127.0.0.1:8000', '');
-    console.log('URL forzada a relativa (127.0.0.1):', url);
+    // console.log('URL forzada a relativa (127.0.0.1):', url);
   }
   
   // Mostrar la URL final para depuración
-  console.log(`URL procesada: ${originalUrl} -> ${url}`);
+  // console.log(`URL procesada: ${originalUrl} -> ${url}`);
   
   return url;
 }
@@ -489,7 +489,7 @@ function formatDate(dateString) {
     const date = parseISO(dateString);
     return format(date, 'd MMM yyyy', { locale: es });
   } catch (e) {
-    console.error('Error formateando fecha:', e);
+    // console.error('Error formateando fecha:', e);
     return dateString;
   }
 }

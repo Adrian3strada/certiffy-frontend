@@ -80,7 +80,7 @@ const props = defineProps({
 // Extraer las tarjetas del bloque
 const tarjetas = computed(() => {
   if (!props.block || !props.block.value || !props.block.value.tarjetas) {
-    console.warn('El bloque no contiene tarjetas o tiene un formato incorrecto');
+    // console.warn('El bloque no contiene tarjetas o tiene un formato incorrecto');
     return [];
   }
   return props.block.value.tarjetas;

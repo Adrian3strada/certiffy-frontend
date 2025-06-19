@@ -37,7 +37,7 @@ export function registerWagtailComponents(registerFunction: (type: string, compo
   Object.entries(blockComponents).forEach(([type, component]) => {
     // Normalizar el tipo a minúsculas
     const normalizedType = type.toLowerCase();
-    console.log(`[WagtailRegistry] Registrando componente para tipo: ${normalizedType}`);
+    // console.log(`[WagtailRegistry] Registrando componente para tipo: ${normalizedType}`);
     registerFunction(normalizedType, component);
   });
 }

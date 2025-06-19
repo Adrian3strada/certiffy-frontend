@@ -128,10 +128,10 @@ import { useFooter } from '~/composables/useFooter';
 const { footerData, logoUrl, faviconUrl, footerItems, isLoading: loading, error } = useFooter();
 
 // Logs para depurar datos recibidos
-console.log('ApiFooterComponent - logoUrl:', logoUrl.value);
-console.log('ApiFooterComponent - faviconUrl:', faviconUrl.value);
-console.log('ApiFooterComponent - footerItems:', JSON.stringify(footerItems.value, null, 2));
-console.log('ApiFooterComponent - footerData:', JSON.stringify(footerData, null, 2));
+// console.log('ApiFooterComponent - logoUrl:', logoUrl.value);
+// console.log('ApiFooterComponent - faviconUrl:', faviconUrl.value);
+// console.log('ApiFooterComponent - footerItems:', JSON.stringify(footerItems.value, null, 2));
+// console.log('ApiFooterComponent - footerData:', JSON.stringify(footerData, null, 2));
 const showDebug = ref(process.env.NODE_ENV === 'development');
 
 // Valor para modelo de newsletter
@@ -187,7 +187,7 @@ const phone = computed(() =>
  * Maneja errores de carga de imágenes
  */
 const handleImageError = (event) => {
-  console.error('Error al cargar imagen:', event.target.src);
+  // console.error('Error al cargar imagen:', event.target.src);
   // Marcar la imagen como no válida para usar el respaldo
   event.target.style.display = 'none';
 };
@@ -203,11 +203,11 @@ const getSocialUrl = (network) => {
   
   // Valores predeterminados como respaldo
   const defaultUrls = {
-    facebook: 'https://facebook.com/certify',
-    twitter: 'https://twitter.com/certify',
-    instagram: 'https://instagram.com/certify',
-    linkedin: 'https://linkedin.com/company/certify',
-    youtube: 'https://youtube.com/c/certify'
+    facebook: footerData?.social_facebook || '',
+    twitter: footerData?.social_twitter || '',
+    instagram: footerData?.social_instagram || '',
+    linkedin: footerData?.social_linkedin || '',
+    youtube: footerData?.social_youtube || ''
   };
   
   return defaultUrls[network] || '#';
@@ -224,7 +224,7 @@ const subscribeNewsletter = () => {
   }
   
   // Aquí iría la lógica para suscribir al newsletter
-  console.log('Suscribiendo email:', newsletterEmail.value);
+  // console.log('Suscribiendo email:', newsletterEmail.value);
   
   // Mostrar feedback al usuario
   alert('¡Gracias por suscribirte a nuestro boletín!');

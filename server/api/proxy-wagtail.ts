@@ -2,7 +2,7 @@
 import { defineEventHandler, getQuery } from 'h3';
 import { useRuntimeConfig } from '#imports';
 
-const DEFAULT_PAGE_URL = '/api/v2/pages/';
+const DEFAULT_PAGE_URL = '/api/v2/pages/?locale=es';
 
 export default defineEventHandler(async (event) => {
   try {
@@ -13,17 +13,26 @@ export default defineEventHandler(async (event) => {
     
     // Construir la URL completa según lo que se proporcione
     if (query.url) {
+      const pathUrl = query.url as string;
+      
       // Si la URL comienza con una barra, prefijamos la URL base
-      if ((query.url as string).startsWith('/')) {
-        targetUrl = `${runtimeConfig.public.apiBase}${query.url}`;
+      if (pathUrl.startsWith('/')) {
+        targetUrl = `${runtimeConfig.public.apiBase}${pathUrl}`;
       } else {
         // Si ya es una URL completa, usarla directamente
-        targetUrl = (query.url as string).startsWith('http') ? 
-          query.url as string : 
-          `${runtimeConfig.public.apiBase}/${query.url}`;
+        targetUrl = pathUrl.startsWith('http') ? 
+          pathUrl : 
+          `${runtimeConfig.public.apiBase}/${pathUrl}`;
+      }
+      
+      // Añadir parámetro de locale si aún no está incluido
+      if (!targetUrl.includes('locale=')) {
+        // Usar 'es' como valor por defecto siempre para garantizar compatibilidad
+        // La API de Wagtail espera este formato exactamente
+        targetUrl += targetUrl.includes('?') ? '&locale=es' : '?locale=es';
       }
     } else {
-      // URL por defecto si no se proporciona ninguna
+      // URL por defecto si no se proporciona ninguna - ya incluye el prefijo /es/
       targetUrl = `${runtimeConfig.public.apiBase}${DEFAULT_PAGE_URL}`;
     }
     

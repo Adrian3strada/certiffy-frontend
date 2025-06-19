@@ -115,7 +115,7 @@ const props = defineProps({
   },
   apiBaseUrl: {
     type: String,
-    default: 'https://proyectocms-iota.vercel.app'
+    default: ''
   }
 });
 
@@ -151,7 +151,7 @@ const logoGroups = computed(() => {
 
 // Manejar errores de carga de imágenes
 const onImageError = (event, index) => {
-  console.error(`Error al cargar imagen ${index}:`, event);
+  // console.error(`Error al cargar imagen ${index}:`, event);
   // Marcar esta imagen como fallida
   socioImgError.value[index] = true;
 };

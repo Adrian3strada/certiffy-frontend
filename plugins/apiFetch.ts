@@ -17,7 +17,7 @@ export default defineNuxtPlugin(() => {
             const response = await fetch(url, options as RequestInit).then(res => res.json());
             return { data: { value: response }, error: { value: null } };
           } catch (err) {
-            // Elimino el console.error para limpieza de código
+            // Elimino el // console.error para limpieza de código
             return { data: { value: null }, error: { value: err as Error } };
           }
         } else {

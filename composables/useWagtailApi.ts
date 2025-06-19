@@ -60,7 +60,7 @@ export function useWagtailApi() {
           ? `${urlEndpoint}&locale=${currentLang}` 
           : `${urlEndpoint}?locale=${currentLang}`
       
-      console.log(`[useWagtailApi] Obteniendo datos desde: ${finalEndpoint} (idioma: ${currentLang})`)
+      // console.log(`[useWagtailApi] Obteniendo datos desde: ${finalEndpoint} (idioma: ${currentLang})`)
       
       // Crear una URL base con el endpoint
       const baseProxyUrl = `/api/proxy-wagtail?url=${finalEndpoint}`
@@ -68,7 +68,7 @@ export function useWagtailApi() {
       // Añadir parámetros anti-caché a la URL
       const noCacheUrl = addNoCacheParams(baseProxyUrl)
       
-      console.log(`[useWagtailApi] URL con parámetros anti-caché: ${noCacheUrl}`)
+      // console.log(`[useWagtailApi] URL con parámetros anti-caché: ${noCacheUrl}`)
       
       // Usamos el proxy para evitar problemas de CORS con opciones anti-caché
       const { data, error: fetchError } = await useFetch(noCacheUrl, {
@@ -87,22 +87,22 @@ export function useWagtailApi() {
       })
 
       if (fetchError.value) {
-        console.error('[useWagtailApi] Error en el fetch:', fetchError.value)
+        // console.error('[useWagtailApi] Error en el fetch:', fetchError.value)
         throw new Error(`Error en la petición: ${fetchError.value.message || 'Desconocido'}`)
       }
 
       if (!data.value) {
-        console.error('[useWagtailApi] No se obtuvieron datos')
+        // console.error('[useWagtailApi] No se obtuvieron datos')
         throw new Error('No se recibieron datos de la API')
       }
 
       // Aseguramos que el resultado sea un objeto JSON plano (no un Proxy)
       const result = JSON.parse(JSON.stringify(data.value))
-      console.log(`[useWagtailApi] Datos recibidos:`, typeof result)
+      // console.log(`[useWagtailApi] Datos recibidos:`, typeof result)
       
       return result
     } catch (err: any) {
-      console.error(`[useWagtailApi] Error:`, err)
+      // console.error(`[useWagtailApi] Error:`, err)
       error.value = err.message || 'Error desconocido'
       throw err
     } finally {
@@ -143,7 +143,7 @@ export function useWagtailApi() {
       // Obtener la página usando la función getDataFromUrl
       return await getDataFromUrl(pageUrl);
     } catch (err) {
-      console.error(`[useWagtailApi] Error al obtener página con ID ${id}:`, err);
+      // console.error(`[useWagtailApi] Error al obtener página con ID ${id}:`, err);
       throw err;
     }
   };

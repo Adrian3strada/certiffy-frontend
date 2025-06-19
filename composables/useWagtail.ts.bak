@@ -40,24 +40,34 @@ export const useWagtail = () => {
   
   // Función para generar URL completa de la API
   const getApiUrl = (endpoint: string, locale: string = '') => {
+    // Verificar si la URL está relacionada con imágenes o medios
+    if (endpoint.includes('/media/') || endpoint.includes('/images/')) {
+      // No modificar URLs de imágenes o medios, retornar tal cual
+      return endpoint;
+    }
+    
     // Extraer solo la parte de la ruta (sin dominio)
     let path = endpoint;
+    
+    // IMPORTANTE: Eliminar cualquier parámetro de consulta
+    // Wagtail API es muy estricta y rechaza parámetros no reconocidos
+    if (path.includes('?')) {
+      path = path.split('?')[0];
+    }
     
     // Si la URL incluye el dominio completo, extraer solo la ruta
     if (endpoint.includes('/api/v2/')) {
       const parts = endpoint.split('/api/v2/');
-      path = '/api/v2/' + parts[1];
+      path = '/api/v2/' + parts[1].split('?')[0]; // Eliminar parámetros si existen
     } else if (!endpoint.startsWith('/api/')) {
       // Asegurarse que comience con /api/ para el proxy
-      path = endpoint.startsWith('/') ? `/api${endpoint}` : `/api/${endpoint}`;
+      path = endpoint.startsWith('/') ? `/api${endpoint.split('?')[0]}` : `/api/${endpoint.split('?')[0]}`;
     }
     
     // Normalizar el path para evitar dobles barras
     path = path.replace(/\/\//g, '/');
     
-    // IMPORTANTE: No añadimos el locale como parámetro de URL
-    // La API no acepta locale como query param según los errores 400
-    console.log(`URL API proxy: ${path}`);
+    console.log(`URL API proxy normalizada: ${path}`);
     
     return path;
   }
@@ -119,186 +129,6 @@ export const useWagtail = () => {
     
     console.log('Mapas de rutas, páginas y caché completamente reseteados');
   };
-
-  // Obtener todas las páginas y navbar para un idioma específico
-  const fetchAllPages = async (specificLocale: string | null = null, forceReload = false): Promise<WagtailPagesResponse> => {
-    try {
-      const locale = specificLocale || detectCurrentLanguage();
-      
-      console.log(`Fetching all pages for locale: ${locale} (forceReload: ${forceReload})`);
-      
-      // Clave única para la caché basada en el idioma
-      const cacheKey = `allPages-${locale}`;
-      
-      // Si tenemos datos en caché para este idioma y no se fuerza la recarga, usar la caché
-      if (!forceReload && pagesCache[cacheKey]) {
-        console.log(`Usando datos en caché para idioma ${locale}`);
-        return pagesCache[cacheKey] as WagtailPagesResponse;
-      }
-      
-      // Construir URL con parámetro locale
-      const apiEndpoint = `/api/v2/pages/?locale=${locale}`;
-      console.log(`Usando endpoint con locale en URL: ${apiEndpoint}`);
-      
-      // Añadir parámetro anti-cache
-      const timestamp = Date.now();
-      const antiCacheParam = `_nocache=${timestamp}`;
-      const apiUrl = `${apiEndpoint}&${antiCacheParam}`;
-      
-      // Usar useFetch como lo recomienda el encargado del proyecto
-      // Sin usar X-Locale que causa errores 400 y CORS
-      const { data, error } = await useFetch<WagtailPagesResponse>(apiUrl, {
-        key: `pages-${locale}-${timestamp}`,
-        retry: 2, 
-        retryDelay: 1000,
-        timeout: 15000,
-        watch: false, // evitar reactividad innecesaria
-        cache: 'no-store', // evitar caché del navegador
-        headers: {
-          // Solo usar Accept-Language como header estándar
-          'Accept-Language': locale
-        },
-        onRequest({ request, options }) {
-          console.log(`Iniciando solicitud a la API para idioma ${locale}`);
-        },
-        onRequestError({ request, error }) {
-          console.error(`Error en solicitud: ${error.message}`); 
-        },
-        onResponse({ request, response }) {
-          console.log(`Recibida respuesta con status: ${response.status}`);
-        },
-        onResponseError({ request, response }) {
-          console.error(`Error en respuesta API: ${response.status} - ${response.statusText}`);
-        }
-      });
-      
-      // Verificar si hubo un error en la solicitud
-      if (error.value) {
-        console.error('Error al obtener páginas:', error.value);
-        throw new Error(`Error de API: ${error.value.message || JSON.stringify(error.value)}`);
-      }
-      
-      // Verificar que la respuesta contenga datos
-      if (!data.value) {
-        console.error('La API devolvió una respuesta vacía');
-        throw new Error('No se recibieron datos de la API');
-      }
-      
-      // Convertir de Proxy a objeto plano para evitar problemas de reactividad
-      const response = JSON.parse(JSON.stringify(data.value)) as WagtailPagesResponse;
-      console.log(`Éxito! Recibidas ${response.items?.length || 0} páginas`);
-      
-      // Guardar en la caché por idioma
-      pagesCache[cacheKey] = response;
-      
-      // Procesar los datos recibidos
-      if (response.items && Array.isArray(response.items)) {
-        console.log(`Procesando ${response.items.length} páginas...`);
-        processApiData(response);
-      } else {
-        console.warn('No se encontraron items en la respuesta o formato incorrecto');
-        // Asegurar que la propiedad items siempre exista
-        if (!response.items) {
-          response.items = [];
-        }
-      }
-
-      return response;
-    } catch (error: any) {
-      console.error('Error crítico en fetchAllPages:', error);
-      
-      // Devolver objeto con estructura correcta en caso de error
-      return {
-        meta: { total_count: 0 },
-        items: [],
-        error: true,
-        message: error?.message || 'Error desconocido al obtener páginas'
-      };
-    }
-  }
-
-  // Cache para almacenar detalles de páginas por ID e idioma
-  const pageDetailsCache = reactive<{[key: string]: any}>({});
-  
-  // Obtener detalles de una página por ID
-  const fetchPageDetails = async (pageId: number, locale: string = '', forceReload: boolean = false) => {
-    try {
-      // Detectar el idioma actual si no se proporciona
-      const currentLang = locale || detectCurrentLanguage();
-      console.log(`Fetching page details for ID: ${pageId}, locale: ${currentLang}${forceReload ? ' (force reload)' : ''}`);
-      
-      // Clave única para la caché basada en ID e idioma
-      const cacheKey = `page-${pageId}-${currentLang}`;
-      
-      // Si tenemos datos en caché para esta página e idioma y no se fuerza la recarga, usar la caché
-      if (!forceReload && pageDetailsCache[cacheKey]) {
-        console.log(`Usando datos en caché para página ${pageId} en idioma ${currentLang}`);
-        return pageDetailsCache[cacheKey];
-      }
-
-      // Añadir parámetros de prevención de caché
-      const timestamp = Date.now();
-      const antiCacheParam = `_nocache=${timestamp}_${Math.random()}`;
-      
-      // Usar el endpoint proxy para obtener página por ID sin param locale en URL
-      const baseUrl = getApiUrl(`/api/v2/pages/${pageId}/`);
-      const separator = baseUrl.includes('?') ? '&' : '?';
-      const apiUrl = `${baseUrl}${separator}${antiCacheParam}`;
-      
-      console.log(`Using proxy URL for ID ${pageId} (with anti-cache): ${apiUrl}`);
-
-      const { data, error } = await useFetch(apiUrl, {
-        key: `${cacheKey}-${timestamp}`, // Clave única para evitar colisiones
-        retry: 2,
-        retryDelay: 500,
-        timeout: 20000,
-        cache: 'no-store', // Siempre evitar caché para este endpoint crítico
-        headers: {
-          // Pasar locale en los headers
-          'Accept-Language': currentLang,
-          'X-Locale': currentLang, // Header personalizado adicional
-        },
-        // Registrar información de la respuesta
-        onRequest({ request, options }) {
-          console.log(`Iniciando solicitud para página ID ${pageId} con idioma ${currentLang} (en headers)`);
-          console.log('Request headers para detalle de página:', options.headers);
-        },
-        onResponse({ request, response, options }) {
-          console.log(`Respuesta detalle de página ${pageId} recibida: ${response.status}`);
-        },
-        onResponseError({ request, response, options }) {
-          console.error(`Error en respuesta del detalle de página ${pageId}: ${response.status} ${response.statusText}`);
-        }
-      });
-
-      if (error.value) {
-        console.error(`Error fetching page ${pageId} for locale ${currentLang}:`, error.value);
-        throw new Error(`Error al obtener página ${pageId} para idioma ${currentLang}: ${error.value?.message || JSON.stringify(error.value)}`);
-      }
-
-      if (!data.value) {
-        console.error(`No data returned for page ${pageId} for locale ${currentLang}`);
-        throw new Error(`No se recibieron datos para la página ${pageId} en idioma ${currentLang}`);
-      }
-
-      // Convertir el Proxy a un objeto JSON plano
-      const rawData = JSON.parse(JSON.stringify(data.value));
-      console.log(`Page ${pageId} details received for locale ${currentLang}:`, typeof rawData);
-
-      // Guardar en la caché por ID e idioma
-      pageDetailsCache[cacheKey] = rawData;
-      console.log(`Guardados detalles en caché para página ${pageId} en idioma ${currentLang}`);
-      
-      // Actualizar el mapa de detalles de página (compatibilidad con código existente)
-      pageDetailsMap.value[`${pageId}-${currentLang}`] = rawData;
-
-      return rawData;
-    } catch (error: any) {
-      console.error(`Error fetching page ${pageId}:`, error);
-      throw new Error(`Error al obtener página ${pageId}: ${error.message || 'Error desconocido'}`);
-    }
-  }
-
   // Procesar datos de la API para actualizar los mapas reactivos
   const processApiData = (data: WagtailPagesResponse) => {
     if (!data) return;
@@ -384,413 +214,859 @@ export const useWagtail = () => {
       console.log(`Mapa de slugs actualizado con ${Object.keys(slugToIdMap.value).length} entradas`);
     }
   }
-  };
-  
-  const fetchPageBySlug = async (slug: string, locale: string = 'es') => {
-    try {
-      const currentLang = locale || detectCurrentLanguage();
-      console.log(`Buscando página por slug: ${slug}, locale: ${currentLang}`);
 
-      // Caso especial: si es la página de inicio
-      if (!slug || slug === '' || slug === '/' || slug === `${currentLang}/`) {
-        console.log('Detectada solicitud de página de inicio para locale:', currentLang);
+  /**
+   * Obtener todas las páginas del sitio para un idioma específico
+   * @param locale Idioma de las páginas a obtener
+   * @param fromHomePageSearch Indica si la llamada proviene de findHomePageId para evitar recursividad
+   * @returns Promise con la respuesta de la API o null si hay error
+   */
+  const fetchAllPages = async (locale: string = 'es', fromHomePageSearch: boolean = false): Promise<WagtailPagesResponse | null> => {
+    console.log(`Obteniendo todas las páginas para locale: ${locale} (desde búsqueda de home: ${fromHomePageSearch})`);
+    
+    try {
+      // Verificar caché
+      const cacheKey = `pages-${locale}`;
+      
+      if (pagesCache[cacheKey]) {
+        console.log(`Usando datos en caché para todas las páginas (${locale})`);
+        return pagesCache[cacheKey] as WagtailPagesResponse;
+      }
+      
+      // Solo intentamos encontrar la página de inicio si no venimos de findHomePageId
+      // para evitar recursividad infinita
+      let homeId: number | null = null;
+      
+      if (!fromHomePageSearch) {
+        homeId = await findHomePageId(locale);
+      } else {
+        // Usar endpoints específicos de Wagtail para encontrar la página principal
+        // Intentar con IDs dinámicos para evitar hardcodear valores
+        const possibleHomeIds = [2, 4, 5]; // Intentamos con varios IDs comunes excepto el 3
+        for (const id of possibleHomeIds) {
+          if (await isHomePage(id, locale)) {
+            homeId = id;
+            console.log(`Encontrado ID dinámico para home: ${homeId}`);
+            break;
+          }
+        }
         
-        // Página de inicio conocida con ID 3
-        const homePageId = 3;
-        console.log(`Usando ID para página de inicio: ${homePageId}`);
-        return fetchPageDetails(homePageId, currentLang);
+        if (!homeId) {
+          console.log('No se pudo determinar un ID para la página principal');
+          // Si no encontramos ninguno, usar un enfoque alternativo con root
+          homeId = 2; // Intentar con el ID 2 que también es común para páginas root
+        }
+      }
+      
+      if (!homeId) {
+        // Si no podemos determinar el ID, intentar directamente con el endpoint básico
+        console.log('Intentando obtener páginas directamente desde el endpoint base...');
+        return await fetchPagesDirectly(locale);
+      }
+      
+      // URL limpia sin parámetros
+      const apiEndpoint = `/api/v2/pages/${homeId}/`;
+      console.log(`Obteniendo página base con ID ${homeId}`);
+      
+      // Construir URL con formato JSON
+      const baseUrl = getApiUrl(apiEndpoint);
+      const separator = baseUrl.includes('?') ? '&' : '?';
+      const apiUrl = `${baseUrl}${separator}format=json`;
+      
+      // Usar useFetch como lo recomienda el encargado del proyecto
+      const { data, error } = await useFetch(apiUrl, {
+        key: `page-${homeId}-${locale}-${Date.now()}`,
+        retry: 2, 
+        retryDelay: 1000,
+        timeout: 15000,
+        headers: {
+          'Accept-Language': locale,
+          'Accept': 'application/json',
+          'Content-Type': 'application/json'
+        },
+        onRequest({ request, options }) {
+          console.log(`Haciendo solicitud a: ${apiUrl} (locale: ${locale})`);
+        },
+        onRequestError({ request, options, error }) {
+          console.error(`Error en solicitud al obtener página raíz: ${error.message}`); 
+        }
+      });
+      
+      if (error.value) {
+        console.error('Error al obtener página raíz:', error.value);
+        return null;
+      }
+      
+      if (!data.value) {
+        console.error('No se recibieron datos para la página raíz');
+        return null;
+      }
+      
+      const homePage = JSON.parse(JSON.stringify(data.value));
+      
+      // Construir un objeto de respuesta similar a lo que devolvería /api/v2/pages/
+      const response: WagtailPagesResponse = {
+        items: [homePage],
+        meta: {
+          total_count: 1
+        }
+      };
+      
+      // Intentar obtener páginas hijas de la página principal si existe un campo children
+      try {
+        if (homePage.meta?.children?.listing_url) {
+          const childrenUrl = getApiUrl(homePage.meta.children.listing_url);
+          const separator = childrenUrl.includes('?') ? '&' : '?';
+          const apiUrl = `${childrenUrl}${separator}format=json`;
+          const { data: childrenData, error: childrenError } = await useFetch(apiUrl, {
+            key: `children-${homeId}-${locale}-${Date.now()}`,
+            headers: {
+              'Accept-Language': locale,
+              'Accept': 'application/json',
+              'Content-Type': 'application/json'
+            }
+          });
+          
+          if (!childrenError.value && childrenData.value) {
+            const children = JSON.parse(JSON.stringify(childrenData.value));
+            if (children.items && Array.isArray(children.items)) {
+              response.items = [...response.items, ...children.items];
+              if (response.meta) {
+                response.meta.total_count = response.items.length;
+              }
+            }
+          }
+        }
+      } catch (e) {
+        console.error('Error al obtener páginas hijas:', e);
+      }
+      
+      console.log(`Éxito! Procesadas ${response.items.length} páginas`);
+      
+      // Guardar en la caché
+      pagesCache[cacheKey] = response;
+      
+      // Actualizar el mapa de slugs a IDs
+      response.items.forEach(page => {
+        if (page.id && page.meta && page.meta.slug) {
+          slugToIdMap.value[page.meta.slug] = page.id;
+        }
+      });
+      
+      return response;
+    } catch (error: any) {
+      console.error('Error crítico en fetchAllPages:', error);
+      
+      // Devolver objeto con estructura correcta en caso de error para asegurar
+      // que la aplicación siempre muestre datos de respaldo cuando la API no esté disponible
+      return {
+        meta: { total_count: 0 },
+        items: [],
+        error: true,
+        message: error?.message || 'Error desconocido al obtener páginas'
+      } as WagtailPagesResponse;
+    }
+  }
+  // Obtener detalles de una página por su ID
+  const fetchPageDetails = async (pageId: number, locale: string = 'es') => {
+    try {
+      if (!pageId) {
+        console.error('fetchPageDetails: Se requiere un ID de página válido');
+        return null;
       }
 
-      // Normalizar slug para búsquedas
-      const normalizedSlug = slug.replace(/^\/+/g, '').replace(/\/+$/g, '');
-      const cacheKey = `page-by-slug-${normalizedSlug}-${currentLang}`;
-
-      // Si ya la tenemos en caché de detalles, retornarla
+      console.log(`Fetching page details for ID ${pageId} with locale: ${locale}`);
+      
+      // Clave única para la caché basada en ID e idioma
+      const cacheKey = `page-${pageId}-${locale}`;
+      
+      // Si tenemos datos en caché para este ID e idioma, usar la caché
       if (pageDetailsCache[cacheKey]) {
-        console.log(`Página encontrada en caché para slug ${normalizedSlug}`);
+        console.log(`Usando datos en caché para página ${pageId} (${locale})`);
         return pageDetailsCache[cacheKey];
       }
       
-      // Intentar buscar directamente con el API usando slug y locale
-      console.log(`Buscando página con API directa para slug: ${normalizedSlug}`);
-      
-      // Construir URL para consulta de páginas por slug
+      // Añadir parámetro anti-cache para evitar respuestas cacheadas
       const timestamp = Date.now();
       const antiCacheParam = `_nocache=${timestamp}_${Math.random()}`;
-      const apiEndpoint = `/api/v2/pages/?slug=${normalizedSlug}&locale=${currentLang}`;
-      const apiUrl = getApiUrl(apiEndpoint);
-      const separator = apiUrl.includes('?') ? '&' : '?';
-      const finalUrl = `${apiUrl}${separator}${antiCacheParam}`;
       
-      console.log(`URL final para búsqueda por slug: ${finalUrl}`);
+      // Usar el endpoint proxy para obtener página por ID sin param locale en URL
+      const baseUrl = getApiUrl(`/api/v2/pages/${pageId}/`);
+      const separator = baseUrl.includes('?') ? '&' : '?';
+      const apiUrl = `${baseUrl}${separator}format=json&locale=${locale}&${antiCacheParam}`;
       
-      const { data, error } = await useFetch<any>(finalUrl, {
-        key: `slug-search-${normalizedSlug}-${currentLang}-${timestamp}`,
-        retry: 1,
-        retryDelay: 500,
-        timeout: 10000,
+      console.log(`Using proxy URL for ID ${pageId} (with anti-cache): ${apiUrl}`);
+
+      const { data, error } = await useFetch(apiUrl, {
+        key: `page-details-${pageId}-${locale}-${timestamp}`,
+        retry: 2, 
+        retryDelay: 1000,
+        timeout: 15000,
+        watch: false,
+        cache: 'no-store',
         headers: {
-          'Accept-Language': currentLang,
-          'X-Locale': currentLang
-        },
-        cache: 'no-store'
+          'Accept-Language': locale,
+          'Accept': 'application/json',
+          'Content-Type': 'application/json'
+        }
       });
       
-      if (data.value && data.value.items && data.value.items.length > 0) {
-        const foundPage = data.value.items[0];
-        console.log(`Página encontrada por slug API: ${foundPage.id} - ${foundPage.title}`);
-        const pageData = await fetchPageDetails(foundPage.id, currentLang);
-        if (pageData) {
-          // Guardar en caché para futuras solicitudes
-          pageDetailsCache[cacheKey] = pageData;
-          return pageData;
-        }
+      // Verificar si hubo un error en la solicitud
+      if (error.value) {
+        console.error(`Error al obtener página ${pageId}:`, error.value);
+        return null;
       }
       
-      // Si no encontramos con slug específico, intentar obtener todas las páginas
-      console.log(`No se encontró con slug específico, obteniendo todas las páginas...`);
+      // Verificar que la respuesta contenga datos
+      if (!data.value) {
+        console.error(`No se recibieron datos para la página ${pageId}`);
+        return null;
+      }
+      
+      // Convertir de Proxy a objeto plano
+      const response = JSON.parse(JSON.stringify(data.value));
+      console.log(`Éxito! Recibida página ${pageId}`);
+      
+      // Guardar en la caché por ID e idioma
+      pageDetailsCache[cacheKey] = response;
+      
+      return response;
+    } catch (error: any) {
+      console.error(`Error crítico en fetchPageDetails (ID: ${pageId}):`, error);
+      return null;
+    }
+  }
+
+  // Obtener una página por su slug
+  const fetchPageBySlug = async (slug: string, locale: string = 'es') => {
+    try {
+      if (!slug) {
+        console.error('fetchPageBySlug: Se requiere un slug válido');
+        return null;
+      }
+
+      // Normalizar slug para que no comience con / y eliminar el prefijo de idioma si existe
+      let normalizedSlug = slug.startsWith('/') ? slug.substring(1) : slug;
+      
+      // Eliminar el prefijo del idioma en el slug si existe
+      // Por ejemplo: es/plataforma/trazabilidad/ -> plataforma/trazabilidad/
+      const slugParts = normalizedSlug.split('/');
+      if (slugParts[0] === locale) {
+        slugParts.shift(); // Eliminar el primer elemento (código de idioma)
+        normalizedSlug = slugParts.join('/');
+      }
+      
+      // Eliminar barra final si existe
+      if (normalizedSlug.endsWith('/')) {
+        normalizedSlug = normalizedSlug.slice(0, -1);
+      }
+      
+      console.log(`Buscando página con slug normalizado: ${normalizedSlug} (locale: ${locale})`);
+      
+      // Crear clave para caché
+      const cacheKey = `slug-${normalizedSlug}-${locale}`;
+      
+      // Verificar si el slug ya está en la caché
+      if (pageDetailsCache[cacheKey]) {
+        console.log(`Usando datos en caché para slug ${normalizedSlug} (${locale})`);
+        return pageDetailsCache[cacheKey];
+      }
+      
+      // Nueva estrategia: primero obtener todas las páginas de la API
+      console.log('Obteniendo todas las páginas para buscar por slug...');
       
       try {
-        const allPages = await fetchAllPages(currentLang, true); // force reload
+        // Añadir parámetro anti-cache
+        const timestamp = Date.now();
+        const antiCacheParam = `_nocache=${timestamp}`;
+        const apiEndpoint = `/api/v2/pages/?locale=${locale}`;
         
-        if (allPages && allPages.items && Array.isArray(allPages.items)) {
-          console.log(`Buscando página con slug ${normalizedSlug} en ${allPages.items.length} páginas`);
+        console.log(`Endpoint para obtener todas las páginas: ${apiEndpoint}`);
+        const apiUrl = getApiUrl(`${apiEndpoint}&format=json&${antiCacheParam}`);
+        
+        const { data, error } = await useFetch(apiUrl, {
+          key: `all-pages-${locale}-${timestamp}`,
+          retry: 2,
+          retryDelay: 1000,
+          timeout: 15000,
+          watch: false,
+          cache: 'no-store',
+          headers: {
+            'Accept-Language': locale,
+            'Accept': 'application/json',
+            'Content-Type': 'application/json'
+          }
+        });
+        
+        if (error.value) {
+          console.error('Error al obtener todas las páginas:', error.value);
+          return null;
+        }
+        
+        // Verificar si data.value es un objeto válido con propiedad items
+        const pagesResponse = data.value as Record<string, any> | null;
+        
+        if (!pagesResponse || !pagesResponse.items || !Array.isArray(pagesResponse.items)) {
+          console.error('Respuesta de API inválida para todas las páginas');
+          return null;
+        }
+        
+        console.log(`Se encontraron ${pagesResponse.items.length} páginas en total`);
+        
+        // Buscar la página por slug
+        const foundPage = pagesResponse.items.find(page => {
+          const pageSlug = page.meta?.slug || '';
+          return pageSlug === normalizedSlug || 
+                 pageSlug === normalizedSlug.replace(/-/g, '_') || 
+                 pageSlug === normalizedSlug.replace(/_/g, '-');
+        });
+        
+        if (foundPage && foundPage.id) {
+          console.log(`Éxito! Se encontró página con ID ${foundPage.id} para slug ${normalizedSlug}`);
+          console.log('Datos de la página encontrada:', foundPage);
           
-          // Buscar la página por slug en los resultados
-          const foundPage = allPages.items.find((page: any) => {
-            if (!page.meta) return false;
-            const pageSlug = page.meta.slug || '';
-            const pageUrl = page.meta.html_url || '';
-            
-            return pageSlug === normalizedSlug || 
-                  pageSlug === slug ||
-                  pageUrl.includes(`/${normalizedSlug}/`) ||
-                  pageUrl.includes(`/${normalizedSlug}`);
-          });
+          // Guardar el ID encontrado en el mapa de slugs para futuras búsquedas
+          slugToIdMap.value[normalizedSlug] = foundPage.id;
           
-          if (foundPage) {
-            console.log(`Página encontrada en lista completa: ${foundPage.id} - ${foundPage.title}`);
-            const pageData = await fetchPageDetails(foundPage.id, currentLang);
-            if (pageData) {
-              // También guardar en caché
-              pageDetailsCache[cacheKey] = pageData;
-              return pageData;
+          // Obtener detalles completos con el ID encontrado
+          const pageDetails = await fetchPageDetails(foundPage.id, locale);
+          if (pageDetails) {
+            console.log('Detalles completos de la página cargados correctamente');
+            // Guardar en la caché por slug e idioma
+            pageDetailsCache[cacheKey] = pageDetails;
+            return pageDetails;
+          }
+        } else {
+          console.log(`No se encontró página con slug ${normalizedSlug} en las ${pagesResponse.items.length} páginas disponibles`);
+          
+          // Intentar buscar de otra manera (pueden ser slugs anidados)
+          for (const page of pagesResponse.items) {
+            const pageUrl = page.meta?.html_url || '';
+            if (pageUrl.includes(`/${locale}/${normalizedSlug}`) || 
+                pageUrl.includes(`/${locale}/${normalizedSlug.replace(/-/g, '_')}`) || 
+                pageUrl.includes(`/${locale}/${normalizedSlug.replace(/_/g, '-')}`)) {
+              
+              console.log(`Se encontró página con URL que contiene el slug: ${pageUrl}`);
+              const pageId = page.id;
+              
+              // Guardar el ID encontrado en el mapa de slugs
+              slugToIdMap.value[normalizedSlug] = pageId;
+              
+              // Obtener detalles completos
+              const pageDetails = await fetchPageDetails(pageId, locale);
+              if (pageDetails) {
+                // Guardar en la caché por slug e idioma
+                pageDetailsCache[cacheKey] = pageDetails;
+                return pageDetails;
+              }
             }
           }
         }
-      } catch (error) {
-        console.error('Error al cargar todas las páginas:', error);
+      } catch (e) {
+        console.error(`Error al obtener todas las páginas:`, e);
       }
+
+      // Paso 2: Si no se encontró directamente, obtener todas las páginas y buscar localmente
+      console.log(`Intento 2: Obtener todas las páginas y buscar localmente...`);
       
-      // Como último recurso, intentar buscar en los mapas de rutas
-      console.log(`Buscando en mapas de rutas locales...`);
+      // Forzar recarga solo si no se han cargado páginas antes
+      const forceReload = !pagesCache[`allPages-${locale}`];
+      const allPagesResponse = await fetchAllPages(locale, forceReload);
       
-      // Probar con varias variantes de URL
-      const urlVariants = [
-        `/${currentLang}/${normalizedSlug}`,
-        `/${currentLang}/${normalizedSlug}/`,
-        `/${normalizedSlug}`,
-        `/${normalizedSlug}/`
-      ];
-      
-      for (const testUrl of urlVariants) {
-        if (knownRoutes[testUrl]) {
-          const pageId = knownRoutes[testUrl];
-          console.log(`ID encontrado en mapa de rutas: ${pageId} para URL ${testUrl}`);
-          const pageData = await fetchPageDetails(pageId, currentLang);
-          if (pageData) {
-            pageDetailsCache[cacheKey] = pageData;
-            return pageData;
+      if (allPagesResponse && allPagesResponse.items) {
+        // Buscar en los elementos de la respuesta
+        const foundPage = allPagesResponse.items.find(page => {
+          // Comparar con el slug normalizado
+          const pageSlug = page.meta?.slug || '';
+          return pageSlug === normalizedSlug || 
+                 pageSlug === normalizedSlug.replace(/-/g, '_') || 
+                 pageSlug === normalizedSlug.replace(/_/g, '-');
+        });
+        
+        if (foundPage && foundPage.id) {
+          console.log(`Éxito! Se encontró página con ID ${foundPage.id} para slug ${normalizedSlug}`);
+          
+          // Guardar el ID encontrado en el mapa de slugs
+          slugToIdMap.value[normalizedSlug] = foundPage.id;
+          
+          // Obtener detalles completos
+          const pageDetails = await fetchPageDetails(foundPage.id, locale);
+          if (pageDetails) {
+            // Guardar en la caché por slug e idioma
+            pageDetailsCache[cacheKey] = pageDetails;
+            return pageDetails;
           }
         }
       }
       
-      // Si llegamos aquí, no se pudo encontrar la página
-      throw new Error(`No se encontró página con slug: ${slug} y locale: ${currentLang}`);
-    } catch (err) {
-      console.error(`Error fetching page by slug ${slug}:`, err);
-      throw new Error(`Error al buscar página por slug ${slug}: ${err instanceof Error ? err.message : String(err)}`);
+      // Paso 3: Como último recurso, buscar en el mapa de slugs a IDs que ya fue construido
+      console.log(`Intento 3: Buscar en mapa de slugs-a-IDs ya conocido...`);
+      const pageId = 
+        slugToIdMap.value[normalizedSlug] || 
+        slugToIdMap.value[normalizedSlug.replace(/-/g, '_')] || 
+        slugToIdMap.value[normalizedSlug.replace(/_/g, '-')] ||
+        slugToIdMap.value[`${locale}/${normalizedSlug}`];
+        
+      if (pageId) {
+        console.log(`Encontrado ID ${pageId} en el mapa de slugs para ${normalizedSlug}`);
+        
+        // Obtener detalles de la página con el ID encontrado
+        const pageDetails = await fetchPageDetails(pageId, locale);
+        if (pageDetails) {
+          // Guardar en la caché por slug e idioma
+          pageDetailsCache[cacheKey] = pageDetails;
+          return pageDetails;
+        }
+      }
+      
+      // Si llegamos aquí, no se encontró la página
+      console.error(`No se encontró página para slug ${normalizedSlug} (${locale}) después de agotar todas las opciones`);
+      return null;
+    } catch (error: any) {
+      console.error(`Error crítico en fetchPageBySlug (slug: ${slug}):`, error);
+      return null;
     }
-  };
-
-
-
-  /**
-   * Encuentra el ID de página correspondiente a una ruta específica
-   * @param route Ruta a buscar (debe estar normalizada)
-   * @returns ID de la página si se encuentra, o null
-   */
+  }
+  // Encontrar el ID de la página por la ruta
   const findPageIdForRoute = (route: string): number | null => {
-    console.log(`Buscando ID para ruta: ${route} en mapa de rutas`);
-    
-    if (!route) return null;
-    
-    // Normalizar la ruta para comparaciones consistentes
-    let normalizedRoute = route;
-    
-    // Si la ruta no comienza con /, agregarlo
-    if (!normalizedRoute.startsWith('/')) {
-      normalizedRoute = `/${normalizedRoute}`;
-    }
-    
-    // Si termina con / y no es la raíz, eliminar la barra final
-    if (normalizedRoute !== '/' && normalizedRoute.endsWith('/')) {
-      normalizedRoute = normalizedRoute.slice(0, -1);
-    }
-    
-    console.log('Mapa de rutas actual:', knownRoutes);
-    
-    // Buscar la ruta exacta
-    if (knownRoutes[normalizedRoute]) {
-      console.log(`Encontrada ruta exacta ${normalizedRoute} -> ID ${knownRoutes[normalizedRoute]}`);
-      return knownRoutes[normalizedRoute];
-    }
-    
-    // Si no se encuentra, intentar con la ruta con / al final
-    if (!normalizedRoute.endsWith('/')) {
-      const routeWithSlash = `${normalizedRoute}/`;
+    try {
+      // Sanear la ruta
+      let normalizedRoute = route || '';
+      normalizedRoute = normalizedRoute.startsWith('/') ? normalizedRoute : `/${normalizedRoute}`;
+      
+      // Primero intentar con la ruta exacta
+      if (knownRoutes[normalizedRoute]) {
+        console.log(`Ruta exacta encontrada en el mapa: ${normalizedRoute} -> ID ${knownRoutes[normalizedRoute]}`);
+        return knownRoutes[normalizedRoute];
+      }
+
+      // Si no se encuentra, intentar con variantes
+      // Probamos con y sin / final
+      const routeWithSlash = normalizedRoute.endsWith('/') ? normalizedRoute : `${normalizedRoute}/`;
+      const routeWithoutSlash = normalizedRoute.endsWith('/') ? normalizedRoute.slice(0, -1) : normalizedRoute;
+      
       if (knownRoutes[routeWithSlash]) {
-        console.log(`Encontrada ruta con slash ${routeWithSlash} -> ID ${knownRoutes[routeWithSlash]}`);
         return knownRoutes[routeWithSlash];
       }
+      
+      if (knownRoutes[routeWithoutSlash]) {
+        return knownRoutes[routeWithoutSlash];
+      }
+
+      // Intentar extraer slug de la ruta
+      const parts = normalizedRoute.split('/').filter(Boolean);
+      if (parts.length > 0) {
+        const lastPart = parts[parts.length - 1];
+        
+        if (slugToIdMap.value[lastPart]) {
+          console.log(`Slug encontrado para la última parte de la ruta: ${lastPart} -> ID ${slugToIdMap.value[lastPart]}`);
+          return slugToIdMap.value[lastPart];
+        }
+        
+        // También probamos con variantes de guiones y guiones bajos
+        if (slugToIdMap.value[lastPart.replace(/-/g, '_')]) {
+          return slugToIdMap.value[lastPart.replace(/-/g, '_')];
+        }
+        
+        if (slugToIdMap.value[lastPart.replace(/_/g, '-')]) {
+          return slugToIdMap.value[lastPart.replace(/_/g, '-')];
+        }
+      }
+
+      // No encontrado
+      console.warn(`No se encontró ID para la ruta: ${normalizedRoute}`);
+      return null;
+    } catch (e) {
+      console.error('Error en findPageIdForRoute:', e);
+      return null;
     }
-    
-    // Si tampoco se encuentra, intentar con slug
-    const segments = normalizedRoute.split('/').filter(Boolean);
-    const lastSegment = segments[segments.length - 1];
-    
-    if (lastSegment && slugToIdMap.value[lastSegment]) {
-      console.log(`Encontrado por slug ${lastSegment} -> ID ${slugToIdMap.value[lastSegment]}`);
-      return slugToIdMap.value[lastSegment];
-    }
-    
-    console.warn(`No se encontró ID para la ruta: ${route}`);
-    return null;
-  };
-  
-  // Detectar la página principal (Home) dinámicamente
-  const findHomePageId = (pages: any[]): number | null => {
-    if (!pages || !Array.isArray(pages)) return null;
-    
-    // Buscar por tipo de página HomePage
-    const homePage = pages.find(page => 
-      (page.meta?.type === 'home.HomePage' || page.meta?.type === 'HomePage')
-      || (page.meta?.slug === 'home' || page.meta?.slug === 'inicio')
-      || page.meta?.html_url === '/'  // Página con URL raíz
-    );
-    
-    if (homePage) {
-      console.log(`Página principal detectada: ID ${homePage.id}, Tipo: ${homePage.meta.type}`);
-      return homePage.id;
-    }
-    
-    // Si no encontramos por tipo, buscar la primera página
-    if (pages.length > 0) {
-      console.log(`Usando primera página como Home: ID ${pages[0].id}`);
-      return pages[0].id;
-    }
-    
-    return null;
-  };
-  
-  // Generar rutas dinámicas
-  const generateRoutes = async () => {
+  }
+
+  /**
+   * Intenta obtener páginas directamente desde el endpoint base sin usar página principal
+   * Esta es una aproximación alternativa cuando no podemos encontrar el ID de la página principal
+   * @param locale Idioma de las páginas a obtener
+   * @returns Promise con la respuesta o un objeto vacío con la estructura correcta
+   */
+  const fetchPagesDirectly = async (locale: string): Promise<WagtailPagesResponse> => {
     try {
-      console.log('Generando rutas dinámicas...')
-      const pagesData = await fetchAllPages()
-      const routes: any[] = []
-
-      if (!pagesData) {
-        console.error('No se recibieron datos para generar rutas')
-        return []
-      }
-
-      // Verificar la estructura de datos recibida
-      if (!pagesData.items) {
-        console.error('No se encontraron páginas para generar rutas')
-        console.log('Estructura recibida:', JSON.stringify(pagesData, null, 2).substring(0, 500));
-        return []
-      }
-
-      console.log(`Procesando ${pagesData.items.length} páginas para generar rutas`)
+      console.log('Implementando método alternativo para obtener páginas...');
       
-      // Actualizamos el estado global con la navegación si está presente
-      if (pagesData.navbar) {
-        console.log('Datos de navegación encontrados:', pagesData.navbar.length, 'elementos');
-      }
+      // Intentar obtener una lista de páginas usando un endpoint específico que no use parámetros
+      // Algunos endpoints en Wagtail que podrían funcionar: /api/v2/pages/?type=home.HomePage
+      // O ensayar con IDs fijos comunes: 2, 3, etc.
       
-      // Logo y favicon
-      if (pagesData.logo) {
-        console.log('Logo de la aplicación encontrado:', pagesData.logo);
-      }
+      const fixedIds = [2, 4, 5, 1]; // IDs comunes para páginas principales en Wagtail
+      let collectedPages: any[] = [];
       
-      // Identificar dinámicamente la página principal
-      const homePageId = findHomePageId(pagesData.items);
-      if (homePageId) {
-        console.log(`Identificada página principal con ID: ${homePageId}`);
-      } else {
-        console.warn('No se ha podido identificar la página principal');
-      }
-      
-      pagesData.items.forEach((item: any) => {
-        if (item.meta && item.meta.html_url) {
-          // Normalizar la ruta eliminando el dominio
-          let path = item.meta.html_url.replace(/^https?:\/\/[^/]+/i, '')
+      // Intentar obtener cada página con ID fijo
+      for (const id of fixedIds) {
+        try {
+          console.log(`Intentando obtener página con ID fijo: ${id}`);
+          const baseUrl = getApiUrl(`/api/v2/pages/${id}/`);
+          const separator = baseUrl.includes('?') ? '&' : '?';
+          const apiUrl = `${baseUrl}${separator}format=json`;
           
-          // Si la ruta ya existe en el router, no la agregamos
-          // Esto evita duplicados y rutas inválidas
-          const route = {
-            name: `page-${item.id}`,
-            path: path,
-            component: '~/pages/[...slug].vue',
-            meta: {
-              pageId: item.id,
-              pageType: item.meta.type,
-              locale: item.meta.locale || 'es',
-              title: item.title,
-              isHome: homePageId === item.id
+          const { data, error } = await useFetch(apiUrl, {
+            key: `page-direct-${id}-${locale}-${Date.now()}`,
+            retry: 2, 
+            retryDelay: 1000,
+            timeout: 15000,
+            headers: {
+              'Accept-Language': locale,
+              'Accept': 'application/json',
+              'Content-Type': 'application/json'
+            }
+          });
+          
+          if (!error.value && data.value) {
+            const page = JSON.parse(JSON.stringify(data.value));
+            collectedPages.push(page);
+            console.log(`Éxito! Obtenida página con ID ${id}`);
+            
+            // Intentar obtener las páginas hijas si existen
+            if (page.meta?.children?.listing_url) {
+              const baseChildrenUrl = getApiUrl(page.meta.children.listing_url);
+              const childSeparator = baseChildrenUrl.includes('?') ? '&' : '?';
+              const childrenUrl = `${baseChildrenUrl}${childSeparator}format=json`;
+              const { data: childrenData, error: childrenError } = await useFetch(childrenUrl, {
+                key: `children-direct-${id}-${locale}-${Date.now()}`,
+                headers: {
+                  'Accept-Language': locale,
+                  'Accept': 'application/json',
+                  'Content-Type': 'application/json'
+                }
+              });
+              
+              if (!childrenError.value && childrenData.value) {
+                const children = JSON.parse(JSON.stringify(childrenData.value));
+                if (children.items && Array.isArray(children.items)) {
+                  collectedPages = [...collectedPages, ...children.items];
+                  console.log(`Agregadas ${children.items.length} páginas hijas desde ID ${id}`);
+                }
+              }
             }
           }
-          
-          console.log(`Ruta generada: ${path} -> ID: ${item.id}, Tipo: ${item.meta.type}${homePageId === item.id ? ' (HOME)' : ''}`)
-          routes.push(route)
-          
-          // Guardar en el mapa de rutas
-          knownRoutes[path] = item.id
-          
-          // Si es la página principal, también mapear la ruta raíz
-          if (homePageId === item.id) {
-            knownRoutes["/"] = item.id;
-            knownRoutes[""] = item.id;
-            
-            // Agregar también una ruta específica para la raíz
-            routes.push({
-              ...route,
-              path: "/",
-              name: `page-${item.id}-root`
-            });
-            
-            console.log(`Ruta raíz mapeada al ID: ${item.id}`);
-          }
-          
-          // Variantes de la ruta
-          const pathVariants = [
-            path.replace(/-/g, '_'),
-            path.replace(/_/g, '-'),
-            path.endsWith('/') ? path.slice(0, -1) : `${path}/`
-          ]
-          
-          pathVariants.forEach(variant => {
-            knownRoutes[variant] = item.id
-          })
-          
-          // Guardar detail_url (usando proxy)
-          if (item.meta.detail_url) {
-            pageDetailsMap.value[item.id] = getApiUrl(item.meta.detail_url.replace(/^\//, ''))
-          }
+        } catch (e) {
+          console.warn(`Error al obtener página con ID ${id}:`, e);
+          // Continuar con el siguiente ID
         }
-      })
-
-      console.log(`Se generaron ${routes.length} rutas dinámicas`)
-      return routes
-    } catch (error) {
-      console.error('Error generating routes:', error)
-      return []
+      }
+      
+      // Construir respuesta con las páginas encontradas
+      const response: WagtailPagesResponse = {
+        items: collectedPages,
+        meta: {
+          total_count: collectedPages.length
+        }
+      };
+      
+      // Guardar en caché
+      if (collectedPages.length > 0) {
+        const cacheKey = `pages-${locale}`;
+        pagesCache[cacheKey] = response;
+        console.log(`Guardadas ${collectedPages.length} páginas en caché`);
+        
+        // Actualizar mapa de slugs a IDs
+        collectedPages.forEach(page => {
+          if (page.id && page.meta && page.meta.slug) {
+            slugToIdMap.value[page.meta.slug] = page.id;
+          }
+        });
+      }
+      
+      return response;
+    } catch (e) {
+      console.error('Error en fetchPagesDirectly:', e);
+      // Devolver un objeto con la estructura correcta pero vacío
+      return {
+        items: [],
+        meta: { total_count: 0 },
+        error: true,
+        message: 'Error al obtener páginas directamente'
+      } as WagtailPagesResponse;
     }
+  };
+  
+  // Encontrar el ID de la página de inicio para un idioma
+  const findHomePageId = async (locale: string = 'es'): Promise<number | null> => {
+    try {
+      console.log(`Buscando ID de página principal para locale: ${locale} usando listado completo`);
+      
+      // Construir URL para consultar todas las páginas
+      const baseUrl = getApiUrl(`/api/v2/pages/`);
+      const separator = baseUrl.includes('?') ? '&' : '?';
+      const apiUrl = `${baseUrl}${separator}locale=${locale}&format=json`;
+      
+      console.log(`Consultando todas las páginas disponibles con URL: ${apiUrl}`);
+      
+      // Realizar la solicitud a la API
+      const { data, error } = await useFetch(apiUrl, {
+        key: `all-pages-${locale}-${Date.now()}`,
+        headers: {
+          'Accept-Language': locale,
+          'Accept': 'application/json',
+          'Content-Type': 'application/json'
+        },
+        timeout: 8000
+      });
+      
+      if (error.value) {
+        console.error('Error al obtener todas las páginas:', error.value);
+        return null;
+      }
+      
+      if (!data.value) {
+        console.error('No se recibieron datos del listado de páginas');
+        return null;
+      }
+      
+      // Convertir el resultado a un objeto plano
+      const pagesResponse = JSON.parse(JSON.stringify(data.value));
+      const pages = pagesResponse?.items || [];
+      
+      console.log(`Se encontraron ${pages.length} páginas para analizar`);
+      
+      // 1. Buscar página tipo "home.HomePage" como primera prioridad
+      for (const page of pages) {
+        const type = page.meta?.type || '';
+        const slug = page.meta?.slug || '';
+        
+        if (type === 'home.HomePage') {
+          console.log(`✅ Encontrada página home exacta con ID ${page.id} (tipo: ${type}, slug: ${slug})`);
+          return page.id;
+        }
+      }
+      
+      // 2. Buscar cualquier página que contenga "home" en el tipo o slug
+      for (const page of pages) {
+        const type = page.meta?.type || '';
+        const slug = page.meta?.slug || '';
+        
+        if (type.toLowerCase().includes('home') || slug === 'home') {
+          console.log(`✅ Encontrada página tipo home con ID ${page.id} (tipo: ${type}, slug: ${slug})`);
+          return page.id;
+        }
+      }
+      
+      // 3. Buscar páginas con slugs que parezcan página principal
+      for (const page of pages) {
+        const slug = page.meta?.slug || '';
+        if (slug === 'inicio' || slug === 'index' || slug === '' || slug === locale) {
+          console.log(`✅ Encontrada posible página principal con ID ${page.id} (slug: ${slug})`);
+          return page.id;
+        }
+      }
+      
+      // Si llegamos aquí, no hay páginas que sean claramente home
+      // Último recurso: tomar la primera página del listado
+      if (pages.length > 0) {
+        const firstPage = pages[0];
+        console.log(`⚠️ No se encontró página principal clara. Usando primera página del listado con ID ${firstPage.id}`);
+        return firstPage.id;
+      }
+      
+      console.error('❌ No se encontraron páginas para este idioma');
+      return null;
+    } catch (e) {
+      console.error('Error en findHomePageId:', e);
+      return null;
+    }
+  };
+
+  // Encontrar el ID de la página por la ruta
+const findPageIdForRoute = (route: string): number | null => {
+try {
+// Sanear la ruta
+let normalizedRoute = route || '';
+normalizedRoute = normalizedRoute.startsWith('/') ? normalizedRoute : `/${normalizedRoute}`;
+  
+// Primero intentar con la ruta exacta
+if (knownRoutes[normalizedRoute]) {
+  console.log(`Ruta exacta encontrada en el mapa: ${normalizedRoute} -> ID ${knownRoutes[normalizedRoute]}`);
+  return knownRoutes[normalizedRoute];
+}
+
+// Si no se encuentra, intentar con variantes
+// Probamos con y sin / final
+const routeWithSlash = normalizedRoute.endsWith('/') ? normalizedRoute : `${normalizedRoute}/`;
+const routeWithoutSlash = normalizedRoute.endsWith('/') ? normalizedRoute.slice(0, -1) : normalizedRoute;
+  
+if (knownRoutes[routeWithSlash]) {
+  return knownRoutes[routeWithSlash];
+}
+  
+if (knownRoutes[routeWithoutSlash]) {
+  return knownRoutes[routeWithoutSlash];
+}
+
+// Intentar extraer slug de la ruta
+const parts = normalizedRoute.split('/').filter(Boolean);
+if (parts.length > 0) {
+  const lastPart = parts[parts.length - 1];
+  
+  if (slugToIdMap.value[lastPart]) {
+    console.log(`Slug encontrado para la última parte de la ruta: ${lastPart} -> ID ${slugToIdMap.value[lastPart]}`);
+    return slugToIdMap.value[lastPart];
   }
   
-  // Normalizar ruta para buscar en mapas
-  const normalizeRoutePath = (path: string) => {
-    // Eliminar protocolo y dominio si existe
-    let normalizedPath = path.replace(/^https?:\/\/[^/]+/i, '')
-    
-    // Asegurar que comienza con /
-    if (!normalizedPath.startsWith('/')) {
-      normalizedPath = '/' + normalizedPath
-    }
-    
-    return normalizedPath
+  // También probamos con variantes de guiones y guiones bajos
+  if (slugToIdMap.value[lastPart.replace(/-/g, '_')]) {
+    return slugToIdMap.value[lastPart.replace(/-/g, '_')];
   }
   
-  // Obtener ID de página por ruta
-  const getPageIdByRoute = (routePath: string) => {
-    console.log(`Buscando ID para ruta: ${routePath}`)
-    
-    // Normalizar la ruta para buscarla
-    const normalizedPath = normalizeRoutePath(routePath)
-    
-    // Si la ruta está en el mapa de rutas conocidas, devolver el ID
-    if (knownRoutes[normalizedPath]) {
-      console.log(`ID encontrado en mapa: ${knownRoutes[normalizedPath]}`)
-      return knownRoutes[normalizedPath]
-    }
-    
-    // Intentar algunas variantes de la ruta
-    const routeVariants = [
-      normalizedPath,
-      normalizedPath.replace(/-/g, '_'),
-      normalizedPath.replace(/_/g, '-'),
-      normalizedPath.endsWith('/') ? normalizedPath.slice(0, -1) : `${normalizedPath}/`,
-      // Variantes sin la barra al final
-      normalizedPath.endsWith('/') ? normalizedPath.slice(0, -1) : normalizedPath,
-      // Variante con locale específico (/es/algo o /en/algo)
-      normalizedPath.match(/^\/[a-z]{2}\//) ? normalizedPath : `/es${normalizedPath}`,
-      normalizedPath.match(/^\/[a-z]{2}\//) ? normalizedPath.replace(/^\/[a-z]{2}\//, '/es/') : normalizedPath
-    ]
-    
-    for (const variant of routeVariants) {
-      if (knownRoutes[variant]) {
-        console.log(`ID encontrado en variante ${variant}: ${knownRoutes[variant]}`)
-        return knownRoutes[variant]
-      }
-    }
-    
-    // Si todavía no encontramos, buscar por coincidencia parcial
-    // Esto es útil para slugs que pueden tener variaciones pequeñas
-    const knownPaths = Object.keys(knownRoutes)
-    
-    // Extraer el último segmento de la ruta (slug)
-    const slugMatch = normalizedPath.match(/\/([^/]+)\/?$/)
-    if (slugMatch && slugMatch[1]) {
-      const slug = slugMatch[1]
-      console.log(`Buscando por slug: ${slug}`)
-      
-      // Buscar rutas que contengan este slug
-      const matchingRoutes = knownPaths.filter(path => 
-        path.includes(`/${slug}`) || 
-        path.includes(`/${slug.replace(/-/g, '_')}`) ||
-        path.includes(`/${slug.replace(/_/g, '-')}`)
-      )
-      
-      if (matchingRoutes.length > 0) {
-        console.log(`Ruta encontrada por slug parcial: ${matchingRoutes[0]}`)
-        return knownRoutes[matchingRoutes[0]]
-      }
-    }
-    
-    // No se encontró ID para esta ruta
-    console.log(`No se encontró ID para la ruta: ${routePath}`)
-    return null
+  if (slugToIdMap.value[lastPart.replace(/_/g, '-')]) {
+    return slugToIdMap.value[lastPart.replace(/_/g, '-')];
   }
+}
 
-  // Obtener el mapa de rutas para depuración
-  const getRouteMap = () => {
-    return {...knownRoutes};
+// No encontrado
+console.warn(`No se encontró ID para la ruta: ${normalizedRoute}`);
+return null;
+} catch (e) {
+console.error('Error en findPageIdForRoute:', e);
+return null;
+}
+}
+
+/**
+* Intenta obtener páginas directamente desde el endpoint base sin usar página principal
+* Esta es una aproximación alternativa cuando no podemos encontrar el ID de la página principal
+* @param locale Idioma de las páginas a obtener
+* @returns Promise con la respuesta o un objeto vacío con la estructura correcta
+*/
+const fetchPagesDirectly = async (locale: string): Promise<WagtailPagesResponse> => {
+try {
+console.log('Implementando método alternativo para obtener páginas...');
+  
+// Intentar obtener una lista de páginas usando un endpoint específico que no use parámetros
+// Algunos endpoints en Wagtail que podrían funcionar: /api/v2/pages/?type=home.HomePage
+// O ensayar con IDs fijos comunes: 2, 3, etc.
+  
+const fixedIds = [2, 4, 5, 1]; // IDs comunes para páginas principales en Wagtail
+let collectedPages: any[] = [];
+  
+// Intentar obtener cada página con ID fijo
+for (const id of fixedIds) {
+  try {
+    console.log(`Intentando obtener página con ID fijo: ${id}`);
+    const baseUrl = getApiUrl(`/api/v2/pages/${id}/`);
+    const separator = baseUrl.includes('?') ? '&' : '?';
+    const apiUrl = `${baseUrl}${separator}format=json`;
+    
+    const { data, error } = await useFetch(apiUrl, {
+      key: `page-direct-${id}-${locale}-${Date.now()}`,
+      retry: 2, 
+      retryDelay: 1000,
+      timeout: 15000,
+      headers: {
+        'Accept-Language': locale,
+        'Accept': 'application/json',
+        'Content-Type': 'application/json'
+      const separator = baseUrl.includes('?') ? '&' : '?';
+      const apiUrl = `${baseUrl}${separator}format=json&locale=${locale}`;
+      
+      const { data, error } = await useFetch(apiUrl, {
+        key: `is-home-${id}-${locale}-${Date.now()}`,
+        retry: 1,
+        retryDelay: 500,
+        timeout: 5000, // Timeout corto para no esperar mucho
+        headers: {
+          'Accept-Language': locale,
+          'Accept': 'application/json',
+          'Content-Type': 'application/json'
+        }
+      });
+      
+      if (error.value || !data.value) {
+        return false;
+      }
+      
+      // Convertir de Proxy a objeto plano
+      const page = JSON.parse(JSON.stringify(data.value));
+      const type = page.meta?.type || '';
+      const slug = page.meta?.slug || '';
+      
+      // Verificar si es página home por tipo o slug
+      return type.includes('home') || 
+             slug === 'home' || 
+             slug === '' || 
+             slug === 'inicio' || 
+             slug === locale;
+    } catch (e) {
+      console.warn(`Error al verificar si ${id} es página principal:`, e);
+      return false;
+    }
+  };
+  
+  // Limpiar todas las cachés (útil al cambiar de idioma)
+  const clearCaches = () => {
+    console.log('Limpiando todas las cachés de páginas...');
+    Object.keys(pagesCache).forEach(key => {
+      delete pagesCache[key];
+    });
+    Object.keys(slugToIdMap.value).forEach(key => {
+      delete slugToIdMap.value[key];
+    });
+    Object.keys(pageDetailsCache).forEach(key => {
+      delete pageDetailsCache[key];
+    });
+    console.log('Todas las cachés han sido limpiadas');
+  };
+
+  // Generar rutas y mapeo de slugs a IDs
+  const generateRoutes = async (specificLocale: string | null = null) => {
+    try {
+      const locale = specificLocale || detectCurrentLanguage();
+      console.log(`Generando rutas para idioma: ${locale}`);
+      
+      // Cargar las páginas
+      const pagesResponse = await fetchAllPages(locale);
+      
+      // Si hay error o no hay items, devolver mapa vacío
+      if (!pagesResponse || !pagesResponse.items || pagesResponse.error) {
+        console.error('Error obteniendo páginas para generar rutas');
+        return {
+          routes: {},
+          slugToIdMap: {}
+        };
+      }
+      
+      // El procesamiento ya se hace en fetchAllPages, que llama a processApiData
+      // Simplemente devolvemos los mapas ya procesados
+      console.log(`Rutas generadas correctamente: ${Object.keys(knownRoutes).length} rutas`);
+      
+      return {
+        routes: knownRoutes,
+        slugToIdMap: slugToIdMap.value
+      };
+    } catch (e) {
+      console.error('Error en generateRoutes:', e);
+      return {
+        routes: {},
+        slugToIdMap: {}
+      };
+    }
   };
 
   return {
-    getApiUrl,
-    fetchAllPages,
-    fetchPageDetails,
-    fetchPageBySlug,
-    generateRoutes,
-    getPageIdByRoute, // método alternativo
-    findPageIdForRoute, // método principal para middleware y rutas
-    normalizeRoutePath,
+    // Variables reactivas
     knownRoutes,
-    slugToIdMap,
+    slugToIdMap, 
     pageDetailsMap,
-    apiBase,
-    getRouteMap
+    
+    // Funciones principales
+    fetchAllPages,
+    fetchPageBySlug,
+    fetchPageDetails,
+    findPageIdForRoute,
+    findHomePageId,
+    generateRoutes,
+    resetPages,
+    clearCaches,
+    
+    // Funciones auxiliares
+    getApiUrl,
+    detectCurrentLanguage
   }
 }

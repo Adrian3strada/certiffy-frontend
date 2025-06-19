@@ -74,7 +74,7 @@ const formattedDate = computed(() => {
       minute: '2-digit'
     }).format(date);
   } catch (e) {
-    console.error('Error al formatear fecha:', e);
+    // console.error('Error al formatear fecha:', e);
     return props.event.date;
   }
 });

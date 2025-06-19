@@ -75,7 +75,7 @@ export const useNoCacheStrategy = () => {
     const { data, error } = await useFetch<T>(noCacheUrl, fetchOptions);
     
     if (error.value) {
-      console.error('Error en fetchWithNoCache:', error.value);
+      // console.error('Error en fetchWithNoCache:', error.value);
       throw error.value;
     }
     

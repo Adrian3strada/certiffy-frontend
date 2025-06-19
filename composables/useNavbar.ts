@@ -77,16 +77,16 @@ async function fetchNavbar(specificLocale: string | null = null): Promise<void> 
             currentLocale = savedLocale;
           }
         } catch (e) {
-          console.error('Error accediendo a localStorage:', e);
+          // console.error('Error accediendo a localStorage:', e);
         }
       }
       
-      console.log(`Iniciando solicitud para navbar con idioma: ${currentLocale}`);
+      // console.log(`Iniciando solicitud para navbar con idioma: ${currentLocale}`);
       
       // IMPORTANTE: Desactivamos temporalmente la caché por idioma para depurar
       // const cacheKey = `navbar-${currentLocale}`;
       // if (navbarCache[cacheKey]) {
-      //   console.log(`Usando datos en caché para navbar en idioma ${currentLocale}`);
+      //   // console.log(`Usando datos en caché para navbar en idioma ${currentLocale}`);
       //   data.navbar = navbarCache[cacheKey];
       //   return;
       // }
@@ -98,7 +98,7 @@ async function fetchNavbar(specificLocale: string | null = null): Promise<void> 
       // Añadir parámetros anti-caché a la URL
       const noCacheUrl = addNoCacheParams(apiEndpoint);
       
-      console.log(`URL para obtener navbar: ${noCacheUrl} (con parámetros anti-caché)`);
+      // console.log(`URL para obtener navbar: ${noCacheUrl} (con parámetros anti-caché)`);
       
       // Usar el endpoint con parámetros anti-caché
       const { data: navbarData, error: fetchError } = await useFetch<NavbarData>(noCacheUrl, options)
@@ -109,17 +109,17 @@ async function fetchNavbar(specificLocale: string | null = null): Promise<void> 
 
       if (navbarData.value) {
         // Mostrar en consola la estructura exacta para debugging
-        console.log(`Datos recibidos del navbar para idioma ${currentLocale}:`, JSON.stringify(navbarData.value, null, 2))
+        // console.log(`Datos recibidos del navbar para idioma ${currentLocale}:`, JSON.stringify(navbarData.value, null, 2))
         
         // Actualizar los datos reactivos directamente sin usar caché
         data.navbar = navbarData.value
-        console.log('Datos asignados a data.navbar:', data.navbar);
+        // console.log('Datos asignados a data.navbar:', data.navbar);
       } else {
-        console.error(`No se recibieron datos para el navbar en idioma ${currentLocale}`);
+        // console.error(`No se recibieron datos para el navbar en idioma ${currentLocale}`);
       }
     } catch (err: any) {
       error.value = err instanceof Error ? err : new Error(String(err))
-      console.error('Error fetching navbar data:', err)
+      // console.error('Error fetching navbar data:', err)
     } finally {
       isLoading.value = false
     }

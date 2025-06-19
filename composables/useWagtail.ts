@@ -310,7 +310,9 @@ export const useWagtail = () => {
             const children = JSON.parse(JSON.stringify(childrenData.value));
             if (children.items && Array.isArray(children.items)) {
               response.items = [...response.items, ...children.items];
-              response.meta.total_count = response.items.length;
+              if (response.meta) {
+                response.meta.total_count = response.items.length;
+              }
             }
           }
         }
@@ -601,48 +603,69 @@ export const useWagtail = () => {
     }
   }
   // Encontrar el ID de la página por la ruta
-  const findPageIdForRoute = (route: string): number | null => {
+  const findPageIdForRoute = (route: string, locale: string = 'es'): number | null => {
     try {
-      // Sanear la ruta
+      // Sanear la ruta y quitar prefijos de idioma si existen
       let normalizedRoute = route || '';
       normalizedRoute = normalizedRoute.startsWith('/') ? normalizedRoute : `/${normalizedRoute}`;
       
-      // Primero intentar con la ruta exacta
-      if (knownRoutes[normalizedRoute]) {
-        console.log(`Ruta exacta encontrada en el mapa: ${normalizedRoute} -> ID ${knownRoutes[normalizedRoute]}`);
-        return knownRoutes[normalizedRoute];
-      }
-
-      // Si no se encuentra, intentar con variantes
-      // Probamos con y sin / final
-      const routeWithSlash = normalizedRoute.endsWith('/') ? normalizedRoute : `${normalizedRoute}/`;
-      const routeWithoutSlash = normalizedRoute.endsWith('/') ? normalizedRoute.slice(0, -1) : normalizedRoute;
+      // Quitar prefijos de idioma (es, en, etc.)
+      const langPrefixRegex = new RegExp(`^\/(${locale}|es|en)\/?`);
+      const routeWithoutLangPrefix = normalizedRoute.replace(langPrefixRegex, '/');
       
-      if (knownRoutes[routeWithSlash]) {
-        return knownRoutes[routeWithSlash];
+      // Crear todas las variantes posibles de la ruta para una búsqueda exhaustiva
+      const routeVariants = [
+        normalizedRoute,
+        routeWithoutLangPrefix,
+        // Con y sin slash final para ambos casos
+        normalizedRoute.endsWith('/') ? normalizedRoute : `${normalizedRoute}/`,
+        normalizedRoute.endsWith('/') ? normalizedRoute.slice(0, -1) : normalizedRoute,
+        routeWithoutLangPrefix.endsWith('/') ? routeWithoutLangPrefix : `${routeWithoutLangPrefix}/`,
+        routeWithoutLangPrefix.endsWith('/') ? routeWithoutLangPrefix.slice(0, -1) : routeWithoutLangPrefix,
+        // Si hay un prefijo de idioma, probar también con el idioma actual
+        `/${locale}${routeWithoutLangPrefix}`,
+        `/${locale}${routeWithoutLangPrefix.endsWith('/') ? routeWithoutLangPrefix : `${routeWithoutLangPrefix}/`}`
+      ];
+      
+      // Probar con todas las variantes de ruta en el mapa de rutas conocidas
+      for (const variant of routeVariants) {
+        if (knownRoutes[variant]) {
+          return knownRoutes[variant];
+        }
       }
       
-      if (knownRoutes[routeWithoutSlash]) {
-        return knownRoutes[routeWithoutSlash];
-      }
-
-      // Intentar extraer slug de la ruta
-      const parts = normalizedRoute.split('/').filter(Boolean);
-      if (parts.length > 0) {
-        const lastPart = parts[parts.length - 1];
-        
-        if (slugToIdMap.value[lastPart]) {
-          console.log(`Slug encontrado para la última parte de la ruta: ${lastPart} -> ID ${slugToIdMap.value[lastPart]}`);
-          return slugToIdMap.value[lastPart];
-        }
-        
-        // También probamos con variantes de guiones y guiones bajos
-        if (slugToIdMap.value[lastPart.replace(/-/g, '_')]) {
-          return slugToIdMap.value[lastPart.replace(/-/g, '_')];
-        }
-        
-        if (slugToIdMap.value[lastPart.replace(/_/g, '-')]) {
-          return slugToIdMap.value[lastPart.replace(/_/g, '-')];
+      // Intentar extraer slugs de la ruta (tanto el último como todas las partes de la ruta)
+      for (const routeVar of routeVariants) {
+        const parts = routeVar.split('/').filter(Boolean);
+        if (parts.length > 0) {
+          // Probar con el último slug (página directa)
+          const lastPart = parts[parts.length - 1];
+          if (slugToIdMap.value[lastPart]) {
+            console.log(`Slug encontrado para la última parte de la ruta: ${lastPart} -> ID ${slugToIdMap.value[lastPart]}`);
+            return slugToIdMap.value[lastPart];
+          }
+          
+          // Probar con variantes ortográficas (guiones/guiones bajos)
+          if (slugToIdMap.value[lastPart.replace(/-/g, '_')]) {
+            return slugToIdMap.value[lastPart.replace(/-/g, '_')];
+          }
+          
+          if (slugToIdMap.value[lastPart.replace(/_/g, '-')]) {
+            return slugToIdMap.value[lastPart.replace(/_/g, '-')];
+          }
+          
+          // Intentar con rutas anidadas concatenando partes del path
+          // Ejemplo: para /es/servicios/consultoria, intentar con "servicios/consultoria"
+          if (parts.length > 1) {
+            // Probar con combinaciones de ruta anidada
+            for (let i = 0; i < parts.length - 1; i++) {
+              const nestedSlug = parts.slice(i).join('/');
+              if (slugToIdMap.value[nestedSlug]) {
+                console.log(`Slug anidado encontrado: ${nestedSlug} -> ID ${slugToIdMap.value[nestedSlug]}`);
+                return slugToIdMap.value[nestedSlug];
+              }
+            }
+          }
         }
       }
 

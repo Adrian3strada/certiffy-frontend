@@ -1,5 +1,6 @@
 import { defineEventHandler, getQuery } from 'h3'
 import { $fetch } from 'ofetch'
+import { useRuntimeConfig } from '#imports'
 
 export default defineEventHandler(async (event) => {
   try {
@@ -12,12 +13,17 @@ export default defineEventHandler(async (event) => {
     }
 
     const config = useRuntimeConfig()
-    const baseApiUrl = config.public.apiBase || 'http://localhost:8000'
+    const baseApiUrl = config.public.apiBase || ''
     
     // Construye la URL completa usando la base API
-    const fullUrl = targetUrl.startsWith('http') 
+    let fullUrl = targetUrl.startsWith('http') 
       ? targetUrl 
       : `${baseApiUrl}${targetUrl.startsWith('/') ? targetUrl : `/${targetUrl}`}`
+      
+    // Añadir parámetro de locale si aún no está incluido
+    if (!fullUrl.includes('locale=')) {
+      fullUrl += fullUrl.includes('?') ? '&locale=es' : '?locale=es';
+    }
     
     // Realiza la solicitud al endpoint real y devuelve la respuesta
     const response = await $fetch(fullUrl, {
@@ -30,7 +36,7 @@ export default defineEventHandler(async (event) => {
     
     return response
   } catch (error: any) {
-    console.error('Error en proxy API:', error)
+    // console.error('Error en proxy API:', error)
     return {
       error: error.message || 'Error en la solicitud al API',
       status: error.status || 500

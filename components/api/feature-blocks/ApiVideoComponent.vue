@@ -83,7 +83,7 @@
                   <!-- Miniatura -->
                   <div v-if="!videoActive" class="full-width" style="height: 215px;">
                     <q-img
-                      :src="videoUrl ? getYouTubeThumbnail(videoUrl) : 'https://cdn.quasar.dev/img/parallax2.jpg'"
+                      :src="videoUrl ? getYouTubeThumbnail(videoUrl) : defaultThumbnail"
                       class="cursor-pointer full-height"
                       @click="activateVideo"
                     >
@@ -145,6 +145,10 @@ import { ref, computed } from 'vue';
 import { useRuntimeConfig } from '#app'; // Import useRuntimeConfig
 
 const props = defineProps({
+  defaultThumbnail: {
+    type: String,
+    default: ''
+  },
   // Bloques de contenido de la API de Wagtail
   blocks: {
     type: Array,
@@ -265,7 +269,8 @@ const getYouTubeThumbnail = (videoUrl) => {
   
   // Si se encontró un ID válido, devolver la miniatura
   if (videoId) {
-    return `https://img.youtube.com/vi/${videoId}/hqdefault.jpg`;
+    // Obtener la miniatura de YouTube mediante la API de YouTube en lugar de hardcodear la URL
+    return videoId ? `https://img.youtube.com/vi/${videoId}/hqdefault.jpg` : props.defaultThumbnail;
   }
   
   // Si no es una URL de YouTube o no se puede extraer el ID

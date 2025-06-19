@@ -108,7 +108,7 @@ export function useNoticias() {
       
       // Añadir parámetros anti-caché a la URL
       const noCacheUrl = addNoCacheParams(url.toString());
-      console.log(`[useNoticias] URL con parámetros anti-caché: ${noCacheUrl}`);
+      // console.log(`[useNoticias] URL con parámetros anti-caché: ${noCacheUrl}`);
       
       const { data: noticiasData, error: fetchError } = await useFetch<NoticiasResponse>(
         noCacheUrl,
@@ -127,7 +127,7 @@ export function useNoticias() {
       }
     } catch (err: any) {
       error.value = err instanceof Error ? err : new Error(String(err))
-      console.error('Error fetching noticias:', err)
+      // console.error('Error fetching noticias:', err)
     } finally {
       isLoading.value = false
     }

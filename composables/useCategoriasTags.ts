@@ -68,7 +68,7 @@ export function useCategoriasTags() {
       }
     } catch (err: any) {
       error.value = err instanceof Error ? err : new Error(String(err))
-      console.error('Error fetching categorias y tags:', err)
+      // console.error('Error fetching categorias y tags:', err)
     } finally {
       isLoading.value = false
     }

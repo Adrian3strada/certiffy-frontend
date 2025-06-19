@@ -74,7 +74,7 @@ const props = defineProps({
   },
   apiBaseUrl: {
     type: String,
-    default: 'https://3d63-2806-103e-c-2117-fc9b-fb33-cf9f-9ebd.ngrok-free.app'
+    default: ''
   },
   debugMode: {
     type: Boolean,
@@ -115,10 +115,10 @@ const getComponent = (type) => {
   const component = getComponentByType(normalizedType);
   
   if (component) {
-    console.log(`Componente encontrado para tipo: ${normalizedType}`);
+    // console.log(`Componente encontrado para tipo: ${normalizedType}`);
     return component;
   } else {
-    console.warn(`No se encontró componente para tipo: ${normalizedType}`);
+    // console.warn(`No se encontró componente para tipo: ${normalizedType}`);
     return null;
   }
 };
@@ -136,7 +136,7 @@ onMounted(async () => {
         pageContent.value = data;
       }
     } catch (err) {
-      console.error('Error al cargar datos de la página:', err);
+      // console.error('Error al cargar datos de la página:', err);
     }
   }
 });

@@ -43,7 +43,7 @@ export interface EventsResponse {
 
 export function useEvents() {
   const route = useRoute();
-  const { convertToProxiedUrl } = useMediaUrl();
+  const { getProxiedMediaUrl } = useMediaUrl();
   
   // Estado reactivo
   const eventsData = ref<EventsResponse | null>(null);
@@ -79,7 +79,7 @@ export function useEvents() {
         minute: '2-digit'
       }).format(date);
     } catch (e) {
-      console.error('Error al formatear fecha:', e);
+      // console.error('Error al formatear fecha:', e);
       return dateString;
     }
   };
@@ -108,7 +108,7 @@ export function useEvents() {
       // Añadir parámetros anti-caché a la URL
       const noCacheUrl = addNoCacheParams(apiEndpoint);
       
-      console.log('Fetching events from:', noCacheUrl);
+      // console.log('Fetching events from:', noCacheUrl);
       
       // Usar useFetch de Nuxt para obtener los datos
       const { data, error: fetchError } = await useFetch<EventsResponse>(noCacheUrl, {
@@ -129,10 +129,10 @@ export function useEvents() {
         currentPage.value = data.value.pagination.current_page;
         selectedCategory.value = data.value.current_categoria;
         selectedTag.value = data.value.current_tag;
-        console.log('Events data loaded:', data.value);
+        // console.log('Events data loaded:', data.value);
       }
     } catch (err) {
-      console.error('Error fetching events:', err);
+      // console.error('Error fetching events:', err);
       error.value = err;
     } finally {
       isLoading.value = false;

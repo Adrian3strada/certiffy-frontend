@@ -40,7 +40,7 @@ interface KnownRoutes {
 
 export function useDynamicPages() {
   // Obtener funciones del API de Wagtail
-  const { getDataFromUrl, getPageById } = useWagtailApi();
+  const { getDataFromUrl } = useWagtailApi();
   
   // Obtener estrategias anti-caché
   const { addNoCacheParams, generateUniqueKey } = useNoCacheStrategy();
@@ -71,7 +71,7 @@ export function useDynamicPages() {
       const pagesUrl = `/api/v2/pages/`;
       // Añadir parámetros anti-caché a la URL
       const noCacheUrl = addNoCacheParams(pagesUrl);
-      console.log(`[useDynamicPages] Cargando mapa del sitio con URL anti-caché: ${noCacheUrl}`);
+      // console.log(`[useDynamicPages] Cargando mapa del sitio con URL anti-caché: ${noCacheUrl}`);
       const result = await getDataFromUrl(noCacheUrl);
       
       if (result && result.items && Array.isArray(result.items)) {
@@ -92,14 +92,14 @@ export function useDynamicPages() {
       
       throw new Error('No se pudo obtener el mapa del sitio');
     } catch (err) {
-      console.error('Error al cargar el mapa del sitio:', err);
+      // console.error('Error al cargar el mapa del sitio:', err);
       // Si falla, devolvemos un array vacío
       return [];
     }
   };
   
-  // Obtener página por ID
-  const getPageById = async (id: number | string): Promise<PageData | null> => {
+  // Obtener página por ID (función local)
+  const getPageByIdLocal = async (id: number | string): Promise<PageData | null> => {
     loading.value = true;
     error.value = null;
     
@@ -123,7 +123,7 @@ export function useDynamicPages() {
       
       // Añadir parámetros anti-caché a la URL
       const noCacheUrl = addNoCacheParams(baseProxyUrl);
-      console.log(`[useDynamicPages] Obteniendo página con ID ${id} usando URL anti-caché: ${noCacheUrl}`);
+      // console.log(`[useDynamicPages] Obteniendo página con ID ${id} usando URL anti-caché: ${noCacheUrl}`);
       
       // Obtener la página desde la API usando el proxy con parámetros anti-caché
       const data: PageData = await getDataFromUrl(noCacheUrl);
@@ -170,7 +170,7 @@ export function useDynamicPages() {
       const page = siteMap.value.find(p => p.slug === normalizedSlug);
       if (page) {
         // Encontramos la página en el mapa del sitio
-        const pageData = await getPageById(page.id);
+        const pageData = await getPageByIdLocal(page.id);
         if (pageData) {
           loading.value = false;
           return pageData;
@@ -180,7 +180,7 @@ export function useDynamicPages() {
       // Verificar si el slug está en las rutas conocidas
       if (KNOWN_ROUTES[`/${normalizedSlug}`] || KNOWN_ROUTES[slug]) {
         const route = KNOWN_ROUTES[`/${normalizedSlug}`] || KNOWN_ROUTES[slug];
-        const pageData = await getPageById(route.id);
+        const pageData = await getPageByIdLocal(route.id);
         if (pageData) {
           loading.value = false;
           return pageData;
@@ -192,13 +192,13 @@ export function useDynamicPages() {
       
       // Añadir parámetros anti-caché a la URL
       const noCacheUrl = addNoCacheParams(baseSearchUrl);
-      console.log(`[useDynamicPages] Buscando página con slug ${normalizedSlug} usando URL anti-caché: ${noCacheUrl}`);
+      // console.log(`[useDynamicPages] Buscando página con slug ${normalizedSlug} usando URL anti-caché: ${noCacheUrl}`);
       
       const searchResult = await getDataFromUrl(noCacheUrl);
       
       if (searchResult && searchResult.items && searchResult.items.length > 0) {
         const pageId = searchResult.items[0].id;
-        const pageData = await getPageById(pageId);
+        const pageData = await getPageByIdLocal(pageId);
         
         if (pageData) {
           loading.value = false;
@@ -247,7 +247,7 @@ export function useDynamicPages() {
   
   return {
     findPageBySlug,
-    getPageById,
+    getPageByIdLocal,
     getPageIdFromRoute,
     getSiteMap,
     loadSiteMap,

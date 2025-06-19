@@ -41,7 +41,7 @@ const props = defineProps({
   },
   apiBaseUrl: {
     type: String,
-    default: 'https://3d63-2806-103e-c-2117-fc9b-fb33-cf9f-9ebd.ngrok-free.app'
+    default: ''
   },
   fullWidth: {
     type: Boolean,
@@ -63,7 +63,7 @@ const imageError = ref(false);
 // Maneja errores al cargar la imagen
 const handleImageError = () => {
   imageError.value = true;
-  console.error('Error al cargar la imagen:', props.block?.value?.url);
+  // console.error('Error al cargar la imagen:', props.block?.value?.url);
 };
 
 // Obtener la URL de la imagen

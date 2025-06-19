@@ -40,13 +40,13 @@ export function useLocales() {
     isLoading.value = true
     error.value = null
     try {
-      console.log('Iniciando solicitud de locales directamente desde la API...')
+      // console.log('Iniciando solicitud de locales directamente desde la API...')
       
       // Usar directamente la API de Wagtail sin parámetros de consulta
       // para evitar errores 400 o CORS
       const apiEndpoint = '/api/v2/locales/';
       
-      console.log(`[useLocales] Usando endpoint limpio: ${apiEndpoint}`);
+      // console.log(`[useLocales] Usando endpoint limpio: ${apiEndpoint}`);
       
       // Usar useFetch sin parámetros adicionales para evitar errores
       const { data: localesData, error: fetchError } = await useFetch<LocalesData>(apiEndpoint, {
@@ -65,7 +65,7 @@ export function useLocales() {
       }
 
       if (localesData.value && Array.isArray(localesData.value)) {
-        console.log('Datos recibidos de locales:', JSON.stringify(localesData.value, null, 2))
+        // console.log('Datos recibidos de locales:', JSON.stringify(localesData.value, null, 2))
         data.locales = localesData.value as LocaleItem[]
         
         // Intentar obtener el idioma actual desde localStorage si está disponible
@@ -76,16 +76,16 @@ export function useLocales() {
               data.currentLocale = storedLocale
             }
           } catch (e) {
-            console.error('Error al acceder a localStorage:', e)
+            // console.error('Error al acceder a localStorage:', e)
           }
         }
       } else {
-        console.warn('No se recibieron datos de locales o el formato no es correcto')
+        // console.warn('No se recibieron datos de locales o el formato no es correcto')
         data.locales = [] // Asignar un array vacío como valor predeterminado
       }
     } catch (err: any) {
       error.value = err instanceof Error ? err : new Error(String(err))
-      console.error('Error fetching locales data:', err)
+      // console.error('Error fetching locales data:', err)
     } finally {
       isLoading.value = false
     }
@@ -98,7 +98,7 @@ export function useLocales() {
   function changeLocale(localeCode: string): void {
     // Aquí implementaremos la lógica para cambiar de idioma
     // De momento solo mostramos un mensaje en consola
-    console.log(`Changing locale to: ${localeCode}`)
+    // console.log(`Changing locale to: ${localeCode}`)
     // Esta función deberá implementarse según la estrategia de i18n del proyecto
     // Por ejemplo, podrías usar navigateTo con el locale en la URL
     
@@ -110,7 +110,7 @@ export function useLocales() {
       try {
         localStorage.setItem('currentLocale', localeCode)
       } catch (e) {
-        console.error('Error al guardar en localStorage:', e)
+        // console.error('Error al guardar en localStorage:', e)
       }
     }
   }

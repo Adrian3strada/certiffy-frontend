@@ -70,16 +70,16 @@ export function useFooter() {
             currentLocale = savedLocale;
           }
         } catch (e) {
-          console.error('Error accediendo a localStorage:', e);
+          // console.error('Error accediendo a localStorage:', e);
         }
       }
       
-      console.log(`Iniciando solicitud para footer con idioma: ${currentLocale}`);
+      // console.log(`Iniciando solicitud para footer con idioma: ${currentLocale}`);
       
       // IMPORTANTE: Desactivamos temporalmente la caché por idioma para depurar
       // const cacheKey = `footer-${currentLocale}`;
       // if (footerCache[cacheKey]) {
-      //   console.log(`Usando datos en caché para footer en idioma ${currentLocale}`);
+      //   // console.log(`Usando datos en caché para footer en idioma ${currentLocale}`);
       //   data.footer = footerCache[cacheKey];
       //   return;
       // }
@@ -90,7 +90,7 @@ export function useFooter() {
       // Añadir parámetros anti-caché a la URL
       const noCacheUrl = addNoCacheParams(apiEndpoint);
       
-      console.log(`URL para obtener footer: ${noCacheUrl} (con parámetros anti-caché)`);
+      // console.log(`URL para obtener footer: ${noCacheUrl} (con parámetros anti-caché)`);
       
       // Usar el endpoint con parámetros anti-caché
       const { data: footerData, error: fetchError } = await useFetch<FooterData>(noCacheUrl, options)
@@ -101,17 +101,17 @@ export function useFooter() {
 
       if (footerData.value) {
         // Mostrar en consola la estructura exacta para debugging
-        console.log(`Datos recibidos del footer para idioma ${currentLocale}:`, JSON.stringify(footerData.value, null, 2))
+        // console.log(`Datos recibidos del footer para idioma ${currentLocale}:`, JSON.stringify(footerData.value, null, 2))
         
         // Actualizar los datos reactivos directamente sin usar caché
         data.footer = footerData.value
-        console.log('Datos asignados a data.footer:', data.footer);
+        // console.log('Datos asignados a data.footer:', data.footer);
       } else {
-        console.error(`No se recibieron datos para el footer en idioma ${currentLocale}`);
+        // console.error(`No se recibieron datos para el footer en idioma ${currentLocale}`);
       }
     } catch (err: any) {
       error.value = err instanceof Error ? err : new Error(String(err))
-      console.error('Error fetching footer data:', err)
+      // console.error('Error fetching footer data:', err)
     } finally {
       isLoading.value = false
     }

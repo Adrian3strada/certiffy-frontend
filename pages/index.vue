@@ -55,33 +55,33 @@ onMounted(async () => {
     
     // Detectar idioma actual
     const currentLocale = locale.value;
-    console.log(`Index - Idioma actual: ${currentLocale}`);
+    // console.log(`Index - Idioma actual: ${currentLocale}`);
     
     // Sabemos que la página de inicio tiene ID 3
     const homePageId = 3; // ID fijo de la página de inicio
-    console.log(`Index - Cargando directamente la página de inicio con ID: ${homePageId}`);
+    // console.log(`Index - Cargando directamente la página de inicio con ID: ${homePageId}`);
     
     // Cargar detalles completos directamente por ID
     pageData.value = await fetchPageDetails(homePageId, currentLocale, true);
-    console.log('Index - Datos de página cargados por ID:', pageData.value);
+    // console.log('Index - Datos de página cargados por ID:', pageData.value);
     
     // Agregar log detallado para verificar la estructura de los datos
-    console.log('Index - Estructura completa de pageData:', JSON.stringify(pageData.value));
+    // console.log('Index - Estructura completa de pageData:', JSON.stringify(pageData.value));
     
     // Verificar si tenemos bloques para renderizar
     if (pageData.value?.body && Array.isArray(pageData.value.body)) {
-      console.log(`Index - Número de bloques en body: ${pageData.value.body.length}`);
+      // console.log(`Index - Número de bloques en body: ${pageData.value.body.length}`);
       pageData.value.body.forEach((block, index) => {
-        console.log(`Index - Bloque ${index}:`, block?.type || 'sin tipo', block?.id || 'sin id');
+        // console.log(`Index - Bloque ${index}:`, block?.type || 'sin tipo', block?.id || 'sin id');
       });
     } else {
-      console.log('Index - No hay bloques para renderizar o body no es un array');
-      console.log('Index - Valor y tipo de body:', pageData.value?.body, typeof pageData.value?.body);
+      // console.log('Index - No hay bloques para renderizar o body no es un array');
+      // console.log('Index - Valor y tipo de body:', pageData.value?.body, typeof pageData.value?.body);
     }
     
     pending.value = false;
   } catch (err) {
-    console.error(`[index] Error al cargar la página principal:`, err);
+    // console.error(`[index] Error al cargar la página principal:`, err);
     error.value = err;
     pending.value = false;
   }
