@@ -1,0 +1,96 @@
+/* Estilos estandarizados para componentes Rich Text */
+
+.rich-text-container {
+  max-width: 800px;
+  width: 100%;
+  overflow-wrap: break-word;
+  word-wrap: break-word;
+  word-break: break-word;
+  hyphens: auto;
+}
+
+.rich-text-content {
+  color: #333;
+  line-height: 1.7;
+}
+
+.rich-text-content h1,
+.rich-text-content h2 {
+  font-family: 'OpenSans-ExtraBold', 'Open Sans', sans-serif !important;
+  font-weight: 800 !important;
+  font-size: 1.75rem !important;
+  line-height: 2.25rem !important;
+  letter-spacing: 0.01rem !important;
+  color: var(--q-primary);
+  margin-top: 2rem;
+  margin-bottom: 1rem;
+  max-width: 100%;
+  overflow-wrap: break-word;
+}
+
+.rich-text-content h3,
+.rich-text-content h4 {
+  font-family: 'OpenSans-Bold', 'Open Sans', sans-serif !important;
+  font-weight: 700 !important;
+  font-size: 1.35rem !important;
+  line-height: 1.75rem !important;
+  letter-spacing: 0.01rem !important;
+  color: var(--q-primary);
+  margin-top: 1.5rem;
+  margin-bottom: 0.75rem;
+  max-width: 100%;
+  overflow-wrap: break-word;
+}
+
+.rich-text-content h5,
+.rich-text-content h6 {
+  font-family: 'OpenSans-Bold', 'Open Sans', sans-serif !important;
+  font-weight: 700 !important;
+  font-size: 1.1rem !important;
+  line-height: 1.5rem !important;
+  letter-spacing: 0.01rem !important;
+  color: var(--q-primary);
+  margin-top: 1rem;
+  margin-bottom: 0.5rem;
+  max-width: 100%;
+  overflow-wrap: break-word;
+}
+
+.rich-text-content p {
+  font-family: 'OpenSans-SemiBold', 'Open Sans', sans-serif;
+  font-weight: 600;
+  font-size: 1rem;
+  line-height: 1.5rem;
+  margin-bottom: 1rem;
+  max-width: 100%;
+  overflow-wrap: break-word;
+}
+
+.rich-text-content ul,
+.rich-text-content ol {
+  margin-left: 2rem;
+  margin-bottom: 1.5rem;
+}
+
+.rich-text-content li {
+  margin-bottom: 0.5rem;
+}
+
+.rich-text-content a {
+  color: var(--q-primary);
+  text-decoration: none;
+  transition: all 0.3s ease;
+}
+
+.rich-text-content a:hover {
+  opacity: 0.85;
+  text-decoration: underline;
+}
+
+.rich-text-content img {
+  max-width: 100%;
+  height: auto;
+  margin-top: 0.5rem;
+  margin-bottom: 1rem;
+  border-radius: 4px;
+}

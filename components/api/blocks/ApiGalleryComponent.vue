@@ -1,6 +1,6 @@
 <template>
-  <section :id="'gallery-' + (id || Math.random().toString(36).substring(2, 9))" class="q-my-xl q-mx-auto" style="max-width: 1200px;">
-    <h4 class="text-center q-mb-md" v-if="galleryTitle">{{ galleryTitle }}</h4>
+  <section :id="'gallery-' + (id || Math.random().toString(36).substring(2, 9))" class="q-py-xl q-px-md" style="max-width: 1200px; margin: 0 auto;">
+    <h4 class="text-h5 text-weight-bold text-center q-mb-lg" v-if="galleryTitle">{{ galleryTitle }}</h4>
     
     <!-- Carrusel de imágenes para pantallas pequeñas -->
     <q-carousel
@@ -11,8 +11,8 @@
       infinite
       swipeable
       control-color="primary"
-      class="rounded-borders"
-      style="height: 350px;"
+      height="350px"
+      class="rounded-borders shadow-2"
       v-if="$q.screen.lt.md"
     >
       <q-carousel-slide 
@@ -46,16 +46,12 @@
         <q-img
           :src="formatImageUrl(item.image?.url)"
           :alt="item.image?.title || ''"
-          class="rounded-borders cursor-pointer q-transition"
-          :class="{'q-hoverable': true}"
-          style="transition: transform 0.3s ease, box-shadow 0.3s ease;"
+          class="cursor-pointer rounded-borders shadow-1 gallery-hover-effect"
           fit="cover"
           spinner-color="primary"
           spinner-size="42px"
           :ratio="4/3"
           @click="openLightbox(index)"
-          @mouseover="e => { e.target.style.transform = 'translateY(-5px)'; e.target.style.boxShadow = '0 10px 20px rgba(0, 0, 0, 0.15)'; }"
-          @mouseout="e => { e.target.style.transform = 'translateY(0)'; e.target.style.boxShadow = 'none'; }"
         >
           <template v-if="item.caption" v-slot:caption>
             <div class="bg-black-6 q-pa-sm">{{ item.caption }}</div>
@@ -100,7 +96,7 @@
                 spinner-color="white"
                 spinner-size="42px"
               />
-              <div v-if="item.caption" class="absolute-bottom bg-black-6 text-white q-pa-md text-center">
+              <div v-if="item.caption" class="absolute-bottom bg-black-6 q-pa-md text-center text-white">
                 {{ item.caption }}
               </div>
             </q-carousel-slide>
@@ -181,4 +177,14 @@ function openLightbox(index) {
 }
 </script>
 
+<style>
+/* Mantenemos solo el mínimo CSS que no tiene equivalente en Quasar */
+.gallery-hover-effect {
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
 
+.gallery-hover-effect:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 10px 20px rgba(0, 0, 0, 0.15) !important;
+}
+</style>

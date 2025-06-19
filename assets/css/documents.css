@@ -1,0 +1,104 @@
+/* Estilos estandarizados para componentes de documentos */
+
+.certiffy-document-wrapper {
+  max-width: 100%;
+  margin: 1.5rem 0.5rem;
+}
+
+.certiffy-document-card-container {
+  max-width: 500px;
+  margin-bottom: 1rem;
+  padding: 0.5rem;
+}
+
+.certiffy-document-card {
+  background-color: white;
+  transition: all 0.2s ease;
+}
+
+.certiffy-document-card:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 5px 15px rgba(0, 0, 0, 0.08) !important;
+}
+
+.certiffy-document-header {
+  border-bottom: 1px solid rgba(0, 0, 0, 0.05);
+  padding-bottom: 0.5rem;
+}
+
+.certiffy-document-title {
+  font-family: 'OpenSans-Bold', 'Open Sans', sans-serif;
+  font-size: 1.1rem;
+  font-weight: 700;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.certiffy-document-info {
+  font-size: 0.75rem;
+  color: #616161;
+}
+
+.certiffy-document-content {
+  padding-top: 0.5rem;
+}
+
+.certiffy-document-filename {
+  font-family: 'OpenSans-SemiBold', 'Open Sans', sans-serif;
+  font-weight: 500;
+  font-size: 0.9rem;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  max-width: 200px;
+}
+
+.certiffy-document-filesize {
+  font-size: 0.75rem;
+  color: #616161;
+}
+
+.certiffy-document-download-btn {
+  padding: 0 1rem;
+  margin-top: 0.5rem;
+  transition: all 0.2s ease;
+}
+
+.certiffy-document-download-btn:hover {
+  background-color: rgba(0, 0, 0, 0.05);
+}
+
+/* Contenedor de documentos */
+.certiffy-documents-container {
+  max-width: 800px;
+  margin: 3rem auto;
+}
+
+.certiffy-documents-title {
+  font-family: 'OpenSans-Bold', 'Open Sans', sans-serif;
+  font-size: 1.5rem;
+  font-weight: 700;
+  margin-bottom: 1rem;
+}
+
+.certiffy-documents-list {
+  padding: 1rem 0;
+}
+
+.certiffy-document-item {
+  width: 100%;
+  margin-bottom: 1rem;
+  transition: all 0.2s ease;
+}
+
+/* Estilos responsivos */
+@media (max-width: 767px) {
+  .certiffy-document-card-container {
+    max-width: 100%;
+  }
+  
+  .certiffy-document-filename {
+    max-width: 120px;
+  }
+}

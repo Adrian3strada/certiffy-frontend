@@ -1,8 +1,11 @@
 // Composable para manejo simplificado de la API de Wagtail
 import { ref } from 'vue'
 import { useRoute } from 'vue-router'
+import { useNoCacheStrategy } from './useNoCacheStrategy'
 
 export function useWagtailApi() {
+  // Obtener estrategias anti-caché
+  const { addNoCacheParams, noCacheFetchOptions } = useNoCacheStrategy()
   const isLoading = ref(false)
   const error = ref(null)
   const route = useRoute()
@@ -59,14 +62,28 @@ export function useWagtailApi() {
       
       console.log(`[useWagtailApi] Obteniendo datos desde: ${finalEndpoint} (idioma: ${currentLang})`)
       
-      // Usamos el proxy para evitar problemas de CORS
-      const { data, error: fetchError } = await useFetch(`/api/proxy-wagtail?url=${finalEndpoint}`, {
+      // Crear una URL base con el endpoint
+      const baseProxyUrl = `/api/proxy-wagtail?url=${finalEndpoint}`
+      
+      // Añadir parámetros anti-caché a la URL
+      const noCacheUrl = addNoCacheParams(baseProxyUrl)
+      
+      console.log(`[useWagtailApi] URL con parámetros anti-caché: ${noCacheUrl}`)
+      
+      // Usamos el proxy para evitar problemas de CORS con opciones anti-caché
+      const { data, error: fetchError } = await useFetch(noCacheUrl, {
         method: 'GET',
         headers: {
           'Accept': 'application/json',
+          'Cache-Control': 'no-store, no-cache, must-revalidate, proxy-revalidate',
+          'Pragma': 'no-cache',
         },
         retry: 2,
         timeout: 10000,
+        // Clave única para evitar caché interno de Nuxt
+        key: `wagtail_${Date.now()}_${Math.random().toString(36).substring(2, 9)}`,
+        // Desactivar caché de Nuxt - usar 'no-store' en lugar de false
+        cache: 'no-store'
       })
 
       if (fetchError.value) {
@@ -113,9 +130,28 @@ export function useWagtailApi() {
     return normalized
   }
 
+  /**
+   * Obtener una página por su ID
+   * @param {number|string} id - ID de la página a obtener
+   * @returns {Promise<any>} - Datos de la página
+   */
+  const getPageById = async (id: number | string): Promise<any> => {
+    try {
+      // Construir la URL para obtener la página por su ID
+      const pageUrl = `/api/v2/pages/${id}/`;
+      
+      // Obtener la página usando la función getDataFromUrl
+      return await getDataFromUrl(pageUrl);
+    } catch (err) {
+      console.error(`[useWagtailApi] Error al obtener página con ID ${id}:`, err);
+      throw err;
+    }
+  };
+
   return {
     getDataFromUrl,
     normalizeUrl,
+    getPageById,
     isLoading,
     error
   }

@@ -39,7 +39,7 @@
       <q-card-section>
         <div 
           v-if="titulo" 
-          class="certiffy-tarjeta__titulo q-mb-sm"
+          class="q-mb-sm text-weight-bold line-height-sm"
           :class="tituloClase"
         >
           {{ titulo }}
@@ -47,7 +47,7 @@
         
         <div 
           v-if="subtitulo" 
-          class="certiffy-tarjeta__subtitulo q-mb-md"
+          class="q-mb-md line-height-md"
           :class="subtituloClase"
         >
           {{ subtitulo }}
@@ -55,7 +55,7 @@
         
         <div 
           v-if="contenido" 
-          class="certiffy-tarjeta__contenido"
+          class="line-height-lg"
           :class="contenidoClase"
         >
           {{ contenido }}
@@ -64,24 +64,24 @@
         <slot name="contenido-personalizado"></slot>
       </q-card-section>
       
-      <q-card-actions v-if="mostrarAcciones" align="right" class="certiffy-tarjeta__acciones">
+      <q-card-actions v-if="mostrarAcciones" align="right" class="q-mt-auto q-pt-md">
         <slot name="acciones">
           <q-btn 
             v-if="accionPrimaria"
             :label="accionPrimaria" 
-            :color="'secondary'" 
+            :color="colorAccionPrimaria" 
             :to="rutaAccionPrimaria" 
             :outline="outlineAccionPrimaria"
-            class="certiffy-tarjeta__boton"
+            no-caps
           />
           <q-btn 
             v-if="accionSecundaria"
             :label="accionSecundaria" 
-            :color="'warning'" 
+            :color="colorAccionSecundaria" 
             :to="rutaAccionSecundaria" 
             :outline="outlineAccionSecundaria"
             flat
-            class="certiffy-tarjeta__boton"
+            no-caps
           />
         </slot>
       </q-card-actions>
@@ -135,12 +135,9 @@ const mostrarAcciones = computed(() => {
 </script>
 
 <style scoped>
+/* Estilos para la tarjeta */
 .certiffy-tarjeta {
-  height: 100%;
-}
-
-.certiffy-tarjeta--hover {
-  transition: transform 0.3s ease, box-shadow 0.3s ease;
+  transition: all 0.3s ease;
 }
 
 .certiffy-tarjeta--hover:hover {
@@ -148,40 +145,13 @@ const mostrarAcciones = computed(() => {
   box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
 }
 
-.certiffy-tarjeta--hover:hover .certiffy-tarjeta__imagen {
-  transform: translateY(5px);
-  opacity: 0.8;
+/* Estilos para la imagen */
+.certiffy-tarjeta__imagen {
+  transition: all 0.3s ease;
 }
 
-.certiffy-tarjeta--hover:hover .certiffy-tarjeta__boton {
-  transform: translateY(0);
-  opacity: 1;
-}
-
-.certiffy-tarjeta__titulo {
-  line-height: 1.2;
-}
-
-.certiffy-tarjeta__subtitulo {
-  line-height: 1.4;
-}
-
-.certiffy-tarjeta__contenido {
-  line-height: 1.6;
-}
-
-.certiffy-tarjeta__acciones {
-  margin-top: auto;
-  padding-top: 1rem;
-}
-
-/* Fix para alineación de botones */
-.q-card {
-  display: flex;
-  flex-direction: column;
-}
-
-.q-card .q-card__section {
-  flex-grow: 1;
-}
+/* Define line heights for text elements */
+.line-height-sm { line-height: 1.2; }
+.line-height-md { line-height: 1.4; }
+.line-height-lg { line-height: 1.6; }
 </style>

@@ -1,98 +1,159 @@
 <template>
-  <section class="q-py-xl news-section">
+  <section class="q-py-xl q-my-lg">
     <div class="q-mx-auto q-px-md" style="max-width: 1200px">
       <!-- Encabezado con título y controles -->
       <div class="row items-center justify-between q-mb-xl">
-        <div class="text-h5 text-weight-bold q-pl-sm">{{ blockTitle }}</div>
+        <div class="text-h4 text-weight-bold q-pl-sm">{{ blockTitle }}</div>
         
         <!-- Controles de navegación en la parte superior derecha -->
-        <div class="control-buttons">
+        <div>
           <q-btn
             round
             flat
             color="primary"
-            icon="arrow_back_ios"
+            icon="chevron_left"
             size="sm"
-            class="q-mr-sm"
+            class="q-mr-sm opacity-80 hover-opacity-100"
             @click="scrollLeft"
           />
           <q-btn
             round
             flat
             color="primary"
-            icon="arrow_forward_ios"
+            icon="chevron_right"
             size="sm"
+            class="opacity-80 hover-opacity-100"
             @click="scrollRight"
           />
         </div>
       </div>
 
       <!-- Contenedor de tarjetas con scroll horizontal -->
-      <div class="carousel-container q-py-md">
+      <div class="q-py-lg">
         
         <!-- Contenedor de tarjetas con scroll horizontal -->
-        <div class="news-row-container" ref="scrollContainer">
+        <div class="row no-wrap overflow-auto scroll-smooth" style="scrollbar-width: thin; scrollbar-color: #ccc transparent;" ref="scrollContainer">
           <div 
             v-for="(card, index) in cards" 
             :key="index"
-            class="news-card-wrapper q-px-md"
+            class="q-px-md"
+            style="flex: 0 0 auto; width: 320px;"
           >
-            <div 
-              class="full-height q-transition q-hoverable rounded-borders overflow-hidden news-card" 
-              :class="getCardClasses(card.estilo)"
+            <q-card 
+              class="q-mb-md overflow-hidden transition-transform"
+              :class="getCardClasses(card.estilo || 'primary')"
+              style="min-height: 400px; transition: all 0.3s ease; border: 1px solid #e0e0e0; box-shadow: 0 1px 5px rgba(0,0,0,0.1);"
+              v-ripple
+              hover
+              flat
+              bordered
             >
-              <!-- Imagen -->
-              <div class="news-image">
-                <img
-                  v-if="card.imagen && card.imagen.url"
-                  :src="`/api/proxy-image?url=${encodeURIComponent(card.imagen.url)}`"
-                  alt="Imagen de noticia"
-                  class="full-width"
-                />
-                <div v-else class="empty-image flex flex-center">
-                  <q-icon name="image" size="3rem" color="grey-6" />
+              <!-- Imagen mejorada con mejor manejo de errores y marco visible -->
+              <div class="image-container" style="height: 180px; overflow: hidden; border-bottom: 4px solid #f5f5f5; border: 1px solid #e0e0e0; box-shadow: inset 0 0 0 1px #e0e0e0;">
+                <q-img
+                  v-if="getImageUrl(card)"
+                  :src="getImageUrl(card)"
+                  height="180px"
+                  style="object-fit: cover;"
+                  fit="cover"
+                  loading="lazy"
+                  crossorigin="anonymous"
+                  @error="(evt) => handleImageError(evt, card, index)"
+                  @load="(evt) => handleImageLoad(evt, card, index)"
+                >
+                  <!-- Slot de loading -->
+                  <template v-slot:loading>
+                    <div class="absolute-full flex flex-center bg-grey-3">
+                      <q-spinner color="primary" size="2em" />
+                    </div>
+                  </template>
+                  
+                  <!-- Slot de error -->
+                  <template v-slot:error>
+                    <div class="absolute-full flex flex-center bg-grey-3">
+                      <div class="text-center">
+                        <q-icon name="broken_image" size="2rem" color="grey-6" />
+                        <div class="text-caption text-grey-6 q-mt-sm">Imagen no disponible</div>
+                      </div>
+                    </div>
+                  </template>
+                </q-img>
+                
+                <!-- Fallback cuando no hay imagen -->
+                <div v-else class="flex flex-center bg-grey-3 full-width full-height">
+                  <div class="text-center">
+                    <q-icon name="image" size="3rem" color="grey-6" />
+                    <div class="text-caption text-grey-6 q-mt-sm">Sin imagen</div>
+                  </div>
                 </div>
               </div>
 
               <!-- Contenido de la tarjeta -->
-              <div class="news-content q-pa-md">
+              <q-card-section class="q-pa-md column justify-between flex-grow" style="height: 200px; position: relative;">
                 <!-- Fecha y categoría -->
-                <div v-if="card.fecha || card.categoria" class="row q-mb-sm justify-between items-center">
-                  <div v-if="card.categoria" class="categoria-badge text-caption text-weight-bold">{{ card.categoria }}</div>
-                  <div v-if="card.fecha" class="text-caption text-grey-8">{{ formatDate(card.fecha) }}</div>
+                <div v-if="card.fecha || card.categoria" class="row justify-between items-center q-mb-sm">
+                  <q-badge
+                    v-if="card.categoria"
+                    :color="getTitleColor(card.estilo || 'primary')"
+                    class="text-caption text-uppercase"
+                    style="max-width: 120px; overflow: hidden; text-overflow: ellipsis;"
+                  >
+                    {{ card.categoria }}
+                  </q-badge>
+                  <span v-if="card.fecha" class="text-caption text-grey-7">{{ formatDate(card.fecha) }}</span>
                 </div>
 
                 <!-- Título -->
-                <div class="text-weight-bold text-uppercase q-mb-sm text-subtitle1">
-                  {{ card.titulo }}
+                <div class="text-subtitle1 text-weight-bold q-mb-sm">
+                  {{ card.tipo === 'evento' ? card.titulo || '' : card.titulo }}
                 </div>
 
                 <!-- Descripción -->
                 <div 
                   v-if="card.descripcion" 
-                  class="text-grey-8 q-my-sm text-body2 descripcion-wrapper"
+                  class="text-body2 text-grey-8 q-mb-xl"
                   v-html="card.descripcion"
+                  style="min-height: 2em; max-height: 4.5em; display: block; overflow: hidden;"
                 >
                 </div>
                 
                 <!-- Botón Ver más -->
+                <!-- Enlace externo -->
                 <q-btn
-                  v-if="card.url || card.enlace"
+                  v-if="(card.url || card.enlace) && isExternalLink(getCardUrl(card))"
                   :href="getCardUrl(card)"
-                  :to="!isExternalLink(getCardUrl(card)) ? getCardUrl(card) : undefined"
-                  :target="isExternalLink(getCardUrl(card)) ? '_blank' : undefined"
-                  color="primary"
-                  flat
-                  class="q-mt-sm view-more-btn"
-                  icon-right="arrow_forward"
-                  padding="none"
-                  dense
+                  target="_blank"
+                  :color="getButtonColor(card.estilo || 'secondary')"
+                  unelevated
+                  class="absolute text-weight-medium"
+                  style="bottom: 16px; left: 16px;"
+                  padding="5px 16px"
+                  size="md"
                   no-caps
                 >
                   Ver más
                 </q-btn>
-              </div>
-            </div>
+                
+                <!-- Enlace interno con NuxtLink -->
+                <NuxtLink 
+                  v-if="(card.url || card.enlace) && !isExternalLink(getCardUrl(card))"
+                  :to="getCardUrl(card)"
+                  class="absolute"
+                  style="bottom: 16px; left: 16px;"
+                >
+                  <q-btn
+                    :color="getButtonColor(card.estilo || 'secondary')"
+                    unelevated
+                    class="text-weight-medium"
+                    padding="5px 16px"
+                    size="md"
+                    no-caps
+                  >
+                    Ver más
+                  </q-btn>
+                </NuxtLink>
+              </q-card-section>
+            </q-card>
           </div>
         </div>
 
@@ -102,36 +163,36 @@
 </template>
 
 <script setup>
-import { ref, computed, onMounted, onUnmounted } from 'vue';
+import { ref, computed, onMounted, onUnmounted, reactive } from 'vue';
 import { useRuntimeConfig } from '#app';
 import { format, parseISO } from 'date-fns';
 import { es } from 'date-fns/locale';
 
 const props = defineProps({
   block: { type: Object, required: true },
-  apiBaseUrl: { type: String, default: () => useRuntimeConfig().public.apiBase }
+  apiBaseUrl: { type: String, default: () => useRuntimeConfig().public.apiBase },
+  fallbackImage: { type: String, default: '/assets/images/image-placeholder.svg' }
 });
 
 // Referencias para el carousel y la detección de pantalla
-const scrollContainer = ref(null); // Referencia para el contenedor con scroll
-const windowWidth = ref(process.client ? window.innerWidth : 1200); // Valor por defecto para SSR
+const scrollContainer = ref(null);
+const windowWidth = ref(process.client ? window.innerWidth : 1200);
+
+// Estado reactivo para el manejo de imágenes
+const imageStates = reactive({});
 
 // Funciones para controlar el scroll horizontal
 function scrollLeft() {
   if (!scrollContainer.value) return;
-  
-  const scrollAmount = 300; // Cantidad de px a desplazarse
+  const scrollAmount = 300;
   scrollContainer.value.scrollLeft -= scrollAmount;
 }
 
 function scrollRight() {
   if (!scrollContainer.value) return;
-  
-  const scrollAmount = 300; // Cantidad de px a desplazarse
+  const scrollAmount = 300;
   scrollContainer.value.scrollLeft += scrollAmount;
 }
-
-// Ya no necesitamos variables de paginación ya que usamos scroll horizontal
 
 // Actualizar el ancho de la ventana al redimensionar
 function updateWindowWidth() {
@@ -144,7 +205,7 @@ function updateWindowWidth() {
 onMounted(() => {
   if (process.client) {
     window.addEventListener('resize', updateWindowWidth);
-    updateWindowWidth(); // Inicializar el valor
+    updateWindowWidth();
   }
 });
 
@@ -158,59 +219,266 @@ onUnmounted(() => {
 const cards = computed(() => {
   const block = props.block?.value;
   
+  // Debug: log para ver la estructura de datos
+  console.log('Block data:', block);
+  
   // Si estamos trabajando con noticias (nuevo formato)
   if (block?.tipo === 'grupo_de_noticias' && Array.isArray(block?.noticias)) {
-    return block.noticias.map(noticia => ({
-      imagen: noticia.imagen,
-      titulo: noticia.titulo,
-      descripcion: noticia.descripcion,
-      url: noticia.url || noticia.enlace,
-      estilo: noticia.estilo || 'primary',
-      fecha: noticia.fecha,
-      categoria: noticia.categoria
-    }));
+    const mappedCards = block.noticias.map((noticia, index) => {
+      // Para eventos, asegurarse de que el título se muestre correctamente
+      let titulo = noticia.titulo || '';
+      
+      // Para debug
+      console.log(`Procesando noticia ${index}:`, { 
+        tipo: noticia.tipo, 
+        titulo: noticia.titulo,
+        categoria: noticia.categoria,
+        descripcion: noticia.descripcion
+      });
+      
+      // Si es un evento y no tiene título, usar el título del evento
+      if (noticia.tipo === 'evento' && !titulo) {
+        titulo = noticia.tipo === 'evento' ? 'Evento ' + (index + 1) : '';
+      }
+      
+      return {
+        imagen: noticia.imagen,
+        titulo: titulo,
+        descripcion: noticia.descripcion,
+        url: noticia.url || noticia.enlace,
+        estilo: noticia.estilo || 'primary',
+        fecha: noticia.fecha,
+        categoria: noticia.categoria,
+        tipo: noticia.tipo || 'noticia',
+        _index: index // Para debugging
+      };
+    });
+    
+    console.log('Mapped cards:', mappedCards);
+    return mappedCards;
   }
   
   // Si estamos trabajando con tarjetas (formato original)
   if (block?.tarjetas && Array.isArray(block.tarjetas)) {
-    return block.tarjetas;
+    console.log('Using tarjetas format:', block.tarjetas);
+    return block.tarjetas.map((tarjeta, index) => ({
+      ...tarjeta,
+      _index: index
+    }));
   }
   
-  // Fallback para asegurar que siempre devuelve un array
+  console.warn('No cards found in block');
   return [];
 });
 
-// Ya no necesitamos estas funciones con el scroll horizontal
+// Función mejorada para obtener URL de imagen con mejor manejo de ngrok
+function getImageUrl(card) {
+  // Asegurarnos de que hay una imagen para procesar
+  if (!card.imagen) {
+    console.log('Card sin imagen:', card.titulo || 'Sin título');
+    return null;
+  }
+  
+  // Extraer la URL de la imagen según estructura
+  let imageUrl = null;
+  
+  if (typeof card.imagen === 'string') {
+    imageUrl = card.imagen;
+  } else if (card.imagen.url) {
+    imageUrl = card.imagen.url;
+  } else if (card.imagen.src) {
+    imageUrl = card.imagen.src;
+  }
 
-// Funciones de utilidad simplificadas
+  // Verificar que se encontró una URL
+  if (!imageUrl) {
+    console.log('No se encontró URL para la imagen:', card);
+    return null;
+  }
+  
+  console.log('URL original de la imagen:', imageUrl);
+
+  // Si ya es una URL absoluta
+  if (imageUrl.startsWith('http')) {
+    return `/api/proxy-image?url=${encodeURIComponent(imageUrl)}`;
+  }
+  
+  // Si es una ruta relativa
+  const path = imageUrl.startsWith('/') ? imageUrl : `/${imageUrl}`;
+  const absoluteUrl = `${props.apiBaseUrl}${path}`;
+  
+  return `/api/proxy-image?url=${encodeURIComponent(absoluteUrl)}`;
+}
+
+// Manejo simplificado de errores de imágenes
+function handleImageError(evt, card, index) {
+  const title = card.titulo || 'Sin título';
+  console.error(`Error de imagen para tarjeta "${title}". URL fallida:`, evt.target.src);
+  
+  // Identificar la imagen por índice y título
+  const imageKey = `${index}_${title.replace(/\s+/g, '_')}`;
+  
+  if (!imageStates[imageKey]) {
+    imageStates[imageKey] = { attempts: 0, failed: false };
+  }
+  
+  imageStates[imageKey].attempts += 1;
+  const { attempts } = imageStates[imageKey];
+  
+  // Sistema de reintentos con alternativas de URL
+  let newUrl = null;
+  
+  if (attempts === 1 && card.imagen) {
+    // Primer intento: Cargar directo desde la API sin proxy
+    let imageUrl = null;
+    
+    // Obtener URL base de la imagen
+    if (typeof card.imagen === 'string') {
+      imageUrl = card.imagen;
+    } else if (card.imagen.url) {
+      imageUrl = card.imagen.url;
+    } else if (card.imagen.src) {
+      imageUrl = card.imagen.src;
+    }
+    
+    if (imageUrl) {
+      // Si es una ruta relativa, construir URL completa
+      if (!imageUrl.startsWith('http')) {
+        const path = imageUrl.startsWith('/') ? imageUrl : `/${imageUrl}`;
+        newUrl = `${props.apiBaseUrl}${path}`;
+        console.log(`Reintento 1: Cargando directamente desde API: ${newUrl}`);
+      } else {
+        // Si es absoluta, intentar directamente
+        newUrl = imageUrl;
+        console.log(`Reintento 1: Cargando URL absoluta directa: ${newUrl}`);
+      }
+    }
+  } else if (attempts === 2) {
+    // Segundo intento: Usar una URL alternativa si está disponible
+    if (props.fallbackUrl) {
+      newUrl = props.fallbackUrl;
+      console.log(`Reintento 2: Usando URL de respaldo: ${newUrl}`);
+    }
+  } else {
+    // Tercer intento o posterior: marcar como fallida definitivamente
+    console.log(`Todos los reintentos fallidos para la imagen de la tarjeta "${title}". Usando imagen de respaldo.`);
+    imageStates[imageKey].failed = true;
+    
+    // Usar imagen de respaldo SVG local
+    newUrl = '/img/placeholder-image.svg';
+  }
+  
+  // Si tenemos una nueva URL para intentar, actualizar la src
+  if (newUrl) {
+    evt.target.src = newUrl;
+  } else {
+    // Si no tenemos alternativa, marcar como fallida
+    imageStates[imageKey].failed = true;
+  }
+  
+  // Marcar como fallida después de todos los intentos
+  if (imageStates[imageKey].attempts >= 3) {
+    imageStates[imageKey].failed = true;
+    console.log('Image definitively failed after all attempts for card:', card.titulo || 'Sin título');
+    
+    // Mostrar imagen de respaldo si está disponible
+    if (props.fallbackImage) {
+      console.log('Using fallback image');
+      evt.target.src = props.fallbackImage;
+    }
+  }
+}
+
+function handleImageLoad(evt, card, index) {
+  console.log('Image loaded successfully for card:', card.titulo);
+  const imageKey = `${index}_${card.titulo}`;
+  if (imageStates[imageKey]) {
+    imageStates[imageKey].failed = false;
+  }
+}
+
+// Funciones de utilidad
 function isExternalLink(url) {
-  return url?.startsWith('http') || url?.startsWith('//');
+  if (!url || url === '#') return false;
+  
+  // Si la URL no comienza con http o //, no es externa
+  if (!url.startsWith('http') && !url.startsWith('//')) return false;
+  
+  // Si estamos en el cliente, verificar si el dominio es diferente
+  if (process.client) {
+    try {
+      const urlObj = new URL(url.startsWith('//') ? `https:${url}` : url);
+      return urlObj.hostname !== window.location.hostname;
+    } catch (e) {
+      console.error('Error al verificar si la URL es externa:', e);
+    }
+  }
+  
+  // Por defecto, considerar como externo si comienza con http o //
+  return true;
 }
 
 function getCardUrl(card) {
+  // Obtener la URL del card
   let url = card.url || card.enlace || '#';
+  const originalUrl = url; // Guardar la URL original para logs
   
-  // Transformar URLs de 127.0.0.1:8000 a localhost:3000
-  if (url && url.includes('127.0.0.1:8000')) {
-    url = url.replace('127.0.0.1:8000', 'localhost:3000');
+  // Si no hay URL o es #, devolver tal cual
+  if (!url || url === '#') return url;
+  
+  // Mostrar la URL original para depuración
+  console.log('URL original:', url);
+  
+  // Si la URL comienza con http:// o https://, procesar
+  if (url.startsWith('http://') || url.startsWith('https://')) {
+    try {
+      // Crear un objeto URL para manipular fácilmente sus partes
+      const urlObj = new URL(url);
+      
+      // Verificar si es del mismo dominio (127.0.0.1:8000)
+      if (process.client) {
+        const currentHost = window.location.hostname;
+        const currentPort = window.location.port;
+        
+        console.log('Dominio actual:', currentHost, 'Puerto actual:', currentPort);
+        console.log('Dominio URL:', urlObj.hostname, 'Puerto URL:', urlObj.port);
+        
+        // Si es del mismo dominio, extraer solo la ruta
+        if (urlObj.hostname === currentHost) {
+          url = urlObj.pathname;
+          console.log('URL convertida a ruta relativa:', url);
+        }
+      }
+    } catch (e) {
+      console.error('Error al procesar URL externa:', e);
+      return url; // Devolver la URL original en caso de error
+    }
   }
+  
+  // Si la URL comienza con /es/ o similar, eliminar el prefijo de idioma
+  if (url.match(/^\/[a-z]{2}\//)) {
+    url = url.substring(3); // Eliminar los primeros 3 caracteres (ej: /es/)
+    console.log('URL sin prefijo de idioma:', url);
+  }
+  
+  // Forzar que la URL sea relativa (sin dominio)
+  if (url.startsWith('http://127.0.0.1:8000')) {
+    url = url.replace('http://127.0.0.1:8000', '');
+    console.log('URL forzada a relativa (127.0.0.1):', url);
+  }
+  
+  // Mostrar la URL final para depuración
+  console.log(`URL procesada: ${originalUrl} -> ${url}`);
   
   return url;
 }
 
-function getTitleColor(style) {
-  return {
-    'primary': 'dark',
-    'secondary': 'white',
-    'dark': 'white',
-    'warning': 'dark',
-    'negative': 'white',
-    'info': 'white',
-    'accent': 'white'
-  }[style] || 'dark';
+function getButtonColor(style) {
+  return style || 'primary';
 }
 
-function getButtonColor(style) {
+// Función para obtener el color del título según el estilo
+function getTitleColor(style) {
   return style || 'primary';
 }
 
@@ -226,17 +494,10 @@ function formatDate(dateString) {
   }
 }
 
-// Función para sanitizar HTML
-function sanitizeHtml(html) {
-  if (!html) return '';
-  return html;
-}
-
 // Función para obtener clases de Quasar según el estilo
 function getCardClasses(style) {
   const baseClasses = ['shadow-3'];
   
-  // Agregar clases según el estilo
   switch(style) {
     case 'primary':
       return [...baseClasses, 'bg-white', 'border-top', 'border-primary', 'border-3'];
@@ -267,162 +528,39 @@ const blockTitle = computed(() => {
 </script>
 
 <style scoped>
-/* Estilos para la sección de noticias */
-.news-section {
-  padding-top: 3rem;
-  padding-bottom: 3rem;
-  background-color: #ffffff;
-}
-
-/* Contenedor principal del carousel */
-.carousel-container {
+/* Contenedor de imagen con marco visible */
+.image-container {
   position: relative;
-  width: 100%;
+  overflow: hidden;
+  border: 1px solid rgb(7, 7, 7);
+  box-shadow: 0 1px 3px rgba(0,0,0,0.1);
 }
 
-/* Contenedor horizontal con scroll */
-.news-row-container {
-  display: flex;
-  overflow-x: auto;
-  overflow-y: hidden;
-  scroll-behavior: smooth;
-  -webkit-overflow-scrolling: touch;
-  padding: 10px 0 30px;
-  margin: 0 -15px;
-  flex: 1;
-  scrollbar-width: thin;
-  scrollbar-color: #ccc transparent;
-  /* Ocultar scrollbar en navegadores pero mantener funcionalidad */
-  -ms-overflow-style: none; /* IE y Edge */
+/* Custom CSS for q-img to ensure proper content display */
+.q-img {
+  object-fit: cover;
+  border-bottom: 2px solid #e0e0e0;
+  /* Eliminada la transición ya que no hay efecto hover */
 }
 
-/* Contenedor para los botones de control en la cabecera */
-.control-buttons {
-  display: flex;
-  align-items: center;
-}
-
-.control-buttons .q-btn {
+/* Establish hover-opacity-100 class for hover effects */
+.opacity-80 {
   opacity: 0.8;
-  transition: all 0.2s ease;
 }
 
-.control-buttons .q-btn:hover {
+.hover-opacity-100:hover {
   opacity: 1;
   transform: scale(1.1);
 }
 
-.news-row-container::-webkit-scrollbar {
-  height: 6px;
-}
-
-.news-row-container::-webkit-scrollbar-track {
-  background: transparent;
-}
-
-.news-row-container::-webkit-scrollbar-thumb {
-  background-color: #ccc;
-  border-radius: 10px;
-}
-
-/* Wrapper de tarjeta individual */
-.news-card-wrapper {
-  flex: 0 0 auto;
-  width: 300px;
-  margin-right: 20px;
-  padding: 5px;
-  transition: all 0.3s ease;
-}
-
-/* Estilos de tarjetas */
-.news-card {
-  transition: all 0.3s ease;
-  height: 100%;
-  display: flex;
-  flex-direction: column;
-  border-radius: 8px;
-  overflow: hidden;
-  background-color: #fff;
-  border: 1px solid #e0e0e0;
-  box-shadow: 0 3px 8px rgba(0, 0, 0, 0.05);
-  min-height: 380px;
-}
-
-.news-card:hover {
-  transform: translateY(-8px);
-  box-shadow: 0 12px 20px rgba(0, 0, 0, 0.15);
-}
-
-/* Imagen de la noticia */
-.news-image {
-  position: relative;
-  overflow: hidden;
-  height: 160px;
-}
-
-.news-image img {
-  width: 100%;
-  height: 100%;
-  object-fit: cover;
-  transition: transform 0.5s;
-}
-
-.news-image:hover img {
-  transform: scale(1.05);
-}
-
-.empty-image {
-  height: 180px;
-  background-color: #f5f5f5;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-}
-
-/* Contenido de la noticia */
-.news-content {
-  flex-grow: 1;
-  display: flex;
-  flex-direction: column;
-  padding: 1rem;
-}
-
-/* Estilo para badges de categoría */
-.categoria-badge {
-  background-color: var(--q-primary);
-  color: white;
-  padding: 2px 8px;
-  border-radius: 4px;
-  white-space: nowrap;
-  max-width: 120px;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  font-size: 0.7rem;
-  text-transform: uppercase;
-}
-
-/* Botón Ver más */
-.view-more-btn {
-  font-size: 0.9rem;
-  margin-top: auto;
-  align-self: flex-start;
-  transition: all 0.2s ease;
+/* Enable smooth scrolling */
+.scroll-smooth {
+  scroll-behavior: smooth;
 }
 
 .view-more-btn:hover .q-icon {
   transform: translateX(3px);
   transition: transform 0.3s;
-}
-
-/* Asegurar alturas consistentes para descripciones */
-.descripcion-wrapper {
-  min-height: 4.5em; /* Para 3 líneas */
-  display: -webkit-box;
-  -webkit-line-clamp: 3;
-  -webkit-box-orient: vertical;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  line-height: 1.5;
 }
 
 /* Controles de navegación */
@@ -444,5 +582,14 @@ const blockTitle = computed(() => {
 /* Otros estilos */
 .q-btn.view-more-btn {
   margin-top: 10px;
+}
+
+/* Asegurar que las imágenes ocupen todo el espacio disponible */
+.full-width {
+  width: 100%;
+}
+
+.full-height {
+  height: 100%;
 }
 </style>

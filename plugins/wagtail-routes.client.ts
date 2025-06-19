@@ -49,7 +49,7 @@ export default defineNuxtPlugin(async (nuxtApp) => {
             router.addRoute({
               ...route,
               // Usar una función para resolver el componente correctamente
-              component: () => import('../pages/dynamic/[...slug].vue')
+              component: () => import('../pages/[...slug].vue')
             })
             console.log(`Ruta añadida: ${route.path} -> ${route.meta?.pageId}`)
           } catch (e) {

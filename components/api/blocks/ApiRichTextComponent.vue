@@ -1,7 +1,11 @@
 <template>
-  <section :id="'rich-text-' + (id || Math.random().toString(36).substring(2, 9))" class="q-my-xl q-mx-auto q-px-md" style="max-width: 800px; width: 100%; overflow-wrap: break-word; word-wrap: break-word; word-break: break-word; hyphens: auto;">
-    <div v-if="content" class="text-body1" style="color: #333; line-height: 1.7;" v-html="processedContent"></div>
-    <div v-else class="text-center q-pa-md text-grey-7">
+  <section :id="'rich-text-' + (id || Math.random().toString(36).substring(2, 9))" class="q-my-xl q-mx-auto q-px-md rich-text-container">
+    <div 
+      v-if="content" 
+      :class="['certiffy-text rich-text-content', textAlignmentClass]"
+      v-html="processedContent"
+    ></div>
+    <div v-else class="text-center q-pa-md text-grey-7 certiffy-text-sm">
       No hay contenido disponible
     </div>
   </section>
@@ -34,8 +38,13 @@ const content = computed(() => {
   
   // Si el valor es un objeto, buscamos una propiedad que pueda contener HTML
   if (typeof props.block.value === 'object') {
+    // Caso especial para parrafo_con_alineacion
+    if (props.block.type === 'parrafo_con_alineacion' && props.block.value.texto) {
+      return props.block.value.texto;
+    }
+    
     // Buscar en propiedades comunes donde podría estar el contenido
-    const possibleContentProps = ['content', 'text', 'html', 'value'];
+    const possibleContentProps = ['content', 'text', 'texto', 'html', 'value'];
     
     for (const prop of possibleContentProps) {
       if (props.block.value[prop]) {
@@ -47,52 +56,38 @@ const content = computed(() => {
   return '';
 });
 
-// Procesar el contenido para aplicar clases de Quasar a los elementos HTML
+// Determinar la clase de alineación de texto
+const textAlignmentClass = computed(() => {
+  // Verificar si es un bloque de párrafo con alineación
+  if (props.block.type === 'parrafo_con_alineacion' && 
+      props.block.value && 
+      props.block.value.alineacion) {
+    
+    // Mapear la alineación a clases de Quasar
+    const alignment = props.block.value.alineacion.toLowerCase();
+    switch (alignment) {
+      case 'left':
+        return 'text-left';
+      case 'center':
+        return 'text-center';
+      case 'right':
+        return 'text-right';
+      case 'justify':
+        return 'text-justify';
+      default:
+        return ''; // Sin clase adicional si no coincide
+    }
+  }
+  
+  return ''; // Sin clase adicional por defecto
+});
+
+// Procesar el contenido para aplicar las clases estandarizadas de rich-text.css
 const processedContent = computed(() => {
   if (!content.value) return '';
   
-  // Creamos un elemento temporal para manipular el HTML
-  const tempDiv = document.createElement('div');
-  tempDiv.innerHTML = content.value;
-  
-  // Aplicar estilos a los encabezados
-  const headings = tempDiv.querySelectorAll('h1, h2, h3, h4, h5, h6');
-  headings.forEach(heading => {
-    heading.classList.add('text-primary', 'text-weight-bold', 'q-mt-md', 'q-mb-sm');
-    heading.style.maxWidth = '100%';
-    heading.style.overflowWrap = 'break-word';
-  });
-  
-  // Aplicar estilos a los párrafos
-  const paragraphs = tempDiv.querySelectorAll('p');
-  paragraphs.forEach(p => {
-    p.classList.add('q-mb-md');
-    p.style.maxWidth = '100%';
-    p.style.overflowWrap = 'break-word';
-  });
-  
-  // Aplicar estilos a las listas
-  const lists = tempDiv.querySelectorAll('ul, ol');
-  lists.forEach(list => {
-    list.classList.add('q-ml-lg', 'q-mb-lg');
-  });
-  
-  // Aplicar estilos a los enlaces
-  const links = tempDiv.querySelectorAll('a');
-  links.forEach(link => {
-    link.classList.add('text-primary', 'q-transition');
-    link.classList.add('q-hoverable');
-    link.style.textDecoration = 'none';
-  });
-  
-  // Aplicar estilos a las imágenes
-  const images = tempDiv.querySelectorAll('img');
-  images.forEach(img => {
-    img.classList.add('q-mb-md', 'q-mt-sm');
-    img.style.maxWidth = '100%';
-    img.style.height = 'auto';
-  });
-  
-  return tempDiv.innerHTML;
+  // Simplemente devolvemos el contenido sin modificaciones
+  // ya que los estilos se aplicarán a través de CSS en rich-text.css
+  return content.value;
 });
 </script>

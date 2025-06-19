@@ -1,23 +1,27 @@
 <template>
-  <section :id="'image-component-' + (id || Math.random().toString(36).substring(2, 9))" class="q-my-xl q-mx-auto" :style="{ maxWidth: fullWidth ? '100%' : '800px', width: '100%' }">
+  <section 
+    :id="'image-component-' + (id || Math.random().toString(36).substring(2, 9))" 
+    class="q-my-xl q-mx-auto certiffy-image-container"
+    :class="fullWidth ? 'certiffy-image-fullwidth' : 'certiffy-image-standard'"
+  >
     <q-img
       v-if="imageUrl"
       :src="imageUrl"
       :alt="imageAlt"
       :ratio="imageRatio"
       fit="contain"
-      class="rounded-borders"
+      class="certiffy-image"
       spinner-color="primary"
       @error="handleImageError"
     >
       <template v-slot:error>
-        <div class="bg-grey-2 flex flex-center column full-width" style="height: 300px; border-radius: 8px;">
+        <div class="certiffy-image-error">
           <q-icon name="image" size="3rem" color="grey-7" />
-          <div class="q-mt-sm text-subtitle1 text-grey-7">{{ imageAlt || 'Imagen no disponible' }}</div>
+          <div class="q-mt-sm certiffy-text-sm">{{ imageAlt || 'Imagen no disponible' }}</div>
         </div>
       </template>
     </q-img>
-    <div v-if="showCaption && imageAlt" class="text-center q-mt-sm text-caption text-italic text-grey-8">
+    <div v-if="showCaption && imageAlt" class="certiffy-image-caption">
       {{ imageAlt }}
     </div>
   </section>

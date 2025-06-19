@@ -1,7 +1,5 @@
 <template>
-  <div class="dynamic-block-renderer">
-
-    
+  <div class="w-100">
     <!-- CASOS ESPECIALES: Algunos componentes tienen lógica especial de renderizado -->
     <!-- Caso especial: Carrusel -->
     <ApiCarouselComponent 
@@ -12,43 +10,95 @@
       :showCarousel="true"
       :showVideo="true"
       :customImageUrlFunction="(image) => `/api/proxy-image?url=${encodeURIComponent(image && image.url ? image.url : '')}`"
-
+      :key="`carousel-${block.id || Math.random()}`"
     />
     
     <!-- Caso especial: Video -->
     <ApiVideoComponent 
-      v-else-if="block && block.type && block.type.toLowerCase() === 'video'"
+      v-if="block && block.type && block.type.toLowerCase() === 'video'"
       :block="block"
       :blocks="[block]"
       :api-base-url="apiBaseUrl"
       :title="blockTitle"
+      :key="`video-${block.id || Math.random()}`"
     />
     
     <!-- CASO GENERAL: Para todos los demás componentes registrados -->
     <component 
-      v-else-if="block && block.type && componentExists(block.type)"
+      v-if="block && block.type && componentExists(block.type)"
       :is="getComponentForBlockType(block.type)" 
       :block="block"
       :api-base-url="apiBaseUrl"
+      :key="`component-${block.type}-${block.id || Math.random()}`"
     />
     
     <!-- Fallback cuando no se encuentra un componente registrado -->
-    <div v-else-if="block && block.type" class="unknown-block-type q-pa-md">
-      <div class="text-caption text-grey-7 text-center">
-        <q-icon name="warning" color="amber" />
-        Tipo de bloque no registrado: {{ block.type }}
-      </div>
-      <pre v-if="debugMode" class="debug-info q-mt-sm">{{ JSON.stringify(block, null, 2) }}</pre>
-    </div>
+    <q-card 
+      v-else-if="block && block.type" 
+      flat 
+      bordered 
+      class="q-my-sm bg-amber-1"
+    >
+      <q-card-section class="q-py-sm">
+        <div class="row items-center justify-center text-grey-8">
+          <q-icon name="warning" color="amber" class="q-mr-sm" />
+          <span>Tipo de bloque no registrado: {{ block.type }}</span>
+        </div>
+      </q-card-section>
+      
+      <q-card-section v-if="debugMode" class="q-py-xs">
+        <q-expansion-item
+          dense
+          label="Detalles del bloque"
+          header-class="text-amber-9"
+          switch-toggle-side
+        >
+          <q-card>
+            <q-card-section class="q-pa-sm">
+              <pre class="text-grey-8 bg-grey-1 q-pa-md rounded-borders text-caption" style="overflow: auto; max-height: 200px;">{{ JSON.stringify(block, null, 2) }}</pre>
+            </q-card-section>
+          </q-card>
+        </q-expansion-item>
+      </q-card-section>
+    </q-card>
     
     <!-- Fallback para bloque sin tipo -->
-    <div v-else-if="block" class="invalid-block q-pa-md">
-      <div class="text-caption text-negative text-center">
-        <q-icon name="error" color="negative" />
-        Bloque sin tipo definido
-      </div>
-      <pre v-if="debugMode" class="debug-info q-mt-sm">{{ JSON.stringify(block, null, 2) }}</pre>
-    </div>
+    <q-card 
+      v-else-if="block" 
+      flat 
+      bordered 
+      class="q-my-sm bg-negative-1"
+    >
+      <q-card-section class="q-py-sm">
+        <div class="row items-center justify-center text-negative">
+          <q-icon name="error" color="negative" class="q-mr-sm" />
+          <span>Bloque sin tipo definido</span>
+        </div>
+      </q-card-section>
+      
+      <q-card-section v-if="debugMode" class="q-py-xs">
+        <q-expansion-item
+          dense
+          label="Detalles del bloque"
+          header-class="text-negative"
+          switch-toggle-side
+        >
+          <q-card>
+            <q-card-section class="q-pa-sm">
+              <pre class="text-grey-8 bg-grey-1 q-pa-md rounded-borders text-caption" style="overflow: auto; max-height: 200px;">{{ JSON.stringify(block, null, 2) }}</pre>
+            </q-card-section>
+          </q-card>
+        </q-expansion-item>
+      </q-card-section>
+    </q-card>
+    
+    <!-- Caso para cuando no hay bloque -->
+    <q-card v-else flat bordered class="q-my-sm bg-grey-2">
+      <q-card-section class="q-py-sm text-center text-grey-7">
+        <q-icon name="info" color="grey-7" class="q-mr-sm" />
+        <span>No hay contenido para mostrar</span>
+      </q-card-section>
+    </q-card>
   </div>
 </template>
 
@@ -56,23 +106,8 @@
 import { computed, onMounted, watch } from 'vue';
 import { useComponentRegistry } from '~/composables/useComponentRegistry';
 
-// Importar el registro centralizado de componentes
-import { registerAllComponents, getComponentByType, hasComponentForType as registryHasComponent } from '../registry.js';
-
-// Registro siempre antes de cualquier renderizado
-registerAllComponents();
-
-// Debug helpers
-function componentExists(type) {
-  const exists = registryHasComponent(type);
-  console.log('[DynamicBlockRenderer] Tipo:', type, '¿Registrado?', exists);
-  return exists;
-}
-function getComponentForBlockType(type) {
-  const comp = getComponentByType(type);
-  console.log('[DynamicBlockRenderer] Componente para', type, ':', comp);
-  return comp;
-}
+// Importar el registro de componentes API
+import { registerAllComponents, getComponentByType, hasComponentForType as hasApiComponentForType } from '~/components/api/registry';
 
 // Componentes para casos especiales que necesitan tratamiento específico
 import ApiCarouselComponent from '../feature-blocks/ApiCarouselComponent.vue';
@@ -87,6 +122,23 @@ const {
   setFallbackComponent
 } = useComponentRegistry();
 
+// Debug helpers
+function componentExists(type) {
+  // Normalizar el tipo a minúsculas para buscar en el registro
+  const normalizedType = type.toLowerCase();
+  const exists = hasComponentForType(normalizedType);
+  console.log('[DynamicBlockRenderer] Tipo:', type, 'Normalizado:', normalizedType, '¿Registrado?', exists);
+  return exists;
+}
+
+function getComponentForBlockType(type) {
+  // Normalizar el tipo a minúsculas para buscar en el registro
+  const normalizedType = type.toLowerCase();
+  const comp = getComponentForType(normalizedType);
+  console.log('[DynamicBlockRenderer] Componente para', type, 'Normalizado:', normalizedType, ':', comp);
+  return comp;
+}
+
 // Props para el componente
 const props = defineProps({
   block: {
@@ -97,7 +149,6 @@ const props = defineProps({
     type: String,
     default: ''
   },
-
 });
 
 // Extraer el título del bloque si existe
@@ -121,15 +172,13 @@ onMounted(() => {
   // Establecer un fallback para componentes no encontrados
   setFallbackComponent('div');
   
-  // Registrar todos los componentes del registro centralizado en el registro local
+  // Registrar componentes API
   registerAllComponents(registerComponent);
   
   // Si tenemos un bloque con tipo, intentar detectar el componente
   if (props.block && props.block.type) {
     detectNewComponent(props.block.type);
   }
-  
-
 });
 
 // Observar cambios en el bloque para detectar nuevos tipos
@@ -138,34 +187,6 @@ watch(() => props.block?.type, (newType) => {
     detectNewComponent(newType);
   }
 });
-
-/**
-const getComponentForBlockType = (blockType) => {
-  if (!blockType) return 'div';
-  
-  // Normalizar el tipo a minúsculas
-  const normalizedType = blockType.toLowerCase();
-  
-  // Primero intentar obtener del registro local
-  const localComponent = getComponentForType(normalizedType);
-  if (localComponent && localComponent !== 'div') {
-    return localComponent;
-  }
-  
-  // Si no está en el registro local, intentar del registro centralizado
-  const centralComponent = getComponentByType(normalizedType);
-  if (centralComponent) {
-    // Registrarlo en el registro local para futuros usos
-    registerComponent(normalizedType, centralComponent);
-    return centralComponent;
-  }
-  
-  // Si no se encontró, intentar detectar dinámicamente
-  detectNewComponent(normalizedType);
-  
-  // Retornar fallback
-  return 'div';
-};
 
 /**
  * Intenta detectar y registrar un nuevo componente basado en convenciones de nombres
@@ -187,8 +208,6 @@ const detectNewComponent = (blockType) => {
       `Api${pascalCaseType.charAt(0).toUpperCase()}${pascalCaseType.slice(1)}`
     ];
     
-
-    
     // Nota: La importación dinámica requiere configuración de Vite/Webpack
     // En una implementación real, se podría usar:
     // import(`../blocks/Api${pascalCaseType.charAt(0).toUpperCase()}${pascalCaseType.slice(1)}Component.vue`)
@@ -204,33 +223,4 @@ const detectNewComponent = (blockType) => {
 };
 </script>
 
-<style scoped>
-.dynamic-block-renderer {
-  width: 103%;
-}
-
-.unknown-block-type {
-  background-color: #fffbf0;
-  border: 1px dashed #ffc107;
-  border-radius: 8px;
-  margin: 0.5rem 0;
-}
-
-.invalid-block {
-  background-color: #fff0f0;
-  border: 1px dashed #f44336;
-  border-radius: 8px;
-  margin: 0.5rem 0;
-}
-
-.debug-info {
-  background-color: #f5f5f5;
-  border-radius: 4px;
-  padding: 0.5rem;
-  font-family: monospace;
-  font-size: 0.75rem;
-  white-space: pre-wrap;
-  overflow-x: auto;
-  max-height: 200px;
-}
-</style>
+<!-- Eliminado todo el CSS personalizado y uso exclusivo de clases de Quasar -->

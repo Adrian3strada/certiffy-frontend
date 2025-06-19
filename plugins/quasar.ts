@@ -1,9 +1,32 @@
-import { Quasar, Notify, Dialog, Loading, LoadingBar, LocalStorage } from 'quasar'
-import * as components from 'quasar'
+import { Quasar, Notify, Dialog, Loading, LoadingBar, LocalStorage } from 'quasar';
+import * as components from 'quasar';
+import { defineNuxtPlugin } from '#app';
 
 // Import icon sets
-import '@quasar/extras/material-icons/material-icons.css'
-import '@quasar/extras/mdi-v5/mdi-v5.css'
+import '@quasar/extras/material-icons/material-icons.css';
+import '@quasar/extras/mdi-v5/mdi-v5.css';
+
+interface QuasarIconSet {
+  name: string;
+  arrow: {
+    dropdown: string;
+    left: string;
+    right: string;
+    up: string;
+    down: string;
+  };
+  carousel: {
+    left: string;
+    right: string;
+    up: string;
+    down: string;
+    navigation: string;
+  };
+  tabs: {
+    left: string;
+    right: string;
+  };
+}
 
 export default defineNuxtPlugin((nuxtApp) => {
   // Solo ejecutar en el cliente para evitar errores de SSR
@@ -24,10 +47,10 @@ export default defineNuxtPlugin((nuxtApp) => {
         },
         brand: {
           // Colores principales del diseño
-          primary: '#0a1a42',   // Azul marino (anteriormente certiffy-azul-marino)
-          secondary: '#8FB4A2', // Verde (anteriormente certiffy-verde)
-          accent: '#FFB901',    // Amarillo (anteriormente certiffy-amarillo)
-          warning: '#DFBB43',   // Dorado (anteriormente certiffy-dorado)
+          primary: '#0a1a42',   // Azul marino
+          secondary: '#8FB4A2', // Verde
+          accent: '#FFB901',    // Amarillo
+          warning: '#DFBB43',   // Dorado
           
           // Colores de sistema
           dark: '#1D1D1D',
@@ -63,10 +86,10 @@ export default defineNuxtPlugin((nuxtApp) => {
           left: 'chevron_left',
           right: 'chevron_right'
         }
-      },
+      } as QuasarIconSet,
       extras: {
         fontIcons: ['mdi-v5']
       }
-    })
+    });
   }
-})
+});

@@ -1,40 +1,74 @@
 <template>
-  <section style="width: 101vw; position: relative; left: 50%; right: 50%; margin-left: -50vw; margin-right: -50vw; padding: 0; overflow-x: hidden;">
-    <!-- Banner Principal con la estructura que viene de la API -->
-    <div class="relative-position" style="min-height: 350px; overflow: hidden;">
-      <!-- Imagen de fondo -->
+  <q-parallax
+    :height="350"
+    :speed="0.5"
+  >
+    <template v-slot:media>
       <q-img
         :src="imagenUrl"
         spinner-color="primary"
-        class="absolute-full"
+        spinner-size="3em"
+        class="full-width full-height"
         fit="cover"
       >
-        <!-- Overlay con la información -->
-        <div class="absolute-full bg-primary" style="opacity: 0.75;"></div>
-        
-        <div class="absolute-center text-center full-width q-pa-md">
-          <h2 class="text-h3 text-white text-weight-bold q-mb-md">{{ titulo }}</h2>
-          <p class="text-subtitle1 text-white q-mb-lg">{{ descripcion }}</p>
-          
-          <!-- Botones de acción si existen -->
-          <div v-if="botones && botones.length" class="q-mt-lg">
-            <q-btn 
-              v-for="(boton, index) in botones" 
-              :key="index"
-              :label="boton.text"
-              :to="boton.url"
-              :color="boton.style || 'primary'"
-              outline
-              class="q-mx-sm q-transition"
-              no-caps
-              :class="{'scale-hover': $q.screen.gt.xs}"
-            />
+        <template v-slot:loading>
+          <div class="flex flex-center absolute-full bg-dark">
+            <q-spinner color="primary" size="3em" />
           </div>
-        </div>
+        </template>
+        <template v-slot:error>
+          <div class="flex flex-center absolute-full bg-dark">
+            <div class="column items-center">
+              <q-icon name="error" size="2rem" color="negative" />
+              <div class="text-negative q-mt-sm">Error al cargar la imagen</div>
+            </div>
+          </div>
+        </template>
       </q-img>
-    </div>
-  </section>
+    </template>
+    
+    <template v-slot:content>
+      <!-- Overlay con gradiente de color primario -->
+      <div class="absolute-full bg-primary" style="opacity: 0.75;"></div>
+      
+      <!-- Contenido centrado -->
+      <div class="absolute-center text-center q-pa-md full-width">
+        <h2 class="text-h3 text-white text-weight-bold q-mb-md text-shadow-1">{{ titulo }}</h2>
+        <p class="text-subtitle1 text-white q-mb-lg">{{ descripcion }}</p>
+        
+        <!-- Botones de acción si existen -->
+        <div v-if="botones && botones.length" class="q-mt-lg">
+          <q-btn 
+            v-for="(boton, index) in botones" 
+            :key="index"
+            :label="boton.text"
+            :to="boton.url"
+            :color="boton.style || 'white'"
+            :text-color="boton.style ? 'white' : 'primary'"
+            outline
+            class="q-mx-sm"
+            no-caps
+            unelevated
+            rounded
+            padding="sm md"
+          />
+        </div>
+      </div>
+    </template>
+  </q-parallax>
 </template>
+
+<style scoped>
+/* Corregir visualización de la imagen en q-parallax */
+:deep(.q-img) {
+  display: contents !important;
+}
+
+/* Asegurar que la imagen de fondo cubra todo el espacio */
+:deep(.q-parallax__media) {
+  overflow: hidden;
+}
+</style>
 
 <script setup>
 import { ref, computed, onMounted, onUnmounted } from 'vue';
@@ -96,28 +130,3 @@ const imagenUrl = computed(() => {
 });
 
 </script>
-
-<style scoped>
-/* Anular solo el fondo oscuro automático pero mantener otros efectos */
-:deep(.q-img) {
-  /* Mantenemos los efectos hover originales */
-  transition: all 0.3s ease-in-out;
-}
-
-:deep(.q-img__content > div:not(.absolute-full)) {
-  /* Removemos solo el fondo oscuro automático */
-  background: transparent !important;
-}
-
-/* Conservamos el fondo primario que se aplica explícitamente */
-:deep(.absolute-full.bg-primary) {
-  /* Este es el overlay que queremos mantener */
-  opacity: 0.75;
-  transition: opacity 0.3s ease;
-}
-
-:deep(.q-img:hover .absolute-full.bg-primary) {
-  /* Efecto hover para oscurecer un poco menos al pasar el ratón */
-  opacity: 0.65;
-}
-</style>

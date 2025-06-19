@@ -2,28 +2,65 @@
 import { ref, computed } from 'vue';
 import { useWagtailApi } from './useWagtailApi';
 import { useRuntimeConfig } from '#app';
+import { useNoCacheStrategy } from './useNoCacheStrategy';
+
+// Interfaces para TypeScript
+interface PageData {
+  id: number;
+  title: string;
+  meta?: {
+    slug: string;
+    html_url: string;
+    type: string;
+    parent?: {
+      id: number;
+    } | null;
+    search_description?: string;
+  };
+  content?: any;
+}
+
+interface SiteMapPage {
+  id: number;
+  title: string;
+  slug: string;
+  url: string;
+  type: string;
+  parent: number | null;
+}
+
+interface RouteInfo {
+  id: number;
+  slug: string;
+}
+
+interface KnownRoutes {
+  [key: string]: RouteInfo;
+}
 
 export function useDynamicPages() {
   // Obtener funciones del API de Wagtail
-  const { getDataFromUrl, getPageById: apiGetPageById } = useWagtailApi();
+  const { getDataFromUrl, getPageById } = useWagtailApi();
+  
+  // Obtener estrategias anti-caché
+  const { addNoCacheParams, generateUniqueKey } = useNoCacheStrategy();
   
   // Estado para manejar rutas y páginas
-  const pageCache = ref(new Map());
-  const siteMap = ref([]); // Lista de todas las páginas del sitio
-  const loading = ref(false);
-  const error = ref(null);
+  const pageCache = ref<Map<string, PageData>>(new Map());
+  const siteMap = ref<SiteMapPage[]>([]); 
+  const loading = ref<boolean>(false);
+  const error = ref<string | null>(null);
   
   // Mapa de rutas conocidas como referencia rápida para IDs comunes
-  // NOTA: Esto es solo una optimización, todas las páginas se detectan automáticamente
-  const KNOWN_ROUTES = {
+  const KNOWN_ROUTES: KnownRoutes = {
     '/': { id: 3, slug: 'certiffy' },          // Página principal
     '/certiffy': { id: 3, slug: 'certiffy' },  // Alias para la página principal
     '/noticias': { id: 14, slug: 'noticias' }, // Página de noticias
-    '/acerca-de': { id: 11, slug: 'acerca-de' }  // Página acerca de (ID actualizado según el JSON proporcionado)
+    '/acerca-de': { id: 11, slug: 'acerca-de' }  // Página acerca de
   };
   
   // Función para cargar todas las páginas del sitio
-  const loadSiteMap = async () => {
+  const loadSiteMap = async (): Promise<SiteMapPage[]> => {
     if (siteMap.value.length > 0) {
       // Ya tenemos el mapa del sitio cargado
       return siteMap.value;
@@ -32,22 +69,24 @@ export function useDynamicPages() {
     try {
       // Obtener todas las páginas desde la API
       const pagesUrl = `/api/v2/pages/`;
-      const result = await getDataFromUrl(pagesUrl);
+      // Añadir parámetros anti-caché a la URL
+      const noCacheUrl = addNoCacheParams(pagesUrl);
+      console.log(`[useDynamicPages] Cargando mapa del sitio con URL anti-caché: ${noCacheUrl}`);
+      const result = await getDataFromUrl(noCacheUrl);
       
       if (result && result.items && Array.isArray(result.items)) {
         // Procesar cada página
-        const processedPages = result.items.map(page => ({
+        const processedPages = result.items.map((page: PageData): SiteMapPage => ({
           id: page.id,
           title: page.title,
-          slug: page.meta.slug,
-          url: page.meta.html_url,
-          type: page.meta.type,
-          parent: page.meta.parent?.id || null
+          slug: page.meta?.slug || '',
+          url: page.meta?.html_url || '',
+          type: page.meta?.type || '',
+          parent: page.meta?.parent?.id || null
         }));
         
         // Guardar el mapa del sitio
         siteMap.value = processedPages;
-        console.log('Mapa del sitio cargado:', processedPages);
         return processedPages;
       }
       
@@ -60,41 +99,38 @@ export function useDynamicPages() {
   };
   
   // Obtener página por ID
-  const getPageById = async (id) => {
+  const getPageById = async (id: number | string): Promise<PageData | null> => {
     loading.value = true;
     error.value = null;
     
     try {
-      console.log(`Obteniendo página con ID: ${id}`);
-      
       // Verificar si ya tenemos la página en caché por ID
       const cachedPageEntry = Array.from(pageCache.value.entries()).find(
-        ([_, page]) => page.id === parseInt(id)
+        ([_, page]) => page.id === parseInt(id.toString())
       );
       
       if (cachedPageEntry) {
-        console.log(`Página con ID ${id} encontrada en caché`);
         loading.value = false;
         return cachedPageEntry[1];
       }
       
       // Construir la URL para obtener la página por su ID
       const pageUrl = `/api/v2/pages/${id}/`;
-      console.log(`Solicitando página a: ${pageUrl}`);
       
       // Usar el proxy para evitar problemas de CORS
       const runtimeConfig = useRuntimeConfig();
-      const proxyUrl = `/api/proxy-wagtail?url=${encodeURIComponent(runtimeConfig.public.apiBase + pageUrl)}`;
-      console.log(`URL del proxy: ${proxyUrl}`);
+      const baseProxyUrl = `/api/proxy-wagtail?url=${encodeURIComponent(runtimeConfig.public.apiBase + pageUrl)}`;
       
-      // Obtener la página desde la API usando el proxy
-      const data = await getDataFromUrl(proxyUrl);
+      // Añadir parámetros anti-caché a la URL
+      const noCacheUrl = addNoCacheParams(baseProxyUrl);
+      console.log(`[useDynamicPages] Obteniendo página con ID ${id} usando URL anti-caché: ${noCacheUrl}`);
+      
+      // Obtener la página desde la API usando el proxy con parámetros anti-caché
+      const data: PageData = await getDataFromUrl(noCacheUrl);
       
       if (!data) {
         throw new Error(`No se encontraron datos para la página con ID ${id}`);
       }
-      
-      console.log(`Datos recibidos para página ID ${id}:`, data.title);
       
       // Guardar en caché usando el slug
       if (data.meta && data.meta.slug) {
@@ -103,8 +139,7 @@ export function useDynamicPages() {
       
       loading.value = false;
       return data;
-    } catch (err) {
-      console.error(`Error al obtener página con ID ${id}:`, err);
+    } catch (err: any) {
       error.value = err.message;
       loading.value = false;
       return null;
@@ -112,7 +147,7 @@ export function useDynamicPages() {
   };
   
   // Buscar página por slug
-  const findPageBySlug = async (slug) => {
+  const findPageBySlug = async (slug: string): Promise<PageData | null> => {
     loading.value = true;
     error.value = null;
     
@@ -123,7 +158,7 @@ export function useDynamicPages() {
       // Verificar si ya tenemos la página en caché
       if (pageCache.value.has(normalizedSlug)) {
         loading.value = false;
-        return pageCache.value.get(normalizedSlug);
+        return pageCache.value.get(normalizedSlug) || null;
       }
       
       // Intentar cargar el mapa del sitio si no lo tenemos
@@ -153,8 +188,13 @@ export function useDynamicPages() {
       }
       
       // Buscar directamente en la API por slug
-      const searchUrl = `/api/v2/pages/?slug=${encodeURIComponent(normalizedSlug)}`;
-      const searchResult = await getDataFromUrl(searchUrl);
+      const baseSearchUrl = `/api/v2/pages/?slug=${encodeURIComponent(normalizedSlug)}`;
+      
+      // Añadir parámetros anti-caché a la URL
+      const noCacheUrl = addNoCacheParams(baseSearchUrl);
+      console.log(`[useDynamicPages] Buscando página con slug ${normalizedSlug} usando URL anti-caché: ${noCacheUrl}`);
+      
+      const searchResult = await getDataFromUrl(noCacheUrl);
       
       if (searchResult && searchResult.items && searchResult.items.length > 0) {
         const pageId = searchResult.items[0].id;
@@ -168,8 +208,7 @@ export function useDynamicPages() {
       
       // Si no se encuentra de ninguna forma, lanzar error
       throw new Error(`No se encontró una página con el slug: ${normalizedSlug}`);
-    } catch (err) {
-      console.error(`Error al buscar página con slug ${slug}:`, err);
+    } catch (err: any) {
       error.value = err.message;
       loading.value = false;
       return null;
@@ -177,7 +216,7 @@ export function useDynamicPages() {
   };
   
   // Obtener el ID de la página a partir de una ruta
-  const getPageIdFromRoute = async (route) => {
+  const getPageIdFromRoute = async (route: string): Promise<number> => {
     // Normalizar la ruta
     const normalizedRoute = route.endsWith('/') ? route.slice(0, -1) : route;
     
@@ -195,12 +234,11 @@ export function useDynamicPages() {
     }
     
     // Si no encontramos, devolvemos la página principal
-    console.warn(`No se encontró página para la ruta ${route}, redirigiendo a la página principal`);
     return 3; // ID de la página principal por defecto
   };
   
   // Obtener mapa del sitio (páginas y sus relaciones)
-  const getSiteMap = async () => {
+  const getSiteMap = async (): Promise<SiteMapPage[]> => {
     if (siteMap.value.length === 0) {
       await loadSiteMap();
     }

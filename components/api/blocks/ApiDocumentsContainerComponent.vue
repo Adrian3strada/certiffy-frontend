@@ -1,16 +1,16 @@
 <template>
-  <section :id="'documents-container-' + (id || Math.random().toString(36).substring(2, 9))" class="q-my-xl" style="max-width: 800px; margin-left: auto; margin-right: auto;">
-    <div class="q-mx-auto q-px-sm-none q-px-md">
-      <div v-if="title" class="text-h5 text-primary q-mb-md text-weight-bold" style="font-family: 'OpenSans-Bold', sans-serif;">
+  <section :id="'documents-container-' + (id || Math.random().toString(36).substring(2, 9))" class="q-my-lg" style="max-width: 800px; margin-left: auto; margin-right: auto;">
+    <div class="q-mx-auto q-px-md">
+      <div v-if="title" class="text-h6 text-weight-bold text-primary q-mb-md">
         {{ title }}
       </div>
       
-      <q-list separator class="q-py-md">
+      <q-list padding separator class="q-py-md">
         <q-item 
           v-for="(document, index) in documents" 
           :key="document.id || index"
-          class="q-pa-none q-mb-md q-transition"
-          style="width: 100%;"
+          class="q-pa-none q-mb-sm"
+          v-ripple
         >
           <ApiDocumentComponent 
             :block="document" 
@@ -52,4 +52,4 @@ const hasDocuments = computed(() => {
 });
 </script>
 
-
+<!-- Eliminamos el import CSS externo y solo usamos clases de Quasar -->

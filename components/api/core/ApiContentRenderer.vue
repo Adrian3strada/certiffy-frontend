@@ -1,19 +1,22 @@
 <template>
-  <div class="api-content-renderer no-padding">
-    <div v-if="loading" class="loading-container">
+  <div class="w-100" style="overflow-x: hidden;">
+    <!-- Estado de carga -->
+    <div v-if="loading" class="flex flex-center column" style="min-height: 300px;">
       <q-spinner color="primary" size="3rem" />
-      <div class="q-mt-md">Cargando contenido...</div>
+      <div class="q-mt-md text-body1 text-grey-7">Cargando contenido...</div>
     </div>
     
-    <div v-else-if="error" class="error-container">
+    <!-- Estado de error -->
+    <div v-else-if="error" class="flex flex-center column" style="min-height: 300px;">
       <q-icon name="error" color="negative" size="3rem" />
       <div class="text-negative q-mt-md">{{ error }}</div>
     </div>
     
-    <div v-else class="content-container">
+    <!-- Contenido cargado correctamente -->
+    <div v-else>
       <!-- Se eliminó el título para que no aparezca antes del hero banner -->
       
-      <div v-for="(block, index) in blocks" :key="block.id || index" class="content-block">
+      <div v-for="(block, index) in blocks" :key="block.id || index" class="q-mb-lg">
         <!-- Renderizado dinámico basado en el tipo de bloque -->
         <component 
           v-if="getComponent(block.type)" 
@@ -23,12 +26,26 @@
         />
         
         <!-- Fallback para tipos desconocidos -->
-        <div v-else class="unknown-block-type">
-          <div class="text-grey-7 text-center q-pa-md">
-            Tipo de bloque no soportado: {{ block.type }}
-          </div>
-          <pre v-if="debugMode" class="debug-info">{{ JSON.stringify(block, null, 2) }}</pre>
-        </div>
+        <q-card v-else bordered flat class="q-my-md bg-grey-2">
+          <q-card-section>
+            <div class="text-grey-7 text-center">
+              Tipo de bloque no soportado: {{ block.type }}
+            </div>
+          </q-card-section>
+          <q-card-section v-if="debugMode">
+            <q-expansion-item
+              label="Detalles del bloque"
+              header-class="text-primary"
+              switch-toggle-side
+            >
+              <q-card>
+                <q-card-section>
+                  <pre class="text-grey-8 bg-grey-1 q-pa-md rounded-borders" style="overflow: auto; max-height: 200px; font-size: 0.8rem;">{{ JSON.stringify(block, null, 2) }}</pre>
+                </q-card-section>
+              </q-card>
+            </q-expansion-item>
+          </q-card-section>
+        </q-card>
       </div>
     </div>
   </div>
@@ -125,65 +142,4 @@ onMounted(async () => {
 });
 </script>
 
-<style scoped>
-.api-content-renderer {
-  width: 100%;
-  min-height: 300px;
-}
-
-.api-content-renderer.no-padding {
-  padding: 0;
-  margin: 0;
-  max-width: 100vw;
-  overflow-x: hidden;
-}
-
-.page-title {
-  color: #005c5c;
-  font-size: 2.5rem;
-  font-weight: 700;
-  margin-bottom: 2rem;
-  text-transform: uppercase;
-}
-
-.loading-container,
-.error-container {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  min-height: 300px;
-  text-align: center;
-  color: #666;
-}
-
-.content-block {
-  margin-bottom: 2rem;
-}
-
-.unknown-block-type {
-  background-color: #f5f5f5;
-  border-radius: 8px;
-  margin: 1rem 0;
-  padding: 1rem;
-}
-
-.debug-info {
-  background-color: #eee;
-  border-radius: 4px;
-  padding: 1rem;
-  overflow: auto;
-  font-size: 0.8rem;
-  max-height: 200px;
-}
-
-@media (max-width: 600px) {
-  .page-title {
-    font-size: 2rem;
-  }
-  
-  .api-content-renderer {
-    padding: 1rem;
-  }
-}
-</style>
+<!-- Eliminamos todo el CSS personalizado y solo usamos clases de Quasar -->

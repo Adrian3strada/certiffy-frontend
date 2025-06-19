@@ -1,102 +1,214 @@
 <template>
-  <section class="testimonials-section relative-position overflow-hidden">
-    <!-- Carrusel de testimonios con diseño moderno (sin controles ni flechas) -->
+  <!-- Wrapper exterior para pantalla completa sin ocultar otros componentes -->
+  <div class="testimonials-container-fullwidth">
+    <!-- Carrusel de testimonios a pantalla completa sin controles -->
     <q-carousel
       v-model="activeSlide"
       animated
-      control-color="white"
-      class="full-height"
+      style="width: 100vw; height: 100vh; margin: 0; padding: 0;"
       :autoplay="5000"
       @mouseenter="pauseAutoplay"
       @mouseleave="resumeAutoplay"
       transition-prev="fade"
       transition-next="fade"
-      height="100vh"
       infinite
-      flat
     >
       <q-carousel-slide 
         v-for="(testimonio, index) in testimonios" 
         :key="index" 
         :name="index"
-        class="relative-position q-pa-none"
-        style="height: 100vh"
+        class="q-pa-none"
       >
-        <!-- Fondo del slide con degradado para mejorar legibilidad -->
+        <!-- Fondo del slide desde la propiedad fondo.url -->
         <div class="absolute-full">
           <q-img 
-            :src="getBackgroundUrl(testimonio.fondo || testimonio.imagen)" 
+            :src="getBackgroundUrl(testimonio.fondo)" 
             class="absolute-full"
             fit="cover"
+            spinner-color="primary"
+            spinner-size="3em"
           >
-            <!-- Overlay con gradiente para mejorar legibilidad -->
-            <div class="absolute-full" style="background: linear-gradient(90deg, rgba(0,0,100,0.85) 0%, rgba(0,0,100,0.7) 50%, rgba(0,0,100,0.5) 100%); z-index: 2;"></div>
+            <template v-slot:loading>
+              <div class="text-white bg-dark flex flex-center absolute-full">
+                <q-spinner size="3em" color="primary" />
+              </div>
+            </template>
+            <template v-slot:error>
+              <div class="text-white bg-dark flex flex-center absolute-full">
+                <div class="column items-center">
+                  <q-icon name="error" size="3em" color="negative" />
+                  <div class="q-mt-sm">Error al cargar la imagen</div>
+                </div>
+              </div>
+            </template>
+            
+            <!-- Overlay con gradiente utilizando clases de Quasar -->
+            <div class="absolute-full bg-blue-9" style="opacity: 0.85;"></div>
           </q-img>
         </div>
         
-        <div class="row items-center no-wrap relative-position q-pa-md q-pa-lg-xl full-height" style="z-index: 3">
-          <!-- Imagen de la persona (lado izquierdo) -->
-          <div class="col-12 col-md-6 flex flex-center full-height q-order-md-none q-order-sm-1" 
-               style="height: 40vh; min-height: 40vh">
-            <div class="flex justify-center items-center" style="width: 100%; height: 80%">
-              <q-img
-                v-if="testimonio.imagen && testimonio.imagen.url"
-                :src="`/api/proxy-image?url=${encodeURIComponent(testimonio.imagen.url)}`"
-                style="max-height: 90vh; max-width: 100%"
-                fit="contain"
-              />
-              <div v-else class="flex flex-center">
-                <q-icon name="person" size="15rem" color="white" />
-              </div>
-            </div>
+        <div class="row items-center justify-between full-height relative-position" style="z-index: 3">
+          <!-- Imagen de la persona (lado izquierdo) aún más grande -->
+          <div class="col-12 col-md-5 flex flex-center full-height" style="padding: 0;padding-left: 6rem;">
+            <q-img
+              v-if="testimonio.imagen && testimonio.imagen.url"
+              :src="`/api/proxy-image?url=${encodeURIComponent(testimonio.imagen.url)}`"
+              spinner-color="primary"
+              spinner-size="3em"
+              class="testimonial-image"
+              style="height: 90vh; max-height: none; width: 100%; max-width: none;"
+              fit="cover"
+            >
+              <template v-slot:loading>
+                <q-inner-loading showing>
+                  <q-spinner-dots size="3em" color="white" />
+                </q-inner-loading>
+              </template>
+              <template v-slot:error>
+                <div class="flex flex-center full-height">
+                  <q-icon name="error_outline" color="negative" size="2em" />
+                </div>
+              </template>
+            </q-img>
           </div>
           
           <!-- Cita testimonial (lado derecho) -->
-          <div class="col-12 col-md-6 flex flex-center flex-column full-height q-order-md-none q-order-sm-2"
-               style="height: 60vh; min-height: 60vh">
-            <div class="text-white q-pa-md q-pa-lg-xl" style="max-width: 800px; margin: 0 auto">
-              <div class="relative-position q-my-md q-py-xl q-px-md">
-                <!-- Comillas de apertura -->
-                <div class="absolute-top-left text-white text-opacity-60 text-weight-light" 
-                     style="font-size: 7rem; line-height: 1; font-family: 'Georgia', serif; top: -3rem; left: -1rem; z-index: 1;"
-                     :class="{'text-h2': $q.screen.lt.md}">
-                  &#8220;
+          <div class="col-12 col-md-7 flex flex-center full-height">
+            <div class="text-white q-pa-xl" style="max-width: 800px; position: relative;">
+              <!-- Texto del testimonio encerrado entre comillas -->
+              <div class="flex flex-center items-center full-height">
+                <div class="text-center q-px-md">
+                  <div class="quote-container">
+                    <!-- Comilla de apertura -->
+                    <q-icon name="format_quote" size="4rem" color="white" class="rotate-180 quote-open" />
+                    
+                    <div 
+                      class="text-italic text-white text-weight-medium q-my-md quoted-text"
+                      :class="{
+                        'text-h3': $q.screen.gt.md,
+                        'text-h4': $q.screen.gt.sm && $q.screen.lt.lg,
+                        'text-h5': $q.screen.lt.md
+                      }"
+                    >
+                      {{ testimonio.comentario }}
+                    </div>
+                    
+                    <!-- Comilla de cierre solo encierra el comentario -->
+                    <q-icon name="format_quote" size="4rem" color="white" class="quote-close" />
+                  </div>
+                  
+                  <!-- Información del autor fuera del quote-container -->
+                  <div class="text-center q-pt-xl">
+                    <div class="text-h5 text-weight-bold">
+                      {{ testimonio.nombre }}
+                    </div>
+                    <div class="text-subtitle1 opacity-80 q-mt-sm">
+                      {{ testimonio.organizacion }}{{ testimonio.empresa ? `, ${testimonio.empresa}` : '' }}
+                    </div>
+                  </div>
                 </div>
-                
-                <!-- Texto del testimonio -->
-                <p class="q-ma-none text-italic text-white relative-position text-justify"
-                   style="font-size: 2rem; line-height: 1.6; letter-spacing: 0.5px; z-index: 2;"
-                   :class="{'text-h5': $q.screen.lt.md, 'text-h6': $q.screen.lt.sm}">
-                  {{ testimonio.comentario }}
-                </p>
-                
-                <!-- Comillas de cierre -->
-                <div class="absolute-bottom-right text-white text-opacity-60 text-weight-light" 
-                     style="font-size: 7rem; line-height: 1; font-family: 'Georgia', serif; bottom: -4rem; right: -1rem; z-index: 1;"
-                     :class="{'text-h2': $q.screen.lt.md}">
-                  &#8221;
-                </div>
-              </div>
-              
-              <!-- Información del autor -->
-              <div class="text-right q-pr-lg">
-                <p class="q-ma-none text-h5 text-weight-bold" :class="{'text-h6': $q.screen.lt.md}">
-                  {{ testimonio.nombre }}
-                </p>
-                <p class="q-ma-none text-subtitle1 text-white text-opacity-80" :class="{'text-subtitle2': $q.screen.lt.md}">
-                  {{ testimonio.organizacion }}{{ testimonio.empresa ? `, ${testimonio.empresa}` : '' }}
-                </p>
               </div>
             </div>
           </div>
         </div>
       </q-carousel-slide>
     </q-carousel>
-  </section>
+  </div>
 </template>
 
 <script setup>
-import { ref, computed, onMounted, onUnmounted } from 'vue';
+// Ajustar el estilo global para este componente
+import { onMounted, onBeforeUnmount } from 'vue';
+
+// Guardar estilos originales para restaurar al desmontar
+let originalStyles = {};
+let affectedElements = [];
+
+// Asegurar que no haya márgenes en todo el árbol DOM
+onMounted(() => {
+  // Crear CSS que fuerza el 100% width y elimina todos los márgenes
+  const styleEl = document.createElement('style');
+  styleEl.id = 'testimonials-full-width-style';
+  styleEl.innerHTML = `
+    body, html {
+      overflow-x: hidden !important;
+    }
+    .testimonials-container-fullwidth {
+      position: relative !important;
+      width: 100vw !important;
+      height: 100vh !important;
+      margin: 0 !important;
+      padding: 0 !important;
+      box-sizing: border-box !important;
+      max-width: none !important;
+      margin-left: calc(-50vw + 50%) !important;
+      overflow: hidden !important;
+    }
+    .testimonials-container-fullwidth .q-carousel {
+      width: 100vw !important;
+      height: 100vh !important;
+      margin: 0 !important;
+      padding: 0 !important;
+    }
+    .testimonials-container-fullwidth * {
+      box-sizing: border-box !important;
+    }
+  `;
+  document.head.appendChild(styleEl);
+  
+  // Guardar el elemento para eliminarlo después
+  originalStyles.styleEl = styleEl;
+  
+  // Encontrar todos los contenedores padre y eliminar restricciones
+  const containerElement = document.querySelector('.testimonials-container');
+  if (containerElement) {
+    // Ir hacia arriba en el DOM y eliminar restricciones
+    let parent = containerElement.parentElement;
+    while (parent && parent !== document.body) {
+      // Guardar estilos originales
+      const element = parent;
+      affectedElements.push(element);
+      originalStyles[element.className || element.id || affectedElements.length] = {
+        width: element.style.width,
+        maxWidth: element.style.maxWidth,
+        margin: element.style.margin,
+        padding: element.style.padding,
+        overflow: element.style.overflow
+      };
+      
+      // Aplicar nuevos estilos
+      element.style.width = '100%';
+      element.style.maxWidth = 'none';
+      element.style.margin = '0';
+      element.style.padding = '0';
+      element.style.overflow = 'visible';
+      
+      parent = parent.parentElement;
+    }
+  }
+});
+
+// Restaurar estilos originales al desmontar el componente
+onBeforeUnmount(() => {
+  // Eliminar el estilo global
+  if (originalStyles.styleEl) {
+    originalStyles.styleEl.remove();
+  }
+  
+  // Restaurar estilos originales de elementos afectados
+  affectedElements.forEach((element, index) => {
+    const key = element.className || element.id || (index + 1);
+    if (originalStyles[key]) {
+      element.style.width = originalStyles[key].width;
+      element.style.maxWidth = originalStyles[key].maxWidth;
+      element.style.margin = originalStyles[key].margin;
+      element.style.padding = originalStyles[key].padding;
+      element.style.overflow = originalStyles[key].overflow;
+    }
+  });
+});
+
+import { ref, computed, onUnmounted } from 'vue';
 
 const props = defineProps({
   block: {
@@ -147,13 +259,17 @@ const resumeAutoplay = () => {
 };
 
 // Función para obtener URL de imagen de fondo
-const getBackgroundUrl = (image) => {
+function getBackgroundUrl(image) {
+  if (!image) return '';
+  
+  if (typeof image === 'string') return image;
+  
   if (image && image.url) {
     return `/api/proxy-image?url=${encodeURIComponent(image.url)}`;
   }
-  // Imagen de fondo por defecto (azul)
-  return 'https://www.colorhexa.com/0066cc.png';
-};
+  
+  return '';
+}
 
 // Configurar autoplay al montar el componente
 onMounted(() => {
@@ -168,36 +284,70 @@ onUnmounted(() => {
 });
 </script>
 
-<style scoped>
-.testimonials-section {
-  height: 100vh;
-  margin-left: calc(-55vw + 58%);
-  margin-right: calc(-53vw + 53%);
-  position: relative;
-  left: 0;
-  right: 0;
-}
-
-/* Asegurar que el carrusel y slides ocupen toda la altura */
-:deep(.q-carousel),
-:deep(.q-carousel__slide) {
-  height: 100vh !important;
+<style>
+/* Estilos para pantalla completa sin position: fixed */
+.testimonials-container-fullwidth {
+  position: relative !important;
   width: 100vw !important;
-  max-width: 100vw;
+  height: 100vh !important;
+  margin: 0 !important;
+  padding: 0 !important;
+  max-width: none !important;
+  overflow: hidden !important;
+  /* Técnica para centrar y extender a ancho completo */
+  margin-left: calc(-50vw + 50%) !important;
 }
 
-/* Ajustar comportamiento responsivo */
-@media (max-width: 768px) {
-  .testimonials-section {
-    height: auto;
-    min-height: 100vh;
-  }
-  
-  :deep(.q-carousel),
-  :deep(.q-carousel__slide) {
-    height: auto !important;
-    min-height: 100vh !important;
-  }
+/* Asegurar que el carrusel ocupe todo el espacio */
+.testimonials-container-fullwidth :deep(.q-carousel) {
+  width: 100vw !important;
+  height: 100vh !important;
+  margin: 0 !important;
+  padding: 0 !important;
+}
+
+/* Eliminar cualquier posible margen de elementos contenedores */
+.testimonials-container-fullwidth :deep(.q-carousel-slide) {
+  margin: 0 !important;
+  padding: 0 !important;
+  width: 100vw !important;
+}
+
+/* Contenedor de citas con posición relativa */
+.quote-container {
+  position: relative;
+  padding: 2rem 3rem;
+  margin-bottom: 1rem;
+}
+
+/* Estilo para la comilla de apertura */
+.quote-open {
+  position: absolute;
+  top: 0;
+  left: 0;
+  opacity: 0.7;
+}
+
+/* Estilo para la comilla de cierre */
+.quote-close {
+  position: absolute;
+  bottom: 0;
+  right: 0;
+  opacity: 0.7;
+}
+
+/* Estilo para la imagen del testimonio */
+.testimonial-image {
+  object-position: center;
+  box-shadow: 0 0 20px rgba(0,0,0,0.5);
+  border: 4px solid white;
+}
+
+/* Estilo para el texto citado */
+.quoted-text {
+  margin: 2rem;
+  position: relative;
+  z-index: 2;
 }
 </style>
 

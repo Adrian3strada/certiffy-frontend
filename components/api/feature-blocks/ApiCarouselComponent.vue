@@ -1,17 +1,19 @@
 <template>
-  <section :id="'carousel-' + (block?.id || uniqueId)" class="carousel-component full-width" :style="{ height: carouselHeight, width: '100%' }">
-    <div v-if="loading" class="flex flex-center q-pa-xl" :style="{ height: carouselHeight, width: '100%' }">
+  <section :id="'carousel-' + (block?.id || uniqueId)" class="certiffy-carousel-component q-px-none q-mx-none overflow-hidden" style="margin-left: -16px; margin-right: -16px; width: calc(100% + 32px); max-height: 900px">
+    <div v-if="loading" class="flex flex-center" :style="{ height: carouselHeight }">
       <q-spinner color="primary" size="3em" />
+      <span class="q-ml-md text-grey-7">Cargando...</span>
     </div>
     
-    <div v-else-if="error" class="text-center q-pa-xl" :style="{ height: carouselHeight, width: '100%' }">
-      <div class="text-negative text-h6">{{ error }}</div>
+    <div v-else-if="error" class="flex flex-center column" :style="{ height: carouselHeight }">
+      <q-icon name="error" color="negative" size="2rem" />
+      <div class="text-negative text-h6 q-mt-sm">{{ error }}</div>
     </div>
     
     <div v-else class="q-ma-none q-pa-none">
       <!-- Hero Banner con imagen de fondo y video en esquina -->
       <div v-if="showCarousel && carouselData && carouselData.images && carouselData.images.length > 0" 
-           class="relative-position full-width shadow-10 overflow-hidden">
+           class="certiffy-carousel-wrapper shadow-10">
         <q-carousel
           v-model="slide"
           animated
@@ -28,85 +30,98 @@
           transition-prev="slide-right"
           transition-next="slide-left"
           navigation-position="bottom"
-          class="custom-carousel full-width"
+          navigation-class="q-mb-lg"
+          style="position: relative;"
+          class="certiffy-custom-carousel full-width"
           flat
         >
           <q-carousel-slide 
             v-for="(item, index) in carouselData.images" 
             :key="index" 
             :name="index" 
-            class="relative-position full-height full-width q-ma-none q-pa-none"
+            class="certiffy-carousel-slide"
           >
             <!-- Imagen de fondo a pantalla completa -->
             <div class="absolute-full">
               <q-img 
                 :src="getImageUrl(item.image)" 
                 spinner-color="primary"
+                spinner-size="3em"
                 class="full-height full-width"
                 fit="cover"
                 position="center"
-              />
+                no-native-menu
+              >
+                <template v-slot:loading>
+                  <div class="text-white bg-dark flex flex-center absolute-full">
+                    <q-spinner size="3em" color="primary" />
+                  </div>
+                </template>
+                <template v-slot:error>
+                  <div class="text-white bg-dark flex flex-center absolute-full">
+                    <div class="column items-center">
+                      <q-icon name="error" size="3em" color="negative" />
+                      <div class="q-mt-sm">Error al cargar la imagen</div>
+                    </div>
+                  </div>
+                </template>
+              </q-img>
             </div>
             
             <!-- Overlay con gradiente responsivo -->
             <div 
-              class="absolute-full" 
-              :style="overlayGradientStyle"
+              class="absolute-full"
+              :class="{
+                'certiffy-carousel-overlay-mobile': $q.screen.lt.sm,
+                'certiffy-carousel-overlay-tablet': $q.screen.lt.md && $q.screen.gt.xs,
+                'certiffy-carousel-overlay-desktop': $q.screen.gt.sm
+              }"
             ></div>
             
             <!-- Contenido superpuesto con layout responsivo -->
             <div class="absolute-full q-pa-none">
-              <div class="relative-position full-width full-height column justify-between q-ma-none">
+              <div class="relative-position full-height column justify-between q-ma-none">
                 
                 <!-- Texto principal del Hero Banner -->
                 <div 
-                  class="text-white text-weight-bold q-ma-none"
-                  :class="heroTextPositionClasses"
-                  :style="heroTextStyles"
+                  :class="{
+                    'certiffy-carousel-text-desktop': $q.screen.gt.md,
+                    'certiffy-carousel-text-tablet': $q.screen.lt.lg && $q.screen.gt.xs,
+                    'certiffy-carousel-text-mobile': $q.screen.lt.sm
+                  }"
+                  class="q-pa-md"
+                  style="position: absolute; left: 5%; top: 50%; max-width: 45%; background-color: rgba(0,0,0,0.7); border-radius: 8px; box-shadow: 0 4px 8px rgba(0,0,0,0.2);"
                 >
                   <h2 
                     v-if="item.caption" 
-                    class="text-white text-weight-bold q-ma-none q-pa-md"
-                    :class="heroTitleClasses"
-                    :style="heroTitleStyles"
+                    class="text-h4 text-weight-bold q-mb-md text-white" style="text-shadow: 1px 1px 3px rgba(0,0,0,0.8);"
+                    :class="{'text-truncate': item.caption.length > maxTextLength}"
                   >
                     {{ item.caption }}
                   </h2>
                 </div>
                 
                 <!-- Video miniatura en esquina opuesta (clickable para modal) -->
-                <div 
-                  v-if="shouldShowVideo" 
-                  :class="videoContainerClasses"
-                  :style="videoContainerStyles"
-                >
-                  <div class="relative-position" :style="videoWrapperStyles">
+                <div v-if="shouldShowVideo" class="q-pa-xl" style="position: absolute; right: 2%; top: 60%;">
+                  <div class="row items-center certiffy-video-preview" style="width: 280px; height: 250px; overflow: hidden; border-radius: 12px; border: 2px solid white;">
                     <iframe
-                      :src="processVideoUrl(getVideoUrl(), true)"
+                      :src="processVideoUrl(getTeaserVideoUrl(), true)"
                       frameborder="0"
                       allowfullscreen
                       allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-                      class="absolute-full"
-                      style="width: 100%; height: 100%; border: 0;"
+                      style="width: 100%; height: 100%; object-fit: cover;"
                     ></iframe>
                     
-                    <!-- Overlay con botón "Watch" -->
-                    <div 
-                      class="absolute-full flex flex-center cursor-pointer" 
-                      @click="openMainVideoModal"
-                    >
+                    <!-- Overlay con botón "Watch" para el video principal -->
+                    <div class="absolute-full flex flex-center cursor-pointer">
                       <q-btn 
-                        rounded 
-                        color="white" 
-                        text-color="grey-8" 
-                        :class="watchButtonClasses"
-                        :style="watchButtonStyles"
-                      >
-                        <div class="row items-center no-wrap">
-                          <q-icon name="play_arrow" :size="iconSize" class="q-mr-sm" />
-                          <span class="text-weight-bold" :class="watchTextClasses">Watch</span>
-                        </div>
-                      </q-btn>
+                        round
+                        color="primary"
+                        icon="play_arrow"
+                        size="lg"
+                        class="shadow-10 pulse-animation"
+                        @click="openMainVideoModal"
+                      />
                     </div>
                   </div>
                 </div>
@@ -126,19 +141,19 @@
           :full-width="$q.screen.gt.sm"
           :full-height="$q.screen.gt.sm"
         >
-          <q-card class="bg-dark full-width" :class="modalClasses" :style="modalStyles">
-            <q-card-section class="q-pa-none relative-position full-width">
+          <q-card class="certiffy-video-modal full-width" :class="{ 'full-width': $q.screen.lt.md }">
+            <q-card-section class="certiffy-video-modal-content">
               <q-btn 
                 round 
                 flat 
                 icon="close" 
                 color="white" 
-                class="absolute-top-right q-ma-md" 
+                class="certiffy-close-button" 
                 :size="$q.screen.lt.sm ? 'md' : 'lg'"
                 v-close-popup 
-                style="z-index: 10;"
               />
               <q-responsive :ratio="16/9" class="shadow-10 full-width">
+                <q-skeleton v-if="!mainVideoLoaded" type="rect" class="full-width full-height" animation="fade" />
                 <iframe
                   :src="currentMainVideoUrl"
                   frameborder="0"
@@ -146,6 +161,7 @@
                   allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
                   class="full-width full-height"
                   style="border: 0;"
+                  @load="mainVideoLoaded = true"
                 ></iframe>
               </q-responsive>
             </q-card-section>
@@ -156,8 +172,7 @@
       <!-- Contenido de texto -->
       <div 
         v-if="showParagraphs && paragraphsData && paragraphsData.length > 0" 
-        :class="contentContainerClasses"
-        :style="contentContainerStyles"
+        class="certiffy-carousel-paragraphs q-mt-lg q-px-md full-width"
       >
         <div v-for="(paragraph, index) in paragraphsData" :key="index" class="q-mb-lg text-body1">
           <div v-html="processedParagraphs[index]" class="q-my-md"></div>
@@ -172,6 +187,8 @@
 
   // ID único para este componente
   const uniqueId = 'carousel-' + Math.random().toString(36).substring(2, 9);
+const videoUrlProcessed = ref(false);
+const mainVideoLoaded = ref(false);
   import { useQuasar } from 'quasar';
   import { useWagtailApi } from '~/composables/useWagtailApi';
 
@@ -341,6 +358,20 @@
       (props.carouselData.mostrar_video && props.carouselData.teaser_video_url));
   });
 
+  const getTeaserVideoUrl = () => {
+    if (!props.carouselData) return '';
+    
+    return props.carouselData.teaser_video_url || 
+      (props.carouselData.value && props.carouselData.value.teaser_video_url) || '';
+  }
+  
+  const getMainVideoUrl = () => {
+    if (!props.carouselData) return '';
+    
+    return props.carouselData.main_video_url || 
+      (props.carouselData.value && props.carouselData.value.main_video_url) || getTeaserVideoUrl();
+  }
+
   const videoContainerClasses = computed(() => {
     const baseClasses = ['shadow-15', 'overflow-hidden', 'rounded-borders'];
     
@@ -466,19 +497,32 @@
 
   // Abrir modal del video principal
   const openMainVideoModal = () => {
-    const mainVideoUrl = props.carouselData?.value?.main_video_url || props.carouselData?.main_video_url;
-    if (mainVideoUrl) {
-      // Para el video principal, no lo silenciamos y mostramos controles
-      currentMainVideoUrl.value = processVideoUrl(mainVideoUrl, false);
-      mainVideoModalOpen.value = true;
-    } else {
-      console.warn('No main_video_url found in carouselData');
-    }
-  };
+    // Pasar el video principal al modal y abrirlo con el control de reproducción
+    currentMainVideoUrl.value = getMainVideoUrl();
+    mainVideoModalOpen.value = true;
+  }
 
   onMounted(() => {
     window.addEventListener('resize', handleResize);
     fetchData();
+    setupIndicatorsStyle();
+    
+    // Agregar estilos personalizados para el carrusel
+    const style = document.createElement('style');
+    style.innerHTML = `
+      .q-carousel__navigation--bottom {
+        margin-bottom: 65px !important;
+      }
+      .pulse-animation {
+        animation: pulse 2s infinite;
+      }
+      @keyframes pulse {
+        0% { box-shadow: 0 0 0 0 rgba(0, 120, 212, 0.7); }
+        70% { box-shadow: 0 0 0 10px rgba(0, 120, 212, 0); }
+        100% { box-shadow: 0 0 0 0 rgba(0, 120, 212, 0); }
+      }
+    `;
+    document.head.appendChild(style);
   });
 
   onUnmounted(() => {
@@ -551,6 +595,21 @@
   };
 
   // Función para obtener los datos de la API o usar los datos proporcionados directamente
+  const setupIndicatorsStyle = () => {
+    const carouselIndicators = document.querySelector('.certiffy-carousel .q-carousel__navigation');
+    if (carouselIndicators) {
+      // Ajuste del margen inferior para hacer visibles los indicadores
+      carouselIndicators.style.marginBottom = '65px';
+      // Mejorar visibilidad de los controles
+      carouselIndicators.style.transform = 'scale(1.5)';
+      const dots = carouselIndicators.querySelectorAll('.q-carousel__navigation-icon');
+      dots.forEach(dot => {
+        dot.style.opacity = '0.9';
+        dot.style.filter = 'drop-shadow(0px 0px 3px rgba(255,255,255,0.5))';
+      });
+    }
+  };
+
   const fetchData = async () => {
     console.log('[ApiCarouselComponent] carouselData:', props.carouselData);
     try {
@@ -650,26 +709,3 @@
     }
   };
 </script>
-
-<style>
-/* Navegación del carousel */
-.custom-carousel .q-carousel__navigation {
-  padding: 60px 0;
-  background: rgba(0, 0, 0, 0.2);
-  width: 100%;
-}
-
-.custom-carousel .q-carousel__navigation-icon {
-  font-size: 10px;
-}
-
-/* Hacer que el componente cubra toda la pantalla incluyendo la barra lateral */
-.carousel-component {
-  width: 100vw !important;
-  margin-left: calc(-50vw + 50%);
-  margin-right: calc(-50vw + 48%); /* Ajuste para cubrir la barra lateral */
-  position: relative;
-  left: 0;
-  right: 0;
-}
-</style>

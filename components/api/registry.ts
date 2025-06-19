@@ -17,10 +17,7 @@ import ApiCardComponent from './feature-blocks/ApiCardComponent.vue';
 import ApiCardsEDComponent from './feature-blocks/ApiCardsEDComponent.vue';
 import ApiCarouselComponent from './feature-blocks/ApiCarouselComponent.vue';
 import ApiGrupoTarjetasFondo from './feature-blocks/ApiGrupoTarjetasFondo.vue';
-import ApiImagenEncimaTexto from './feature-blocks/ApiImagenEncimaTexto.vue';
 import ApiImagenTexto from './feature-blocks/ApiImagenTexto.vue';
-import ApiImagenTextoDerecha from './feature-blocks/ApiImagenTextoDerecha.vue';
-import ApiImagenTextoIzquierda from './feature-blocks/ApiImagenTextoIzquierda.vue';
 import ApiMisionComponent from './feature-blocks/ApiMisionComponent.vue';
 import ApiPactoVerdeComponent from './feature-blocks/ApiPactoVerdeComponent.vue';
 import ApiSociosComponent from './feature-blocks/ApiSociosComponent.vue';
@@ -31,9 +28,16 @@ import ApiVideoComponent from './feature-blocks/ApiVideoComponent.vue';
 import ApiFooterComponent from './layout/ApiFooterComponent.vue';
 import ApiNavbarComponent from './layout/ApiNavbarComponent.vue';
 
+// Definir el tipo para el mapa de componentes
+import type { Component } from 'vue';
+
+interface ComponentMap {
+  [key: string]: Component;
+}
+
 // Mapa centralizado de todos los componentes con todas las posibles variantes de nombres
 // IMPORTANTE: Para cada tipo de bloque de la API, debe existir una entrada en este mapa
-export const componentMap = {
+export const componentMap: ComponentMap = {
   // Bloques básicos - nombres estandarizados
   'button': ApiButtonComponent,
   'document': ApiDocumentComponent,
@@ -58,16 +62,13 @@ export const componentMap = {
   'socios': ApiSociosComponent,
   'testimonios': ApiTestimonialsComponent,
   'video': ApiVideoComponent,
-  'imagen_texto_derecha': ApiImagenTextoDerecha,
-  'imagen_texto_izquierda': ApiImagenTextoIzquierda,
-  'imagen_encima_texto': ApiImagenEncimaTexto,
-  'grupo_de_tarjetas_fondo': ApiGrupoTarjetasFondo,
   
   // Mapeos específicos de Wagtail (nombres originales del CMS)
   'paragraph': ApiRichTextComponent,
   'heading': ApiRichTextComponent,
   'image_text': ApiHeroBannerComponent,
   'ImagenTexto': ApiImagenTexto,
+  'imagentexto': ApiImagenTexto,
   'documento': ApiDocumentComponent,
   'Document': ApiDocumentComponent,
   'galeria': ApiGalleryComponent,
@@ -76,6 +77,7 @@ export const componentMap = {
   'text': ApiRichTextComponent,
   'texto': ApiRichTextComponent,
   'texto_enriquecido': ApiRichTextComponent,
+  'parrafo_con_alineacion': ApiRichTextComponent,
   'banner': ApiHeroBannerComponent,
   'banner_hero': ApiHeroBannerComponent,
   'imagen': ApiImageComponent,
@@ -88,9 +90,9 @@ export const componentMap = {
 
 /**
  * Registra todos los componentes en el registro proporcionado
- * @param {Function} registerFn - Función para registrar cada componente (tipo, componente)
+ * @param registerFn - Función para registrar cada componente (tipo, componente)
  */
-export function registerAllComponents(registerFn) {
+export function registerAllComponents(registerFn: (type: string, component: Component) => void): void {
   if (!registerFn || typeof registerFn !== 'function') {
     return;
   }
@@ -102,15 +104,14 @@ export function registerAllComponents(registerFn) {
       registerFn(type.toLowerCase(), component);
     }
   });
-
 }
 
 /**
  * Obtiene un componente por su tipo
- * @param {String} type - Tipo de bloque 
- * @returns {Component|null} Componente Vue o null si no existe
+ * @param type - Tipo de bloque 
+ * @returns Componente Vue o null si no existe
  */
-export function getComponentByType(type) {
+export function getComponentByType(type: string): Component | null {
   if (!type) return null;
   
   // Normalizar tipo a minúsculas para búsqueda uniforme
@@ -131,10 +132,10 @@ export function getComponentByType(type) {
 
 /**
  * Verifica si existe un componente para un tipo específico
- * @param {String} type - Tipo de bloque
- * @returns {Boolean} True si existe, false en caso contrario
+ * @param type - Tipo de bloque
+ * @returns True si existe, false en caso contrario
  */
-export function hasComponentForType(type) {
+export function hasComponentForType(type: string): boolean {
   if (!type) return false;
   
   // Normalizar tipo a minúsculas

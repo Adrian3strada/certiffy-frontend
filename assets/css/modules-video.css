@@ -1,0 +1,236 @@
+/* Estilos estandarizados para componentes de módulos y videos */
+
+/* Contenedor principal para módulos */
+.certiffy-modules-section {
+  width: 100%;
+  padding: 4rem 0;
+  background-color: #f5f5f5;
+  position: relative;
+  overflow: hidden;
+}
+
+.certiffy-modules-container {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 0 1rem;
+}
+
+/* Título y texto introductorio */
+.certiffy-modules-title {
+  font-family: 'OpenSans-ExtraBold', 'Open Sans', sans-serif;
+  font-size: 2rem;
+  margin-bottom: 1.5rem;
+  text-align: center;
+}
+
+.certiffy-modules-intro {
+  font-family: 'OpenSans-SemiBold', 'Open Sans', sans-serif;
+  margin-bottom: 3rem;
+  /* El text-align ahora se controla dinámicamente con la propiedad alineacion */
+}
+
+/* Fila de módulos */
+.certiffy-modules-row {
+  margin-bottom: 2rem;
+}
+
+/* Item de módulo (sin efecto de tarjeta ni elevación) */
+.certiffy-module-item {
+  padding: 1rem 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+/* Imagen del módulo */
+.certiffy-module-image {
+  width: 100%;
+  border-radius: 8px;
+  margin-bottom: 1rem;
+  transition: transform 0.3s ease;
+}
+
+/* Botón del módulo */
+.certiffy-module-button {
+  width: auto;
+  min-width: 120px;
+  border-radius: 8px;
+  padding: 8px 24px;
+  font-weight: 600;
+  font-size: 1rem;
+  text-transform: none;
+  letter-spacing: 0.5px;
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.08);
+}
+
+/* Sección de video */
+.certiffy-video-section {
+  width: 100%;
+}
+
+/* Contenedor de video estándar */
+.certiffy-video-container {
+  position: relative;
+  width: 100%;
+  max-width: 100%;
+  margin: 2rem auto;
+  border-radius: 12px;
+  overflow: hidden;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+}
+
+.certiffy-video-wrapper {
+  position: relative;
+  padding-bottom: 56.25%; /* 16:9 aspect ratio */
+  height: 0;
+  overflow: hidden;
+}
+
+.certiffy-video-frame {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  border: none;
+}
+
+/* Estilos para Video hero y carrusel */
+.certiffy-video-hero {
+  height: 650px;
+  position: relative;
+  background-color: transparent;
+  border: none;
+  overflow: hidden;
+  border-radius: 8px;
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+}
+
+.certiffy-carousel {
+  height: 650px;
+  z-index: 3;
+  position: relative;
+}
+
+.certiffy-carousel-slide {
+  padding: 0;
+  position: relative;
+}
+
+.certiffy-overlay {
+  background: linear-gradient(to right, rgba(0,0,0,0.8) 30%, rgba(0,0,0,0.5) 70%, rgba(0,0,0,0.3) 100%);
+  z-index: 2;
+  pointer-events: none;
+}
+
+.certiffy-carousel-caption {
+  background: linear-gradient(to bottom, rgba(0,0,0,0.85) 0%, rgba(0,0,0,0.7) 50%, rgba(0,0,0,0.4) 80%, transparent 100%);
+  padding: 2rem 1rem 4rem;
+  z-index: 4;
+}
+
+.certiffy-caption-text {
+  text-shadow: 2px 2px 4px rgba(0,0,0,0.9);
+  line-height: 1.4;
+  max-width: 90%;
+  margin: 0 auto;
+  letter-spacing: 0.5px;
+}
+
+/* Video destacado en esquina */
+.certiffy-featured-video {
+  width: 320px;
+  z-index: 10;
+  backdrop-filter: blur(5px);
+  border-radius: 12px;
+  background-color: rgba(0, 0, 0, 0.6);
+}
+
+.certiffy-video-thumbnail-container {
+  width: 320px;
+  height: 180px;
+  position: relative;
+  border-radius: 8px;
+  overflow: hidden;
+}
+
+.certiffy-video-thumbnail {
+  border: 2px solid white;
+  box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+  transition: transform 0.3s ease;
+  height: 180px;
+  width: 320px;
+  border-radius: 8px;
+}
+
+.certiffy-video-thumbnail:hover {
+  transform: scale(1.02);
+}
+
+.certiffy-play-button {
+  transform: scale(1.5);
+  transition: transform 0.3s ease;
+  box-shadow: 0 0 20px rgba(0, 0, 0, 0.5);
+}
+
+.certiffy-play-button:hover {
+  transform: scale(1.7);
+}
+
+.certiffy-video-title {
+  font-family: 'OpenSans-Bold', 'Open Sans', sans-serif;
+  color: white;
+  margin-top: 0.5rem;
+  margin-bottom: 0.25rem;
+  font-size: 1.1rem;
+}
+
+.certiffy-video-description {
+  font-family: 'OpenSans-SemiBold', 'Open Sans', sans-serif;
+  color: white;
+  font-size: 0.875rem;
+  margin: 0;
+}
+
+/* Estilos responsivos */
+@media (max-width: 767px) {
+  .certiffy-modules-title {
+    font-size: 1.6rem;
+  }
+  
+  .certiffy-module-card {
+    margin-bottom: 1.5rem;
+    padding: 1.5rem 1rem;
+  }
+  
+  .certiffy-module-image {
+    max-width: 120px;
+    margin-bottom: 1rem;
+  }
+  
+  .certiffy-video-hero {
+    height: 500px;
+  }
+  
+  .certiffy-carousel {
+    height: 500px;
+  }
+  
+  .certiffy-featured-video {
+    width: 280px;
+  }
+  
+  .certiffy-video-thumbnail-container {
+    width: 280px;
+    height: 158px;
+  }
+  
+  .certiffy-video-thumbnail {
+    height: 158px;
+    width: 280px;
+  }
+  
+  .certiffy-caption-text {
+    font-size: 1.5rem;
+  }
+}

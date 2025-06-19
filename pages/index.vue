@@ -1,8 +1,8 @@
 <template>
   <div>
-    <div v-if="pending">
+    <div v-if="pending" class="flex flex-center column q-pa-lg">
       <q-spinner-dots color="primary" size="3em" />
-      <p>Cargando página principal...</p>
+      <p class="q-mt-md">Cargando página principal...</p>
     </div>
     <div v-else-if="error">
       <q-banner class="bg-negative text-white">
@@ -11,9 +11,9 @@
     </div>
     <div v-else>
       <component
-        v-if="pageData && pageData.body"
-        :is="dynamicBlockRendererComponent"
-        :blocks="pageData.body"
+        v-if="pageData"
+        :is="dynamicPageContentComponent"
+        :pageData="pageData"
       />
     </div>
   </div>
@@ -26,8 +26,8 @@ import { useRouter, useRoute } from 'vue-router';
 import { onBeforeMount, onMounted, computed } from 'vue';
 
 // Cargar el componente de renderizado dinámicamente
-const dynamicBlockRendererComponent = shallowRef(defineAsyncComponent(() => 
-    import('~/components/api/core/DynamicBlockRenderer.vue')
+const dynamicPageContentComponent = shallowRef(defineAsyncComponent(() => 
+    import('~/components/api/core/DynamicPageContent.vue')
 ));
 
 const router = useRouter();
@@ -44,25 +44,46 @@ const locale = computed(() => {
 const homePath = computed(() => `/${locale.value}/`);
 
 // Obtener datos de la página principal de forma dinámica
-const { data: pageData, pending, error } = await useAsyncData(
-  'homePage',
-  async () => {
-    // Primero obtenemos todas las páginas para identificar la Home
-    const allPages = await fetchAllPages();
-    if (allPages?.items) {
-      // Buscar la página principal por URL
-      const homePage = allPages.items.find(page => 
-        page.meta?.html_url?.endsWith(homePath.value) || 
-        (page.meta?.type === 'home.HomePage' && page.meta?.locale === locale.value)
-      );
-      
-      if (homePage) {
-        console.log(`Cargando página principal: ID ${homePage.id}, Path: ${homePath.value}`);
-        return await fetchPageDetails(homePage.id);
-      }
+const pageData = ref(null);
+const pending = ref(true);
+const error = ref(null);
+
+onMounted(async () => {
+  try {
+    pending.value = true;
+    error.value = null;
+    
+    // Detectar idioma actual
+    const currentLocale = locale.value;
+    console.log(`Index - Idioma actual: ${currentLocale}`);
+    
+    // Sabemos que la página de inicio tiene ID 3
+    const homePageId = 3; // ID fijo de la página de inicio
+    console.log(`Index - Cargando directamente la página de inicio con ID: ${homePageId}`);
+    
+    // Cargar detalles completos directamente por ID
+    pageData.value = await fetchPageDetails(homePageId, currentLocale, true);
+    console.log('Index - Datos de página cargados por ID:', pageData.value);
+    
+    // Agregar log detallado para verificar la estructura de los datos
+    console.log('Index - Estructura completa de pageData:', JSON.stringify(pageData.value));
+    
+    // Verificar si tenemos bloques para renderizar
+    if (pageData.value?.body && Array.isArray(pageData.value.body)) {
+      console.log(`Index - Número de bloques en body: ${pageData.value.body.length}`);
+      pageData.value.body.forEach((block, index) => {
+        console.log(`Index - Bloque ${index}:`, block?.type || 'sin tipo', block?.id || 'sin id');
+      });
+    } else {
+      console.log('Index - No hay bloques para renderizar o body no es un array');
+      console.log('Index - Valor y tipo de body:', pageData.value?.body, typeof pageData.value?.body);
     }
-    throw new Error(`No se encontró la página principal para path ${homePath.value}`);
-  },
-  { server: true }
-);
+    
+    pending.value = false;
+  } catch (err) {
+    console.error(`[index] Error al cargar la página principal:`, err);
+    error.value = err;
+    pending.value = false;
+  }
+});
 </script>

@@ -1,0 +1,130 @@
+/* Estilos estandarizados para componentes de layout (navbar y footer) */
+
+/* ----- NAVBAR ----- */
+.certiffy-navbar {
+  font-family: 'OpenSans-SemiBold', 'Open Sans', sans-serif;
+  z-index: 1000;
+  transition: all 0.3s ease;
+}
+
+.certiffy-navbar-logo-container {
+  display: flex;
+  align-items: center;
+  font-family: 'OpenSans-ExtraBold', 'Open Sans', sans-serif;
+  font-size: 1.6rem;
+  transition: all 0.3s ease;
+}
+
+.certiffy-navbar-logo {
+  height: 45px;
+  width: auto;
+  margin-right: 8px;
+}
+
+.certiffy-navbar-menu {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+}
+
+.certiffy-navbar-item {
+  font-family: 'OpenSans-SemiBold', 'Open Sans', sans-serif;
+  font-weight: 600;
+  font-size: 0.95rem;
+  letter-spacing: 0.01rem;
+  transition: all 0.3s ease;
+}
+
+.certiffy-navbar-item.active-route {
+  font-weight: 700;
+  opacity: 1;
+}
+
+.certiffy-navbar-dropdown {
+  border-radius: 4px;
+}
+
+.certiffy-navbar-submenu-item {
+  font-family: 'OpenSans-SemiBold', 'Open Sans', sans-serif;
+  font-size: 0.9rem;
+}
+
+/* Estilos para el drawer mobile */
+.certiffy-navbar-drawer {
+  font-family: 'OpenSans-SemiBold', 'Open Sans', sans-serif;
+}
+
+.certiffy-navbar-drawer-header {
+  font-family: 'OpenSans-ExtraBold', 'Open Sans', sans-serif;
+  font-size: 1.5rem;
+}
+
+.certiffy-navbar-drawer-item {
+  font-family: 'OpenSans-SemiBold', 'Open Sans', sans-serif;
+  font-size: 1rem;
+  transition: all 0.3s ease;
+}
+
+/* Controles superiores */
+.certiffy-navbar-controls {
+  display: flex;
+  align-items: center;
+}
+
+.certiffy-language-selector {
+  font-family: 'OpenSans-Bold', 'Open Sans', sans-serif;
+  font-size: 0.85rem;
+  min-width: 40px;
+}
+
+.certiffy-contact-button {
+  font-family: 'OpenSans-SemiBold', 'Open Sans', sans-serif;
+  font-size: 0.85rem;
+  transition: all 0.3s ease;
+}
+
+/* ----- FOOTER ----- */
+.certiffy-footer {
+  font-family: 'OpenSans-SemiBold', 'Open Sans', sans-serif;
+}
+
+.certiffy-footer-logo {
+  height: 50px;
+  width: auto;
+}
+
+.certiffy-footer-title {
+  font-family: 'OpenSans-Bold', 'Open Sans', sans-serif;
+  font-size: 1.2rem;
+  margin-bottom: 1rem;
+}
+
+.certiffy-footer-link {
+  font-family: 'OpenSans-SemiBold', 'Open Sans', sans-serif;
+  font-size: 0.9rem;
+  transition: all 0.3s ease;
+  margin-bottom: 0.5rem;
+  display: block;
+}
+
+.certiffy-footer-text {
+  font-family: 'OpenSans-SemiBold', 'Open Sans', sans-serif;
+  font-size: 0.9rem;
+  line-height: 1.6;
+}
+
+.certiffy-footer-social {
+  display: flex;
+  gap: 1rem;
+  margin-top: 1rem;
+}
+
+.certiffy-footer-social-icon {
+  font-size: 1.5rem;
+  transition: all 0.3s ease;
+}
+
+.certiffy-footer-copyright {
+  font-family: 'OpenSans-SemiBold', 'Open Sans', sans-serif;
+  font-size: 0.85rem;
+}

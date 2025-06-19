@@ -1,16 +1,14 @@
 // Plugin para configurar el cliente HTTP y manejar las peticiones a la API
+import { defineNuxtPlugin } from '#app';
 
 export default defineNuxtPlugin((nuxtApp) => {
-  // Configurar interceptores globales para todas las peticiones fetch
-  nuxtApp.hook('app:created', () => {
-    // Esta función se ejecuta cuando la aplicación es creada
-  });
-
+  // No necesitamos interceptores ya que usamos useFetch para las peticiones
+  
   // Proporcionar funciones utilitarias para las peticiones a la API
   return {
     provide: {
       // Función para determinar si estamos en producción o desarrollo
-      isProduction: () => {
+      isProduction: (): boolean => {
         if (typeof window !== 'undefined') {
           return window.location.hostname !== 'localhost' && 
                  !window.location.hostname.includes('127.0.0.1');
@@ -19,7 +17,7 @@ export default defineNuxtPlugin((nuxtApp) => {
       },
       
       // Función para obtener la URL correcta para el proxy de Wagtail
-      getApiUrl: (endpoint) => {
+      getApiUrl: (endpoint: string): string => {
         return `/api/proxy-wagtail?url=${encodeURIComponent(endpoint)}`;
       }
     }

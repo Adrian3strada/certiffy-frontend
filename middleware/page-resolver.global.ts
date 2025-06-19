@@ -1,4 +1,6 @@
 // Middleware global para resolver páginas y rutas dinámicas
+import type { RouteLocationNormalized } from 'vue-router';
+
 export default defineNuxtRouteMiddleware(async (to, from) => {
   console.log('Middleware page-resolver ejecutándose para ruta:', to.path);
   
@@ -7,12 +9,7 @@ export default defineNuxtRouteMiddleware(async (to, from) => {
   const { normalizeUrl } = useWagtailApi();
 
   try {
-    // Si la ruta contiene '/dynamic/', redirigir a la versión limpia silenciosamente
-    if (to.path.includes('/dynamic/')) {
-      const cleanPath = to.path.replace('/dynamic/', '/');
-      console.log(`Redireccionando de ${to.path} a ${cleanPath}`);
-      return navigateTo(cleanPath, { replace: true });
-    }
+    // Nota: Ya no es necesaria la redirección de /dynamic/ pues se ha consolidado en un solo archivo
     
     // Normalizar la ruta actual para comparaciones consistentes
     const normalizedPath = normalizeUrl(to.path);

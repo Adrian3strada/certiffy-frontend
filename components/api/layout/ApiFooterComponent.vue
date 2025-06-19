@@ -1,57 +1,89 @@
 <template>
   <!-- Footer con los colores de Quasar de la empresa -->
-  <div class="footer-wrapper bg-primary">
+  <div class="certiffy-footer bg-primary">
     
     <!-- Sección principal del footer -->
-    <div class="container q-py-md">
-      <div class="row q-col-gutter-md">
+    <div class="q-container q-py-xl">
+      <div class="row q-col-gutter-lg justify-between">
         
         <!-- Logo y descripción -->
-        <div class="col-12 col-md-4 q-py-md">
-          <!-- Logo desde la API -->
+        <div class="col-12 col-md-6 q-py-md">
+          <!-- Logo y título desde la API -->
           <div class="text-center text-md-left">
             <a href="/" class="no-text-decoration">
-              <div class="logo-container">
+              <div class="row items-center q-mb-md justify-center justify-md-start">
                 <img 
-                  v-if="logo && getLogo()" 
-                  :src="getLogo()" 
-                  class="certify-logo" 
+                  v-if="logoUrl" 
+                  :src="logoUrl" 
+                  class="certiffy-footer-logo q-mr-md" 
                   alt="CERTIFY" 
                   @error="handleImageError"
-                  @load="() => console.log('Logo cargado correctamente')"
                 />
-                <div v-else class="certify-logo bg-primary text-white text-center rounded-borders q-pa-sm">
-                  <span class="text-h5 text-weight-bold">CERTIFY</span>
-                </div>
+                <span class="text-h5 text-weight-bold text-white">CERTIFY</span>
               </div>
             </a>
           </div>
           
-          <!-- Descripción de la plataforma (texto a cambiar cuando venga de la API) -->
-          <p class="text-grey-6 q-py-md">
-            {{ description || 'Plataforma integral de trazabilidad y certificación para cadenas de suministro sostenibles.' }}
+          <!-- Descripción de la plataforma -->
+          <p class="certiffy-footer-text text-grey-4 q-py-md">
+            {{ description }}
           </p>
           
           <!-- Información de contacto con colores Quasar -->
-          <div class="text-grey-6 contact-info">
+          <div class="certiffy-footer-text text-grey-4 q-mt-md">
             <div class="q-py-xs">
-              <q-icon color="accent" name="location_on" size="xs" class="q-mr-xs" />
-              {{ address || 'Calle Principal 123, Ciudad' }}
+              <q-icon color="accent" name="location_on" size="sm" class="q-mr-sm" />
+              {{ address }}
             </div>
             <div class="q-py-xs">
-              <q-icon color="accent" name="email" size="xs" class="q-mr-xs" />
-              {{ email || 'info@certify.com' }}
+              <q-icon color="accent" name="email" size="sm" class="q-mr-sm" />
+              {{ email }}
             </div>
             <div class="q-py-xs">
-              <q-icon color="accent" name="phone" size="xs" class="q-mr-xs" />
-              {{ phone || '+1 (555) 123-4567' }}
+              <q-icon color="accent" name="phone" size="sm" class="q-mr-sm" />
+              {{ phone }}
             </div>
           </div>
         </div>
         
-        <!-- Newsletter y redes sociales -->
-        <div class="col-12 col-md-4 q-py-md text-center">
-          <h4 class="text-grey-6 q-mb-md">Subscríbete a nuestro boletín</h4>
+        <!-- Enlaces rápidos -->
+        <div class="col-12 col-md-3 q-py-md">
+          <div v-if="columns.length > 0">
+            <h4 class="certiffy-footer-title text-grey-4 text-h6 q-mb-md">{{ columns[0].title }}</h4>
+            <ul class="certiffy-footer-links">
+              <li v-for="(link, linkIndex) in columns[0].links" :key="linkIndex">
+                <NuxtLink :to="link.url" class="certiffy-footer-link text-grey-4">{{ link.text }}</NuxtLink>
+              </li>
+            </ul>
+          </div>
+        </div>
+        
+        <!-- Redes sociales y Newsletter -->
+        <div class="col-12 col-md-3 q-py-md">
+          <!-- Sección de redes sociales -->
+          <h4 class="certiffy-footer-title text-grey-4 text-h6 q-mb-md">Síguenos en redes sociales</h4>
+          
+          <!-- Iconos de redes sociales -->
+          <div class="certiffy-social-icons q-mb-lg">
+            <a :href="getSocialUrl('facebook')" target="_blank" class="certiffy-social-icon" aria-label="Facebook">
+              <q-icon name="fab fa-facebook-f" size="md" color="accent" />
+            </a>
+            <a :href="getSocialUrl('twitter')" target="_blank" class="certiffy-social-icon" aria-label="Twitter">
+              <q-icon name="fab fa-twitter" size="md" color="accent" />
+            </a>
+            <a :href="getSocialUrl('instagram')" target="_blank" class="certiffy-social-icon" aria-label="Instagram">
+              <q-icon name="fab fa-instagram" size="md" color="accent" />
+            </a>
+            <a :href="getSocialUrl('linkedin')" target="_blank" class="certiffy-social-icon" aria-label="LinkedIn">
+              <q-icon name="fab fa-linkedin-in" size="md" color="accent" />
+            </a>
+            <a :href="getSocialUrl('youtube')" target="_blank" class="certiffy-social-icon" aria-label="YouTube">
+              <q-icon name="fab fa-youtube" size="md" color="accent" />
+            </a>
+          </div>
+          
+          <!-- Newsletter -->
+          <h4 class="certiffy-footer-title text-grey-4 text-h6 q-mb-md">Suscríbete a nuestro boletín</h4>
           
           <!-- Input de suscripción -->
           <q-input 
@@ -62,95 +94,25 @@
             dark
             class="newsletter-input"
           />
-          
-          <!-- Sección de redes sociales -->
-          <h4 class="text-grey-6 q-mt-lg q-mb-md">Síguenos en redes sociales</h4>
-          
-          <!-- Iconos de redes sociales -->
-          <div class="row justify-center q-gutter-md">
-            <q-btn round no-caps color="accent" icon="fab fa-facebook-f" href="#" target="_blank" class="social-btn" />
-            <q-btn round no-caps color="accent" icon="fab fa-twitter" href="#" target="_blank" class="social-btn" />
-            <q-btn round no-caps color="accent" icon="fab fa-instagram" href="#" target="_blank" class="social-btn" />
-          </div>
-          
+
           <!-- Botón de suscripción a newsletter -->
           <div class="q-mt-sm">
-            <q-btn v-if="!loading" no-caps color="warning" label="Suscribirse" icon="send" @click="subscribeNewsletter" />
+            <q-btn no-caps color="warning" label="Suscribirse" icon="send" @click="subscribeNewsletter" class="q-mt-sm" />
           </div>
-        </div>
-                <!-- Enlaces de navegación -->
-        <div class="col-12 col-md-4 q-py-md nav-links">
-          <h4 class="text-grey-6 q-mb-md">Enlaces rápidos</h4>
-          <q-list padding dense>
-            <template v-if="loading">
-              <q-item v-for="i in 5" :key="i">
-                <q-item-section>
-                  <q-skeleton type="text" />
-                </q-item-section>
-              </q-item>
-            </template>
-            
-            <!-- Mostramos los enlaces de la API -->
-            <template v-if="!loading && navigationItems.length > 0">
-              <q-item 
-                v-for="link in navigationItems" 
-                :key="link.id"
-                tag="a"
-                :href="link.url"
-                clickable
-                class="footer-nav-link"
-                dense
-              >
-                <q-item-section>
-                  {{ link.title }}
-                </q-item-section>
-              </q-item>
-            </template>
-            
-            <!-- Enlaces de respaldo si no hay enlaces de la API -->
-            <template v-if="!loading && navigationItems.length === 0">
-              <q-item tag="a" href="/" clickable class="footer-nav-link" dense>
-                <q-item-section>Inicio</q-item-section>
-              </q-item>
-              <q-item tag="a" href="/productos" clickable class="footer-nav-link" dense>
-                <q-item-section>Productos</q-item-section>
-              </q-item>
-              <q-item tag="a" href="/servicios" clickable class="footer-nav-link" dense>
-                <q-item-section>Servicios</q-item-section>
-              </q-item>
-              <q-item tag="a" href="/nosotros" clickable class="footer-nav-link" dense>
-                <q-item-section>Sobre Nosotros</q-item-section>
-              </q-item>
-              <q-item tag="a" href="/contacto" clickable class="footer-nav-link" dense>
-                <q-item-section>Contacto</q-item-section>
-              </q-item>
-            </template>
-            
-            <!-- Mensaje de debug si hay error (solo visible cuando showDebug es true) -->
-            <template v-if="error && showDebug">
-              <q-item>
-                <q-item-section>
-                  <div class="text-negative">Error: {{ error.message }}</div>
-                </q-item-section>
-              </q-item>
-            </template>
-          </q-list>
         </div>
       </div>
       
-      <!-- Sección inferior con copyright -->
-      <div class="copyright-section">
-        <div class="container q-pa-md text-caption text-white">
-          <div class="row items-center justify-between">
-            <div class="col-12 col-sm-auto text-center text-sm-left">
-              {{ new Date().getFullYear() }} CERTIFY. Todos los derechos reservados.
-            </div>
-            <div class="col-12 col-sm-auto text-center text-sm-right">
-              <a href="#" class="q-px-sm text-white">Términos y condiciones</a> | 
-              <a href="#" class="q-px-sm text-white">Privacidad</a> | 
-              <a href="#" class="q-px-sm text-white">Cookies</a>
-            </div>
-          </div>
+      <!-- Copyright y enlaces legales -->
+      <div class="row justify-center q-py-md">
+        <div class="col-12 text-center text-grey-6">
+          <p class="q-mb-none">
+            &copy; {{ new Date().getFullYear() }} CERTIFY. Todos los derechos reservados.
+            <span class="footer-legal-links">
+              <NuxtLink to="/terminos-y-condiciones" class="text-grey-6 q-ml-md">Términos y condiciones</NuxtLink>
+              <span class="q-mx-xs">|</span>
+              <NuxtLink to="/aviso-de-privacidad" class="text-grey-6">Aviso de privacidad</NuxtLink>
+            </span>
+          </p>
         </div>
       </div>
     </div>
@@ -158,127 +120,68 @@
 </template>
 
 <script setup>
-import { ref, onMounted } from 'vue';
-import { useFetch, useRuntimeConfig } from '#app';
+import { ref, computed } from 'vue';
+import { useFooter } from '~/composables/useFooter';
 
-// Obtener la URL base de la API de la configuración de Nuxt
-const config = useRuntimeConfig();
-const apiBase = config.public.apiBase || 'https://1155-2806-266-480-8244-b06a-3530-343a-1cf.ngrok-free.app';
+// Usar el composable para obtener los datos del footer
+// Usar el composable de footer con logs detallados
+const { footerData, logoUrl, faviconUrl, footerItems, isLoading: loading, error } = useFooter();
 
-// Variables para debugging - activar solo en desarrollo
-const showDebug = ref(true);
+// Logs para depurar datos recibidos
+console.log('ApiFooterComponent - logoUrl:', logoUrl.value);
+console.log('ApiFooterComponent - faviconUrl:', faviconUrl.value);
+console.log('ApiFooterComponent - footerItems:', JSON.stringify(footerItems.value, null, 2));
+console.log('ApiFooterComponent - footerData:', JSON.stringify(footerData, null, 2));
+const showDebug = ref(process.env.NODE_ENV === 'development');
 
-// Estados reactivos
-const navigationItems = ref([]);
-const loading = ref(true);
-const error = ref(null);
-const logo = ref('');
-const favicon = ref('');
-const currentLanguage = ref('es');
-const email = ref('');
-const phone = ref('');
-const address = ref('');
-const description = ref('');
-const newsletterEmail = ref(''); // Email para el formulario de newsletter
+// Valor para modelo de newsletter
+const newsletterEmail = ref('');
 
-// Activar sólo para depuración - desactivar en producción
-// showDebug debe ser false en producción
+// Computed properties para acceder a los datos del footer
+const socialNetworks = computed(() => footerData.footer?.social_networks || {});
 
-/**
- * Función para obtener los datos del footer desde la API de Wagtail
- */
-/**
- * Función para obtener los datos del footer desde la API
- * Con debugging mejorado para resolver problemas de visualización
- */
-const fetchFooterData = async () => {
-  loading.value = true;
-  error.value = null;
+// Transformar los items planos en columnas para el layout
+const columns = computed(() => {
+  if (!footerItems.value || footerItems.value.length === 0) return [];
   
-  try {
-    // Construir la URL con la base correcta de la API
-    const baseUrl = apiBase.endsWith('/') ? apiBase.slice(0, -1) : apiBase;
-    const fullUrl = `${baseUrl}/api/v2/footer`;
-    console.log('Fetching footer data from:', fullUrl);
-    
-    // Intentar obtener datos desde la API
-    const { data: response, error: fetchError } = await useFetch(`${baseUrl}/api/v2/footer`, {
-      key: 'footer-data-' + Date.now(), 
-      timeout: 8000
-    });
-    
-    if (fetchError.value) {
-      console.warn(`Error en la solicitud API: ${fetchError.value.message}`);
-      // No usar datos estáticos, mostrar los mensajes de error en la interfaz
-      navigationItems.value = [];
-      logo.value = '';
-      favicon.value = '';
-    } else if (response.value) {
-      // Extraer elementos de navegación del formato exacto proporcionado
-      navigationItems.value = response.value.items || [];
-      
-      // Extraer logo, favicon y otros datos
-      logo.value = response.value.logo || '';
-      favicon.value = response.value.favicon || '';
-      currentLanguage.value = response.value.current_language || 'es';
-      
-      // Actualizar datos de contacto si vienen en la respuesta
-      if (response.value.email) email.value = response.value.email;
-      if (response.value.phone) phone.value = response.value.phone;
-      if (response.value.address) address.value = response.value.address;
-      
-      console.log('Footer data loaded successfully:', { 
-        links: navigationItems.value.length,
-        logo: logo.value,
-        favicon: favicon.value
-      });
-    } else {
-      console.error('Error: No data returned');
-      // No usar datos estáticos, mostrar los mensajes de error en la interfaz
-      navigationItems.value = [];
-      logo.value = '';
-      favicon.value = '';
-      error.value = new Error('No se pudieron cargar los datos del footer');
+  // Dividir los items en dos columnas para el footer
+  const halfLength = Math.ceil(footerItems.value.length / 2);
+  
+  return [
+    {
+      title: 'Enlaces rápidos',
+      links: footerItems.value.slice(0, halfLength).map(item => ({
+        title: item.title,
+        url: item.url,
+        text: item.title
+      }))
+    },
+    {
+      title: 'Servicios',
+      links: footerItems.value.slice(halfLength).map(item => ({
+        title: item.title,
+        url: item.url,
+        text: item.title
+      }))
     }
-  } catch (err) {
-    console.error('Error al cargar datos del footer:', err);
-    error.value = err;
-    
-    // No usar datos estáticos, mostrar los mensajes de error en la interfaz
-    navigationItems.value = [];
-    logo.value = '';
-    favicon.value = '';
-    // Datos de respaldo usando el formato exacto proporcionado
-    navigationItems.value = [
-      { id: 3, title: 'Inicio', url: '/es/' },
-      { id: 11, title: 'Acerca de nosotros', url: '/es/acerca_de/' },
-      { id: 21, title: 'Plataforma', url: '/es/plataforma/' },
-      { id: 25, title: 'Pacto Verde', url: '/es/pacto_verde/' },
-      { id: 5, title: 'Eventos', url: '/es/eventos/' },
-      { id: 8, title: 'Noticias', url: '/es/noticias/' },
-      { id: 4, title: 'Contacto', url: '/es/contacto/' }
-    ];
-    logo.value = '/media/original_images/certiffy.png';
-    favicon.value = '/media/original_images/wasa.png';
-  } finally {
-    loading.value = false;
-  }
-};
+  ];
+});
 
-/**
- * Función para construir la URL completa del logo desde la API
- */
-const getLogo = () => {
-  if (!logo.value) return '';
-  
-  // Si ya es una URL completa
-  if (logo.value.startsWith('http')) return logo.value;
-  
-  // Construir correctamente la URL completa
-  const baseUrl = apiBase.endsWith('/') ? apiBase.slice(0, -1) : apiBase;
-  const logoPath = logo.value.startsWith('/') ? logo.value : `/${logo.value}`;
-  return baseUrl + logoPath;
-};
+// Datos estáticos de respaldo (se usarán si no hay datos de la API)
+const description = computed(() => 
+  footerData.footer?.description || 'Plataforma integral de trazabilidad y certificación para cadenas de suministro sostenibles.'
+);
+const address = computed(() => 
+  footerData.footer?.address || 'Calle Principal 123, Ciudad'
+);
+const email = computed(() => 
+  footerData.footer?.email || 'info@certify.com'
+);
+const phone = computed(() => 
+  footerData.footer?.phone || '+1 (555) 123-4567'
+);
+
+
 
 /**
  * Maneja errores de carga de imágenes
@@ -290,27 +193,29 @@ const handleImageError = (event) => {
 };
 
 /**
- * Función para construir la URL completa del icono de WhatsApp desde la API
+ * Obtiene la URL de una red social desde los datos del API o usa un valor predeterminado
  */
-const getWhatsappIcon = () => {
-  if (!favicon.value) return '';
+const getSocialUrl = (network) => {
+  // Si hay datos de redes sociales en el API, usarlos
+  if (socialNetworks.value && socialNetworks.value[network]) {
+    return socialNetworks.value[network];
+  }
   
-  // Si ya es una URL completa
-  if (favicon.value.startsWith('http')) return favicon.value;
+  // Valores predeterminados como respaldo
+  const defaultUrls = {
+    facebook: 'https://facebook.com/certify',
+    twitter: 'https://twitter.com/certify',
+    instagram: 'https://instagram.com/certify',
+    linkedin: 'https://linkedin.com/company/certify',
+    youtube: 'https://youtube.com/c/certify'
+  };
   
-  // Construir correctamente la URL completa
-  const baseUrl = apiBase.endsWith('/') ? apiBase.slice(0, -1) : apiBase;
-  const iconPath = favicon.value.startsWith('/') ? favicon.value : `/${favicon.value}`;
-  return baseUrl + iconPath;
+  return defaultUrls[network] || '#';
 };
 
 /**
- * Verifica si una URL es válida para mostrar una imagen
+ * Función para suscribir a newsletter
  */
-const isValidImageUrl = (url) => {
-  return url && typeof url === 'string' && url.trim() !== '' && (url.startsWith('http') || url.startsWith('/'));
-};
-
 const subscribeNewsletter = () => {
   // Validación básica del email
   if (!newsletterEmail.value || !newsletterEmail.value.includes('@')) {
@@ -326,158 +231,123 @@ const subscribeNewsletter = () => {
   newsletterEmail.value = ''; // Limpiar el campo después de enviar
 };
 
-// Cargar los enlaces al montar el componente
-onMounted(() => {
-  fetchFooterData();
-  
-  // Para debug - Mostrar cuál es la URL base de la API
-  console.log('API Base URL:', apiBase);
-});
 </script>
 
 <style lang="scss" scoped>
 /* Estilos generales del footer */
-.footer-wrapper {
+.certiffy-footer {
   width: 100%;
   position: relative;
-  min-height: 200px;
-  padding-bottom: 20px;
+  padding: 60px 0 0;
   color: white;
 }
 
 /* Contenedor principal */
-.container {
+.q-container {
   max-width: 1200px;
   margin: 0 auto;
   padding: 0 16px;
 }
 
 /* Logo estilo */
-.logo-container {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  min-height: 60px;
-}
-
-.certify-logo {
-  width: 140px;
-  height: auto;
-  max-height: 60px;
+.certiffy-footer-logo {
+  width: auto;
+  height: 50px;
   object-fit: contain;
-  display: inline-block;
 }
 
 .no-text-decoration {
   text-decoration: none;
 }
 
-/* Estilos para el botón flotante de WhatsApp */
-.whatsapp-btn {
-  position: fixed;
-  bottom: 20px;
-  right: 20px;
-  z-index: 100;
-  cursor: pointer;
-  transition: transform 0.3s;
+/* Textos del footer */
+.certiffy-footer-text {
+  font-size: 16px;
+  line-height: 1.6;
+}
+
+.certiffy-footer-title {
+  font-weight: 500;
+  margin-bottom: 20px;
+}
+
+/* Enlaces del footer */
+.footer-links {
+  padding-left: 0;
+}
+
+.certiffy-footer-link {
+  color: #bbb !important;
+  text-decoration: none;
+  transition: color 0.2s ease;
   
   &:hover {
-    transform: scale(1.1);
+    color: white !important;
   }
-  
-  /* Animación de pulso */
-  animation: pulse 1.5s infinite;
-}
-
-@keyframes pulse {
-  0% {
-    transform: scale(0.95);
-    box-shadow: 0 0 0 0 rgba(76, 175, 80, 0.7);
-  }
-  
-  70% {
-    transform: scale(1);
-    box-shadow: 0 0 0 10px rgba(76, 175, 80, 0);
-  }
-  
-  100% {
-    transform: scale(0.95);
-    box-shadow: 0 0 0 0 rgba(76, 175, 80, 0);
-  }
-}
-
-/* Información de contacto */
-.contact-info {
-  font-size: 14px;
-  line-height: 1.6;
 }
 
 /* Newsletter input */
 .newsletter-input {
-  max-width: 300px;
-  margin: 0 auto;
+  max-width: 100%;
+  margin-bottom: 10px;
   
-  ::v-deep .q-field__control {
-    background-color: rgba(255, 255, 255, 0.1) !important;
-    color: #fff;
+  :deep(.q-field__control) {
+    background-color: rgba(255, 255, 255, 0.1);
   }
   
-  ::v-deep .q-field__native {
-    color: #fff !important;
+  :deep(.q-field__native) {
+    color: white;
   }
 }
 
-/* Enlaces de navegación */
-.nav-links {
+/* Estilos para iconos de redes sociales */
+.certiffy-social-icons {
   display: flex;
-  flex-direction: column;
-  align-items: flex-start;
+  flex-wrap: wrap;
+  gap: 16px;
+  margin-bottom: 24px;
 }
 
-.footer-nav-link {
-  color: var(--q-accent) !important;
-  font-size: 14px;
-  padding: 4px 0;
+.certiffy-social-icon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  background-color: rgba(255, 255, 255, 0.15);
+  transition: all 0.3s ease;
+  color: var(--q-accent);
   text-decoration: none;
-  transition: all 0.2s ease;
-
-  &:hover {
-    text-decoration: underline;
-    opacity: 0.9;
-    color: var(--q-warning) !important;
-  }
+  box-shadow: 0 2px 4px rgba(0,0,0,0.2);
 }
 
-/* Botón de redes sociales */
-.social-btn {
-  transition: transform 0.3s ease;
-  
-  &:hover {
-    transform: scale(1.1);
-  }
-  
-  &.bg-primary {
-    background-color: var(--q-primary) !important;
-  }
-  
-  &.bg-accent {
-    background-color: var(--q-accent) !important;
-  }
-  
-  &.bg-secondary {
-    background-color: var(--q-secondary) !important;
-  }
+.certiffy-social-icon:hover {
+  background-color: var(--q-accent);
+  color: white !important;
+  transform: translateY(-3px);
+  box-shadow: 0 4px 8px rgba(0,0,0,0.3);
+}
+
+.certiffy-social-icon .q-icon {
+  font-size: 1.2rem;
 }
 
 /* Sección de copyright */
-.copyright-section {
-  margin-top: 30px;
-  padding-top: 20px;
+.certiffy-footer-copyright {
+  font-size: 14px;
+  opacity: 0.8;
 }
 
-/* Estilos para títulos en el footer */
-h4 {
-  font-size: 16px;
-  font-weight: 500;
+/* Responsive */
+@media (max-width: 767px) {
+  .certiffy-footer {
+    padding-top: 40px;
+  }
+  
+  .certiffy-footer-logo {
+    height: 40px;
+    margin-bottom: 10px;
+  }
 }
 </style>

@@ -3,7 +3,7 @@
     <div class="q-mx-auto" style="max-width: 1200px">
       
       <!-- Diseño principal con carrusel, textos y video -->
-      <q-card flat bordered class="q-mb-lg shadow-3 overflow-hidden rounded-borders" style="height: 650px; position: relative; background-color: transparent; border: none;">
+      <q-card flat bordered class="q-mb-lg" style="height: 650px; position: relative; overflow: hidden; border-radius: 8px;">
         <!-- Carrusel como fondo -->
         <div class="absolute-full" style="z-index: 1">
           <!-- Carrusel de imágenes -->
@@ -16,18 +16,15 @@
             control-type="unelevated"
             control-text-color="primary"
             class="bg-grey-3 full-height"
-            height="650px"
-            padding
             :autoplay="autoplayDuration"
             @mouseenter="pauseAutoplay"
             @mouseleave="resumeAutoplay"
-            style="z-index: 3; position: relative"
           >
             <q-carousel-slide 
               v-for="(item, index) in carouselImages" 
               :key="index" 
               :name="index" 
-              class="q-pa-none relative-position"
+              class="column no-wrap flex-center"
             >
               <!-- Usar el proxy de imágenes -->
               <q-img 
@@ -38,11 +35,9 @@
                 fit="cover"
               >
                 <!-- Caption en la parte superior -->
-                <div v-if="item.caption" class="absolute-top text-center w-100" 
-                     style="background: linear-gradient(to bottom, rgba(0,0,0,0.85) 0%, rgba(0,0,0,0.7) 50%, rgba(0,0,0,0.4) 80%, transparent 100%); padding: 2rem 1rem 4rem; z-index: 4;">
+                <div v-if="item.caption" class="absolute-top text-center w-100 q-pt-xl">
                   <div class="q-mx-auto" style="max-width: 1000px;">
-                    <h3 class="text-h3 text-white text-weight-bold q-mb-none" 
-                        style="text-shadow: 2px 2px 4px rgba(0,0,0,0.9); line-height: 1.4; max-width: 90%; margin: 0 auto; letter-spacing: 0.5px;"
+                    <h3 class="text-h3 text-white text-weight-bold q-mb-none"
                         :class="{'text-h4': $q.screen.lt.md, 'text-h5': $q.screen.lt.sm}">
                       {{ item.caption }}
                     </h3>
@@ -63,36 +58,34 @@
           </q-carousel>
           
           <!-- Overlay para legibilidad -->
-          <div class="absolute-full" 
-               style="background: linear-gradient(to right, rgba(0,0,0,0.8) 30%, rgba(0,0,0,0.5) 70%, rgba(0,0,0,0.3) 100%); z-index: 2; pointer-events: none;"></div>
+          <div class="absolute-full bg-black" style="opacity: 0.4;"></div>
         </div>
         
         <!-- Contenido principal -->
         <div class="relative-position full-height" style="z-index: 3">
           <!-- Título principal -->
           <div class="q-pa-xl">
-            <h2 v-if="showMainTitle" class="text-h3 text-weight-bold q-mb-lg text-white"
+            <h2 v-if="showMainTitle" 
+                class="text-h3 text-weight-bold q-mb-lg text-white"
                 :class="{'text-h4': $q.screen.lt.md, 'text-h5': $q.screen.lt.sm}">
               {{ mainTitle }}
             </h2>
           </div>
           
           <!-- Video en la esquina -->
-          <div class="absolute-bottom-right q-mb-md q-mr-md" 
-               style="width: 320px; z-index: 10;"
-               :class="{'absolute-bottom q-mb-xl': $q.screen.lt.md}">
-            <q-card flat class="bg-transparent" style="backdrop-filter: blur(5px); border-radius: 12px; background-color: rgba(0,0,0,0.6);">
+          <div class="absolute-bottom-right q-mb-md q-mr-md"
+               :class="{'absolute-bottom q-mb-xl': $q.screen.lt.md}"
+               style="width: 380px; max-width: 90vw;">
+            <q-card flat class="bg-transparent">
               <q-card-section>
                 <!-- Video con miniatura y botón -->
-                <div class="relative-position rounded-borders overflow-hidden" style="width: 320px; height: 180px;">
+                <div style="position: relative; border-radius: 8px; overflow: hidden; box-shadow: 0 4px 15px rgba(0,0,0,0.2);">
                   <!-- Miniatura -->
-                  <div v-if="!videoActive" class="full-width full-height">
+                  <div v-if="!videoActive" class="full-width" style="height: 215px;">
                     <q-img
                       :src="videoUrl ? getYouTubeThumbnail(videoUrl) : 'https://cdn.quasar.dev/img/parallax2.jpg'"
-                      class="full-width full-height rounded-borders q-hoverable q-transition"
-                      style="border: 2px solid white; box-shadow: 0 5px 15px rgba(0,0,0,0.3); transition: transform 0.3s ease;"
-                      height="180px"
-                      width="320px"
+                      class="cursor-pointer full-height"
+                      @click="activateVideo"
                     >
                       <template v-slot:error>
                         <div class="absolute-full flex flex-center bg-grey-3 text-dark">
@@ -112,7 +105,6 @@
                           size="lg"
                           @click="activateVideo"
                           class="q-hoverable"
-                          style="transform: scale(1.5); transition: transform 0.3s ease; box-shadow: 0 0 20px rgba(0,0,0,0.5);"
                         />
                       </div>
                     </q-img>
@@ -124,14 +116,12 @@
                     :src="videoUrl"
                     frameborder="0"
                     allowfullscreen
-                    class="rounded-borders full-width full-height"
-                    style="border: none; box-shadow: 0 5px 15px rgba(0,0,0,0.3);"
-                    width="320"
-                    height="180"
+                    class="full-width"
+                    style="height: 215px;"
                   ></iframe>
                   
                   <!-- Placeholder sin video -->
-                  <div v-if="!videoUrl && !videoActive" class="full-width full-height flex flex-center bg-grey-3">
+                  <div v-if="!videoUrl && !videoActive" class="full-width flex flex-center bg-grey-3" style="height: 215px;">
                     <div class="text-center">
                       <q-icon name="videocam_off" size="2rem" color="grey-5" />
                       <div class="text-caption q-mt-sm">Video no disponible</div>
@@ -139,8 +129,8 @@
                   </div>
                 </div>
                 
-                <h5 class="text-subtitle1 text-weight-bold text-white q-mb-sm q-mt-sm">{{ videoTitle }}</h5>
-                <p class="text-white text-caption q-mb-none">{{ videoDescription }}</p>
+                <h5 class="q-mt-md q-mb-sm text-weight-bold text-white">{{ videoTitle }}</h5>
+                <p class="q-ma-none text-white text-body2">{{ videoDescription }}</p>
               </q-card-section>
             </q-card>
           </div>

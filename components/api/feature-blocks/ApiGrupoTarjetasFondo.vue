@@ -1,8 +1,8 @@
 <template>
-  <section class="tarjetas-section q-py-xl" style="background-color: #f7f7f7;">
-    <div class="container-wrapper q-mx-auto q-px-md">
+  <section class="bg-black q-py-xl">
+    <div class="q-mx-auto q-px-md" style="max-width: 1400px">
       <!-- Estado de carga -->
-      <div v-if="loading" class="full-width flex justify-center items-center" style="min-height: 100px">
+      <div v-if="loading" class="flex flex-center q-pa-lg">
         <q-spinner color="primary" size="1.5em" />
         <span class="q-ml-sm text-caption text-primary">Cargando tarjetas...</span>
       </div>
@@ -18,20 +18,20 @@
       <!-- Contenido principal: carrusel horizontal de tarjetas -->
       <div v-else>
         <!-- Encabezado con título y controles -->
-        <div class="header-row q-mb-xl">
-          <div class="section-title-container">
-            <h2 class="section-title primary-title">{{ tituloApartado }}</h2>
+        <div class="row justify-between items-start q-mb-xl">
+          <div class="col-12 col-md-8">
+            <h2 class="text-h3 text-primary text-weight-bold q-my-none">{{ tituloApartado }}</h2>
           </div>
           
           <!-- Controles de navegación en la parte superior derecha -->
-          <div class="control-buttons" v-if="tarjetas.length > visibleCards">
+          <div class="col-auto" v-if="tarjetas.length > visibleCards">
             <q-btn
               round
               flat
               color="grey-4"
               icon="chevron_left"
               dense
-              class="nav-btn q-mr-sm"
+              class="q-mr-sm shadow-1"
               :disable="!canScrollLeft"
               @click="scrollLeft"
             />
@@ -41,7 +41,7 @@
               color="grey-4"
               icon="chevron_right"
               dense
-              class="nav-btn"
+              class="shadow-1"
               :disable="!canScrollRight"
               @click="scrollRight"
             />
@@ -49,65 +49,87 @@
         </div>
       
         <!-- Contenedor de tarjetas con scroll horizontal -->
-        <div class="cards-carousel">
-          <div class="cards-container" ref="tarjetasContainer">
+        <div class="q-py-sm" style="position: relative; width: 100%; overflow: hidden;">
+          <div 
+            class="row no-wrap q-py-md q-gutter-x-lg" 
+            style="overflow-x: auto; scroll-behavior: smooth; scrollbar-width: none; -ms-overflow-style: none; scroll-snap-type: x mandatory;"
+            ref="tarjetasContainer"
+          >
             <NuxtLink 
               v-for="(tarjeta, index) in tarjetas" 
               :key="index" 
-              class="card-item"
+              class="col-auto q-hoverable"
+              style="width: 280px; height: 400px; text-decoration: none; color: inherit; transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1); border-radius: 20px; overflow: hidden; scroll-snap-align: start;"
+              :style="{'transform': $q.hover ? 'translateY(-12px) scale(1.02)' : 'none'}"
               :to="getCardUrl(tarjeta)"
             >
-              <div class="card-content">
+              <q-card class="full-height" flat>
                 <!-- Imagen de fondo -->
                 <q-img
                   :src="tarjeta.imageUrl"
                   error-src="https://placehold.co/600x400/333333/666666?text=No+Image"
                   spinner-color="white"
                   spinner-size="42px"
-                  class="card-background"
+                  class="full-height"
                   fit="cover"
-                  height="100%"
                 >
                   <!-- Gradient overlay para mejor legibilidad -->
                   <template v-slot:after>
-                    <div class="card-overlay"></div>
+                    <div class="absolute-full" style="background: linear-gradient(135deg, rgba(0, 0, 0, 0.5) 0%, rgba(0, 0, 0, 0.7) 50%, rgba(0, 0, 0, 0.9) 100%); box-shadow: inset 0 0 30px rgba(0, 0, 0, 0.8);"></div>
                   </template>
+
+                  <!-- Contenido de texto superpuesto -->
+                  <div class="absolute-bottom q-pa-md text-white" style="background: linear-gradient(to top, rgba(0, 0, 0, 0.8) 0%, rgba(0, 0, 0, 0.4) 70%, transparent 100%);">
+                    <!-- Categoría como badge/etiqueta -->
+                    <q-badge 
+                      color="primary" 
+                      text-color="white" 
+                      class="q-mb-sm text-uppercase text-weight-bold" 
+                      style="font-size: 0.65rem; letter-spacing: 0.5px; box-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);"
+                    >
+                      {{ tarjeta.categoria || 'General' }}
+                    </q-badge>
+                    
+                    <!-- Fecha formateada -->
+                    <div class="text-caption text-white-8 q-mb-sm" v-if="tarjeta.fecha">
+                      {{ formatDate(tarjeta.fecha) }}
+                    </div>
+                    
+                    <!-- Título principal -->
+                    <div class="text-h5 text-white text-weight-bold q-mb-sm" style="text-shadow: 0 2px 8px rgba(0, 0, 0, 0.7); line-height: 1.2;">
+                      {{ tarjeta.titulo || (tarjeta.descripcion ? stripHtml(tarjeta.descripcion) : 'Artículo') }}
+                    </div>
+                    
+                    <!-- Descripción -->
+                    <div 
+                      class="text-body2 text-white-9" 
+                      v-if="tarjeta.descripcion" 
+                      style="overflow: hidden; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical;"
+                    >
+                      {{ stripHtml(tarjeta.descripcion) }}
+                    </div>
+                  </div>
                 </q-img>
-                
-                <!-- Contenido de texto superpuesto -->
-                <div class="card-text-content">
-                  <!-- Categoría como badge/etiqueta -->
-                  <div class="card-badge">
-                    {{ tarjeta.categoria || 'General' }}
-                  </div>
-                  
-                  <!-- Fecha formateada -->
-                  <div class="card-date" v-if="tarjeta.fecha">
-                    {{ formatDate(tarjeta.fecha) }}
-                  </div>
-                  
-                  <!-- Título principal -->
-                  <h3 class="card-title">
-                    {{ tarjeta.titulo || (tarjeta.descripcion ? stripHtml(tarjeta.descripcion) : 'Artículo') }}
-                  </h3>
-                  
-                  <!-- Descripción -->
-                  <div class="card-subtitle" v-if="tarjeta.descripcion">
-                    {{ stripHtml(tarjeta.descripcion) }}
-                  </div>
-                </div>
-              </div>
+              </q-card>
             </NuxtLink>
           </div>
         </div>
         
         <!-- Indicadores de página (dots) -->
-        <div v-if="showIndicators" class="dots-container">
-          <div 
+        <div v-if="showIndicators" class="flex justify-center items-center q-gutter-x-sm q-mt-lg">
+          <q-btn 
             v-for="(_, index) in Math.ceil(tarjetas.length / visibleCards)" 
             :key="index" 
-            class="dot"
-            :class="{ 'dot-active': index === currentPage }"
+            round 
+            dense 
+            flat
+            :color="index === currentPage ? 'primary' : 'grey-7'"
+            size="sm"
+            :style="{
+              transform: index === currentPage ? 'scale(1.2)' : 'scale(1)',
+              opacity: index === currentPage ? 1 : 0.6,
+              transition: 'all 0.3s ease'
+            }"
             @click="goToPage(index)"
           />
         </div>
@@ -325,8 +347,15 @@ onMounted(async () => {
       if (imageUrl && !imageUrl.startsWith('http')) {
         const config = useRuntimeConfig();
         const baseUrl = config.public.apiBase || 'http://localhost:3000';
-        const fullImageUrl = imageUrl.startsWith('/') ? `${baseUrl}${imageUrl}` : `${baseUrl}/${imageUrl}`;
-        imageUrl = `/api/proxy-image?url=${encodeURIComponent(fullImageUrl)}`;
+        
+        let url = imageUrl;
+        
+        if (url.includes('127.0.0.1:8000') || url.includes('localhost:8000')) {
+          const urlObj = new URL(url);
+          url = `${baseUrl}${urlObj.pathname}`;
+        }
+        
+        imageUrl = `/api/proxy-image?url=${encodeURIComponent(url)}`;
       }
       
       return {
@@ -366,299 +395,6 @@ onUnmounted(() => {
 });
 </script>
 
-<style scoped>
-.tarjetas-section {
-  width: 100%;
-  padding: 4rem 0;
-  background: #000000;
-  min-height: 100vh;
-}
-
-.container-wrapper {
-  max-width: 1400px;
-  margin: 0 auto;
-}
-
-.header-row {
-  display: flex;
-  justify-content: space-between;
-  align-items: flex-start;
-  margin-bottom: 3rem;
-}
-
-.section-title-container {
-  display: flex;
-  flex-direction: column;
-  gap: 0.5rem;
-}
-
-.section-title {
-  font-size: 2.5rem;
-  font-weight: 600;
-  margin: 0;
-  line-height: 1.2;
-}
-
-.primary-title {
-  color: var(--q-primary);
-  text-shadow: 0 2px 10px rgba(0, 0, 0, 0.5);
-}
-
-.discover-link {
-  display: flex;
-  align-items: center;
-  color: #888888;
-  cursor: pointer;
-  transition: color 0.3s ease;
-}
-
-.discover-link:hover {
-  color: #ffffff;
-}
-
-.discover-text {
-  font-size: 0.95rem;
-  font-weight: 400;
-}
-
-.control-buttons {
-  display: flex;
-  align-items: center;
-  gap: 0.5rem;
-}
-
-.nav-btn {
-  background: var(--q-primary);
-  backdrop-filter: blur(10px);
-  border-radius: 50%;
-  width: 44px;
-  height: 44px;
-  transition: all 0.3s ease;
-  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.3);
-}
-
-.nav-btn:hover {
-  background: var(--q-primary);
-  transform: scale(1.05);
-  box-shadow: 0 6px 15px rgba(0, 0, 0, 0.4);
-}
-
-.nav-btn.q-btn--disabled {
-  background: rgba(255, 255, 255, 0.1);
-  opacity: 0.5;
-  box-shadow: none;
-}
-
-.cards-carousel {
-  position: relative;
-  width: 100%;
-  overflow: hidden;
-}
-
-.cards-container {
-  display: flex;
-  overflow-x: auto;
-  scroll-behavior: smooth;
-  gap: 1.5rem;
-  padding: 1rem 0;
-  -ms-overflow-style: none;
-  scrollbar-width: none;
-  scroll-snap-type: x mandatory;
-}
-
-.cards-container::-webkit-scrollbar {
-  display: none;
-}
-
-.card-item {
-  flex: 0 0 auto;
-  width: 280px;
-  height: 400px;
-  text-decoration: none;
-  color: inherit;
-  transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
-  border-radius: 20px;
-  overflow: hidden;
-  scroll-snap-align: start;
-  position: relative;
-}
-
-.card-item:hover {
-  transform: translateY(-12px) scale(1.02);
-}
-
-.card-content {
-  position: relative;
-  width: 100%;
-  height: 100%;
-  border-radius: 20px;
-  overflow: hidden;
-}
-
-.card-background {
-  position: absolute;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-  border-radius: 20px;
-}
-
-.card-overlay {
-  position: absolute;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-  background: linear-gradient(
-    135deg,
-    rgba(0, 0, 0, 0.5) 0%,
-    rgba(0, 0, 0, 0.7) 50%,
-    rgba(0, 0, 0, 0.9) 100%
-  );
-  z-index: 1;
-  box-shadow: inset 0 0 30px rgba(0, 0, 0, 0.8);
-}
-
-.card-text-content {
-  position: absolute;
-  bottom: 0;
-  left: 0;
-  right: 0;
-  padding: 2rem;
-  z-index: 2;
-  color: white;
-  background: linear-gradient(to top, rgba(0, 0, 0, 0.8) 0%, rgba(0, 0, 0, 0.4) 70%, transparent 100%);
-}
-
-.card-badge {
-  font-size: 0.65rem;
-  font-weight: 600;
-  letter-spacing: 0.5px;
-  color: white;
-  background-color: var(--q-primary);
-  display: inline-block;
-  padding: 0.25rem 0.5rem;
-  border-radius: 4px;
-  margin-bottom: 0.5rem;
-  text-transform: uppercase;
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
-}
-
-.card-date {
-  font-size: 0.7rem;
-  font-weight: 500;
-  color: rgba(255, 255, 255, 0.8);
-  margin-bottom: 0.75rem;
-}
-
-.card-title {
-  font-size: 1.6rem;
-  font-weight: 700;
-  line-height: 1.2;
-  margin: 0 0 0.75rem 0;
-  color: white;
-  text-shadow: 0 2px 8px rgba(0, 0, 0, 0.7);
-  letter-spacing: 0.5px;
-}
-
-.card-subtitle {
-  font-size: 0.85rem;
-  font-weight: 400;
-  color: rgba(255, 255, 255, 0.9);
-  line-height: 1.4;
-  margin: 0;
-  max-height: 3.8rem;
-  overflow: hidden;
-  display: -webkit-box;
-  -webkit-line-clamp: 2;
-  -webkit-box-orient: vertical;
-  text-overflow: ellipsis;
-}
-
-.dots-container {
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  gap: 0.5rem;
-  margin-top: 2rem;
-}
-
-.dot {
-  width: 10px;
-  height: 10px;
-  border-radius: 50%;
-  background: rgba(255, 255, 255, 0.2);
-  cursor: pointer;
-  transition: all 0.3s ease;
-  border: 1px solid rgba(255, 255, 255, 0.5);
-  box-shadow: 0 0 5px rgba(0, 0, 0, 0.3);
-}
-
-.dot-active {
-  background: var(--q-primary);
-  border-color: var(--q-primary);
-  transform: scale(1.2);
-  box-shadow: 0 0 8px var(--q-primary);
-}
-
-.dot:hover {
-  background: rgba(255, 255, 255, 0.6);
-  transform: scale(1.1);
-}
-
-/* Responsive adjustments */
-@media (max-width: 1200px) {
-  .section-title {
-    font-size: 2rem;
-  }
-  
-  .card-item {
-    width: 300px;
-    height: 380px;
-  }
-}
-
-@media (max-width: 768px) {
-  .header-row {
-    flex-direction: column;
-    gap: 1rem;
-  }
-  
-  .section-title {
-    font-size: 1.75rem;
-  }
-  
-  .control-buttons {
-    align-self: flex-end;
-  }
-  
-  .card-item {
-    width: 280px;
-    height: 360px;
-  }
-  
-  .card-text-content {
-    padding: 1.5rem;
-  }
-  
-  .card-title {
-    font-size: 1.25rem;
-  }
-}
-
-@media (max-width: 480px) {
-  .tarjetas-section {
-    padding: 2rem 0;
-  }
-  
-  .cards-container {
-    gap: 1rem;
-  }
-  
-  .card-item {
-    width: 260px;
-    height: 340px;
-  }
-}
+<style>
+/* Ya no necesitamos importar CSS externo, ahora usamos componentes y utilidades de Quasar */
 </style>

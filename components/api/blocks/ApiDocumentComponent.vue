@@ -1,9 +1,9 @@
 <template>
-  <div class="q-my-lg q-mx-xs" style="max-width: 100%;">
-    <div class="q-mb-md q-pa-sm" style="max-width: 500px;">
-      <q-card flat bordered class="bg-white shadow-1 q-transition" :class="{'q-hoverable': true}">
-        <q-card-section class="q-pb-xs" style="border-bottom: 1px solid rgba(0, 0, 0, 0.05);">
-          <div class="text-h6 text-primary text-weight-bold text-truncate" style="font-family: 'OpenSans-Bold', sans-serif;">
+  <div class="q-py-md q-px-sm">
+    <div class="q-pa-sm" style="max-width: 500px">
+      <q-card flat bordered class="q-hoverable" :class="$q.dark.isActive ? 'bg-dark' : 'bg-white'">
+        <q-card-section class="q-pb-xs q-mb-xs" :class="$q.dark.isActive ? 'doc-header-dark' : 'doc-header-light'">
+          <div class="text-subtitle1 text-weight-bold text-primary ellipsis">
             {{ documentTitle }}
           </div>
           <div class="text-caption text-grey-7" v-if="documentInfo">
@@ -20,7 +20,9 @@
               class="q-mr-sm"
             />
             <div class="col">
-              <div class="text-subtitle2 text-weight-medium text-truncate" style="font-family: 'OpenSans-SemiBold', sans-serif; max-width: 200px;">{{ documentFileName }}</div>
+              <div class="text-body2 text-weight-medium ellipsis" style="max-width: 200px">
+                {{ documentFileName }}
+              </div>
               <div class="text-caption text-grey-7">
                 {{ documentFileSize }}
               </div>
@@ -32,12 +34,12 @@
             :href="documentUrl" 
             target="_blank"
             color="secondary" 
-            class="q-px-md q-mt-sm q-transition"
+            class="q-mt-sm q-px-md"
             no-caps
             rounded
             outline
             size="sm"
-            :class="{'q-hoverable': true}"
+            :ripple="{early: true, color: 'secondary'}"
           >
             Descargar
           </q-btn>
@@ -50,6 +52,8 @@
 <script setup>
 import { computed } from 'vue';
 import { useRuntimeConfig } from '#app'; // Import useRuntimeConfig
+
+// NOTA: Ya no importamos CSS externo, usando clases de Quasar
 
 // Propiedades del componente
 const props = defineProps({
@@ -157,4 +161,18 @@ function getFileIcon() {
 }
 </script>
 
+<style>
+/* Estilos mínimos necesarios que no tienen equivalente en Quasar */
+.doc-header-light {
+  border-bottom: 1px solid rgba(0, 0, 0, 0.05);
+}
 
+.doc-header-dark {
+  border-bottom: 1px solid rgba(255, 255, 255, 0.07);
+}
+
+/* Añadimos soporte para tema oscuro en la tarjeta */
+.q-card.bg-dark {
+  background-color: #1d1d1d;
+}
+</style>

@@ -1,52 +1,42 @@
 <template>
-  <section :id="'hero-banner-' + (id || Math.random().toString(36).substring(2, 9))" style="width: 100vw; position: relative; left: 50%; right: 50%; margin-left: -50vw; margin-right: -50vw; margin-top: -24px; padding: 0; overflow-x: hidden;">
+  <section :id="'hero-banner-' + (id || Math.random().toString(36).substring(2, 9))" class="hero-container">
     <!-- Hero banner dinámico con imagen y superposición de texto -->
     <div 
-      class="relative-position overflow-hidden" 
-      :style="{ 
+      class="relative overflow-hidden bg-center bg-cover"
+      :style="{
         backgroundImage: imagenUrl ? `url(${imagenUrl})` : '',
-        backgroundPosition: 'center',
-        backgroundSize: 'cover',
-        backgroundRepeat: 'no-repeat',
-        height: compact ? '300px' : '400px',
-        width: '100%',
+        height: compact ? '300px' : '400px'
       }"
     >
       <div 
-        class="absolute-full" 
-        :style="{ 
-          backgroundColor: lightOverlay ? 'rgba(0, 0, 0, 0.2)' : 'rgba(0, 0, 0, 0.4)', 
-          zIndex: 2 
-        }"
+        class="absolute-full z-2"
+        :class="lightOverlay ? 'bg-black-2' : 'bg-black-4'"
       ></div>
-      <div class="absolute-full flex flex-center" style="z-index: 3; padding: 0 2rem;">
-        <div class="flex justify-center full-width">
-          <div class="text-center" style="max-width: 600px;">
-              <h1 
-                class="text-white text-weight-bold q-ma-none q-mb-md text-h3" 
-                style="text-shadow: 0 2px 4px rgba(0, 0, 0, 0.5);" 
-                v-if="block?.value?.imagen?.title"
-              >
-                {{ block.value.imagen.title }}
-              </h1>
-              <div class="q-mb-lg" v-if="block?.value?.texto">
-                <p class="text-white text-body1 q-ma-none" style="line-height: 1.5; text-shadow: 0 1px 3px rgba(0, 0, 0, 0.5);">
-                  {{ block.value.texto }}
-                </p>
-              </div>
-              <div class="q-mt-md" v-if="showAction">
-                <q-btn 
-                  color="primary" 
-                  class="q-py-sm q-px-md q-transition" 
-                  :class="{'q-hoverable': true}"
-                  size="lg" 
-                  no-caps
-                  :to="actionLink"
-                  :label="actionLabel || 'Saber más'"
-                  :flat="actionFlat"
-                  :outline="actionOutline"
-                />
-              </div>
+      <div class="absolute-full z-3 flex flex-center q-px-md">
+        <div class="q-mx-auto text-center" style="max-width: 600px">
+          <h1 
+            class="text-h3 text-white text-weight-900 q-mb-md text-shadow"
+            v-if="block?.value?.imagen?.title"
+          >
+            {{ block.value.imagen.title }}
+          </h1>
+          <div class="q-mb-lg" v-if="block?.value?.texto">
+            <p class="text-body1 text-white text-shadow">
+              {{ block.value.texto }}
+            </p>
+          </div>
+          <div class="q-mt-lg" v-if="showAction">
+            <q-btn 
+              color="primary" 
+              class="q-px-md q-py-sm q-transition" 
+              size="lg" 
+              no-caps
+              :to="actionLink"
+              :label="actionLabel || 'Saber más'"
+              :flat="actionFlat"
+              :outline="actionOutline"
+              :ripple="{early: true}"
+            />
           </div>
         </div>
       </div>
@@ -112,7 +102,7 @@ const imagenUrl = computed(() => {
     } else if (imagen.url.startsWith('http')) {
       return `/api/proxy-image?url=${encodeURIComponent(imagen.url)}`;
     } else {
-      const runtimeConfig = useRuntimeConfig(); // Asegurarse que runtimeConfig está disponible aquí también si es un bloque else diferente
+      const runtimeConfig = useRuntimeConfig(); 
       return `/api/proxy-image?url=${encodeURIComponent(runtimeConfig.public.apiBase + '/' + imagen.url)}`;
     }
   }
@@ -120,3 +110,29 @@ const imagenUrl = computed(() => {
   return null;
 });
 </script>
+
+<style>
+/* Estilos mínimos necesarios que no se pueden lograr con Quasar */
+.hero-container {
+  width: 100vw;
+  position: relative;
+  left: 50%;
+  right: 50%;
+  margin-left: -50vw;
+  margin-right: -50vw;
+  margin-top: -24px;
+  padding: 0;
+  overflow-x: hidden;
+}
+
+.text-shadow {
+  text-shadow: 0 1px 3px rgba(0, 0, 0, 0.5);
+}
+
+/* Estilos responsivos */
+@media (max-width: 767px) {
+  .text-h3 {
+    font-size: 1.8rem !important;
+  }
+}
+</style>

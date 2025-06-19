@@ -8,9 +8,7 @@
       :href="isInternalLink ? undefined : buttonUrl"
       :target="isInternalLink ? undefined : '_blank'"
       :rel="isInternalLink ? undefined : 'noopener noreferrer'"
-      class="text-body1 text-weight-medium q-letter-spacing-sm q-transition"
-      :class="{'q-hoverable': true}"
-      style="min-width: 180px; letter-spacing: 0.5px;"
+      class="certiffy-btn certiffy-btn-lg certiffy-text"
       no-caps
       rounded
       unelevated

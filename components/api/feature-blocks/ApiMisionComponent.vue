@@ -1,23 +1,49 @@
 <template>
   <div class="q-pa-md q-mx-auto" style="max-width: 1200px;">
-    <div class="text-center q-mb-lg" v-if="block.value && block.value.imagen_hover">
+    <q-card 
+      v-if="block.value && block.value.imagen_hover" 
+      flat 
+      class="text-center q-mb-lg bg-transparent shadow-none"
+      bordered
+    >
       <q-img
-        class="rounded-borders overflow-hidden q-transition"
+        class="rounded-borders overflow-hidden transition-opacity"
         :src="getImageUrl(block.value.imagen_hover.image)"
         spinner-color="primary"
+        spinner-size="3em"
         width="100%"
         height="400px"
         fit="cover"
       >
-        <div class="absolute-full flex flex-center" :class="[colorClass, 'q-transition']" style="opacity: 0.85;" :style="{'&:hover': {opacity: 0.95}}">
-          <div class="q-pa-lg" style="max-width: 80%;">
-            <div class="text-white text-center text-weight-bold" style="font-size: 1.5rem; line-height: 1.4; text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.5);">
-              {{ block.value.imagen_hover.texto_overlay }}
+        <template v-slot:loading>
+          <div class="flex flex-center absolute-full">
+            <q-spinner size="3em" color="primary" />
+          </div>
+        </template>
+        <template v-slot:error>
+          <div class="flex flex-center absolute-full bg-grey-3">
+            <div class="text-negative">
+              <q-icon name="error" size="2rem" />
+              <div>Error al cargar la imagen</div>
             </div>
+          </div>
+        </template>
+
+        <div 
+          class="absolute-full flex flex-center transition-opacity" 
+          :class="[colorClass]"
+          style="opacity: 0.85;"
+        >
+          <div class="q-pa-lg" style="max-width: 80%;">
+            <q-card-section class="q-pa-none">
+              <div class="text-white text-center text-weight-bold text-h4 text-shadow-1">
+                {{ block.value.imagen_hover.texto_overlay }}
+              </div>
+            </q-card-section>
           </div>
         </div>
       </q-img>
-    </div>
+    </q-card>
   </div>
 </template>
 
