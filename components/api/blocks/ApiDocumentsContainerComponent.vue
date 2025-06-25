@@ -1,6 +1,6 @@
 <template>
-  <section :id="'documents-container-' + (id || Math.random().toString(36).substring(2, 9))" class="q-my-lg" style="max-width: 800px; margin-left: auto; margin-right: auto;">
-    <div class="q-mx-auto q-px-md">
+  <section :id="'documents-container-' + (id || Math.random().toString(36).substring(2, 9))" class="q-my-md" style="max-width: 800px;">
+    <div class="q-px-md">
       <div v-if="title" class="text-h6 text-weight-bold text-primary q-mb-md">
         {{ title }}
       </div>

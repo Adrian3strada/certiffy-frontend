@@ -1,151 +1,113 @@
 <template>
-  <section 
-    :class="[$q.screen.lt.md ? 'q-py-md' : 'q-py-xl', posicionImagen === 'fondo' ? '' : 'q-px-md']"
-    :style="posicionImagen === 'fondo' ? 'width: 100%; overflow: hidden; padding: 0; margin: 0;' : 'max-width: 1200px; margin: 0 auto; overflow: hidden;'"
-    :id="'imagen-texto-' + (block.id || Math.random().toString(36).substring(2, 9))"
-  >
+  <section :class="[$q.screen.lt.md ? 'q-py-md' : 'q-py-md', posicionImagen === 'fondo' ? '' : 'q-px-sm']"
+    :style="posicionImagen === 'fondo' ? 'width: 100%; overflow: hidden; padding: 0; margin: 0;' : 'max-width: 1000px; margin: 0 auto; overflow: hidden;'"
+    :id="'imagen-texto-' + (block.id || Math.random().toString(36).substring(2, 9))">
     <!-- Visualización en modo de carga -->
-    <div v-if="loading" class="full-width flex flex-center q-pa-xl">
+    <div v-if="loading" class="full-width flex flex-center q-pa-md">
       <q-spinner color="primary" size="3em" />
       <div class="q-ml-sm text-primary text-subtitle1">Cargando...</div>
     </div>
 
     <!-- Visualización de error -->
-    <div v-else-if="error" class="bg-red-1 text-negative flex flex-center column items-center q-pa-md rounded-borders">
+    <div v-else-if="error" class="bg-red-1 text-negative flex flex-center column items-center q-pa-sm rounded-borders">
       <q-icon name="error" size="2rem" />
       <div class="q-mt-sm">{{ error }}</div>
     </div>
 
     <!-- POSICIÓN: FONDO - Imagen como fondo con texto superpuesto (hero banner) -->
     <div v-else-if="posicionImagen === 'fondo'" class="full-width" style="position: relative; left: 0; right: 0;">
-      <q-img
-        :src="imageUrl"
-        class="full-width"
-        :ratio="5/1"
-        transition="fade"
-        spinner-color="primary"
-        spinner-size="3em"
-        @error="handleImageError"
-      >
-        <div class="absolute-full flex column justify-center items-center text-center" 
-             style="background: rgba(0, 0, 0, 0.4); padding: 2rem;">
+      <q-img :src="imageUrl" class="full-width" :ratio="5 / 1" transition="fade" spinner-color="primary"
+        spinner-size="3em" @error="handleImageError">
+        <div class="absolute-full flex column justify-center items-center text-center"
+          style="background: rgba(0, 0, 0, 0.4); padding: 2rem;">
           <div class="q-mx-auto q-pa-lg bg-black-6" style="max-width: 800px; border-radius: 8px;">
-            <h2 v-if="title" class="text-h2 text-white text-weight-bold q-mb-md" 
-                :class="alineacionClass"
-                style="text-shadow: 0 2px 4px rgba(0, 0, 0, 0.5);"
-                v-html="title">
+            <h2 v-if="title && title.trim() !== ''" class="text-h2 text-white text-weight-bold q-mb-md"
+              :class="alineacionClass" style="text-shadow: 0 2px 4px rgba(0, 0, 0, 0.5);" v-html="title">
             </h2>
-            <div class="text-body1 text-white" :class="alineacionClass" v-html="content"></div>
+            <div v-if="!isContentDuplicateOfTitle" class="text-body1 text-white" :class="alineacionClass"
+              v-html="content"></div>
           </div>
         </div>
       </q-img>
     </div>
 
     <!-- POSICIÓN: IZQUIERDA - Imagen a la izquierda, texto a la derecha -->
-    <div v-else-if="posicionImagen === 'izquierda'" class="q-pa-md">
+    <div v-else-if="posicionImagen === 'izquierda'" class="q-pa-sm">
       <div class="row q-col-gutter-xl items-center">
         <div class="col-12 col-md-5">
           <q-card class="q-hoverable" style="border-radius: 8px; overflow: hidden;">
-            <q-img
-              :src="imageUrl"
-              class="full-width"
-              :ratio="4/3"
-              transition="fade"
-              spinner-color="primary"
-              spinner-size="2em"
-              @error="handleImageError"
-            />
+            <q-img :src="imageUrl" class="full-width" :ratio="4 / 3" transition="fade" spinner-color="primary"
+              spinner-size="2em" @error="handleImageError" />
           </q-card>
         </div>
         <div class="col-12 col-md-7">
-          <div class="q-pr-md q-pl-md-none">
-            <h2 v-if="title" class="text-h3 text-primary q-mb-md">{{ title }}</h2>
-            <div class="text-body1" v-html="content"></div>
+          <div class="q-pr-md q-pl-md-none" :class="alineacionClass">
+            <h2 v-if="title" class="text-h3 text-primary q-mb-md" :class="alineacionClass">{{ title }}</h2>
+            <div class="text-body1" :class="alineacionClass" v-html="content"></div>
           </div>
         </div>
       </div>
     </div>
 
     <!-- POSICIÓN: DERECHA - Imagen a la derecha, texto a la izquierda -->
-    <div v-else-if="posicionImagen === 'derecha'" class="q-pa-md">
+    <div v-else-if="posicionImagen === 'derecha'" class="q-pa-sm">
       <div class="row q-col-gutter-xl items-center reverse">
         <div class="col-12 col-md-5">
           <q-card class="q-hoverable" style="border-radius: 8px; overflow: hidden;">
-            <q-img
-              :src="imageUrl"
-              class="full-width"
-              :ratio="4/3"
-              transition="fade"
-              spinner-color="primary"
-              spinner-size="2em"
-              @error="handleImageError"
-            />
+            <q-img :src="imageUrl" class="full-width" :ratio="4 / 3" transition="fade" spinner-color="primary"
+              spinner-size="2em" @error="handleImageError" />
           </q-card>
         </div>
         <div class="col-12 col-md-7">
-          <div class="q-pl-md-none q-pr-md text-right">
-            <h2 v-if="title" class="text-h3 text-primary q-mb-md text-right">{{ title }}</h2>
-            <div class="text-body1 text-right" v-html="content"></div>
+          <div class="q-pl-md-none q-pr-md" :class="alineacionClass">
+            <h2 v-if="title" class="text-h3 text-primary q-mb-md" :class="alineacionClass">{{ title }}</h2>
+            <div class="text-body1" :class="alineacionClass" v-html="content"></div>
           </div>
         </div>
       </div>
     </div>
 
     <!-- POSICIÓN: ABAJO - Texto arriba, imagen abajo -->
-    <div v-else-if="posicionImagen === 'abajo'" class="q-pa-md">
+    <div v-else-if="posicionImagen === 'abajo'" class="q-pa-sm">
       <div class="row q-col-gutter-lg">
         <div class="col-12">
-          <div class="text-center q-mb-xl" :class="alineacionClass">
+          <div class="text-center q-mb-md" :class="alineacionClass">
             <h2 v-if="title" class="text-h3 text-primary q-mb-md">{{ title }}</h2>
             <div class="text-body1" v-html="content"></div>
           </div>
         </div>
         <div class="col-12">
           <q-card class="q-hoverable" style="border-radius: 8px; overflow: hidden;">
-            <q-img
-              :src="imageUrl"
-              class="full-width"
-              :ratio="21/9"
-              transition="fade"
-              spinner-color="primary"
-              spinner-size="2em"
-              @error="handleImageError"
-            />
+            <q-img :src="imageUrl" class="full-width" :ratio="21 / 9" transition="fade" spinner-color="primary"
+              spinner-size="2em" @error="handleImageError" />
           </q-card>
         </div>
       </div>
     </div>
 
     <!-- POSICIÓN: ARRIBA - Texto arriba, imagen abajo -->
-    <div v-else-if="posicionImagen === 'arriba'" class="q-pa-md">
+    <div v-else-if="posicionImagen === 'arriba'" class="q-pa-sm">
       <div class="row q-col-gutter-lg">
         <div class="col-12">
-          <div :class="['q-mb-xl', alineacionClass]">
+          <div :class="['q-mb-md', alineacionClass]">
             <h2 v-if="title" class="text-h3 text-primary q-mb-md">{{ title }}</h2>
             <div class="text-body1" v-html="content"></div>
           </div>
         </div>
         <div class="col-12">
           <q-card class="q-hoverable" style="border-radius: 8px; overflow: hidden;">
-            <q-img
-              :src="imageUrl"
-              class="full-width"
-              :ratio="21/9"
-              transition="fade"
-              spinner-color="primary"
-              spinner-size="2em"
-              @error="handleImageError"
-            />
+            <q-img :src="imageUrl" class="full-width" :ratio="21 / 9" transition="fade" spinner-color="primary"
+              spinner-size="2em" @error="handleImageError" />
           </q-card>
         </div>
       </div>
     </div>
 
     <!-- POSICIÓN: GALERIA - Texto arriba, galería de imágenes abajo -->
-    <div v-else-if="posicionImagen === 'galeria'" class="q-pa-md">
+    <div v-else-if="posicionImagen === 'galeria'" class="q-pa-sm">
       <div class="row q-col-gutter-lg">
         <div class="col-12">
-          <div :class="['q-mb-xl', alineacionClass]">
+          <div :class="['q-mb-md', alineacionClass]">
             <h2 v-if="title" class="text-h3 text-primary q-mb-md" v-html="title"></h2>
             <div class="text-body1" v-html="content"></div>
           </div>
@@ -154,52 +116,30 @@
           <div class="row q-col-gutter-md justify-center">
             <!-- Imagen principal, si existe -->
             <div v-if="imageUrl" class="col-12 col-sm-6 col-md-4 gallery-item">
-              <q-card 
-                class="gallery-card cursor-pointer" 
-                @click="openLightbox(0)"
-              >
-                <q-img
-                  :src="imageUrl"
-                  class="full-width"
-                  :ratio="4/3"
-                  transition="fade"
-                  spinner-color="primary"
-                  spinner-size="2em"
-                  @error="handleImageError"
-                >
+              <q-card class="gallery-card cursor-pointer" @click="openLightbox(0)">
+                <q-img :src="imageUrl" class="full-width" :ratio="4 / 3" transition="fade" spinner-color="primary"
+                  spinner-size="2em" @error="handleImageError">
                   <div class="absolute-bottom text-subtitle2 text-center bg-black-6 text-white q-pa-xs">
                     <q-icon name="zoom_in" /> Click para ampliar
                   </div>
                 </q-img>
               </q-card>
             </div>
-            
+
             <!-- Galería de imágenes adicionales, si existen -->
-            <div 
-              v-for="(imagen, index) in imagenes" 
-              :key="index" 
-              class="col-12 col-sm-6 col-md-4 gallery-item"
-            >
-              <q-card 
-                class="gallery-card cursor-pointer" 
-                @click="openLightbox(imageUrl ? index + 1 : index)"
-              >
-                <q-img
-                  :src="getImageUrl(imagen)"
-                  class="full-width"
-                  :ratio="4/3"
-                  transition="fade"
-                  spinner-color="primary"
-                  spinner-size="2em"
-                  @error="() => handleGaleriaError(index)"
-                >
+            <div v-for="(imagen, index) in imagenes.slice(imageUrl ? 1 : 0)" :key="index + (imageUrl ? 1 : 0)"
+              class="col-12 col-sm-6 col-md-4 gallery-item">
+              <q-card class="gallery-card cursor-pointer" @click="openLightbox(imageUrl ? index + 1 : index)">
+                <q-img :src="getImageUrl(imagen)" class="full-width" :ratio="4 / 3" transition="fade"
+                  spinner-color="primary" spinner-size="2em"
+                  @error="() => handleGaleriaError(imageUrl ? index + 1 : index)">
                   <div class="absolute-bottom text-subtitle2 text-center bg-black-6 text-white q-pa-xs">
                     <q-icon name="zoom_in" /> Click para ampliar
                   </div>
                 </q-img>
               </q-card>
             </div>
-            
+
             <!-- Mensaje si no hay imágenes -->
             <div v-if="!imageUrl && (!imagenes || imagenes.length === 0)" class="col-12 text-center text-grey">
               <q-icon name="image_not_supported" size="4rem" />
@@ -208,87 +148,45 @@
           </div>
         </div>
       </div>
-      
+
       <!-- Lightbox para ver imágenes ampliadas -->
-    <q-dialog
-      v-model="lightboxOpen"
-      maximized
-      persistent
-      transition-show="fade"
-      transition-hide="fade"
-    >
-      <div class="fullscreen bg-black flex flex-center">
-        <div class="absolute-top-right q-pa-md">
-          <q-btn
-            icon="close"
-            round
-            flat
-            color="white"
-            class="bg-black-4"
-            @click="lightboxOpen = false"
-          />
-        </div>
-        
-        <q-carousel
-          v-model="lightboxSlide"
-          animated
-          swipeable
-          infinite
-          navigation
-          arrows
-          class="full-width"
-          style="height: 90vh;"
-        >
-          <q-carousel-slide 
-            v-if="imageUrl" 
-            :name="0" 
-            class="flex flex-center"
-          >
-            <div class="full-height full-width flex flex-center">
-              <img 
-                :src="imageUrl" 
-                style="max-height: 85vh; max-width: 90vw; object-fit: contain;" 
-                alt="Imagen ampliada"
-              />
-            </div>
-          </q-carousel-slide>
-          
-          <q-carousel-slide 
-            v-for="(imagen, index) in imagenes" 
-            :key="index" 
-            :name="imageUrl ? index + 1 : index" 
-            class="flex flex-center"
-          >
-            <div class="full-height full-width flex flex-center">
-              <img 
-                :src="getImageUrl(imagen)" 
-                style="max-height: 85vh; max-width: 90vw; object-fit: contain;" 
-                alt="Imagen ampliada"
-              />
-              <div v-if="imagen.title" class="absolute-bottom text-center bg-black-6 text-white q-pa-md full-width">
-                {{ imagen.title }}
+      <q-dialog v-model="lightboxOpen" maximized persistent transition-show="fade" transition-hide="fade">
+        <div class="fullscreen bg-black flex flex-center">
+          <div class="absolute-top-right q-pa-md">
+            <q-btn icon="close" round flat color="white" class="bg-black-4" @click="lightboxOpen = false" />
+          </div>
+
+          <q-carousel v-model="lightboxSlide" animated swipeable infinite navigation arrows class="full-width"
+            style="height: 90vh;">
+            <q-carousel-slide v-if="imageUrl" :name="0" class="flex flex-center">
+              <div class="full-height full-width flex flex-center">
+                <img :src="imageUrl" style="max-height: 85vh; max-width: 90vw; object-fit: contain;"
+                  alt="Imagen ampliada" />
               </div>
-            </div>
-          </q-carousel-slide>
-        </q-carousel>
-      </div>
-    </q-dialog>
+            </q-carousel-slide>
+
+            <q-carousel-slide v-for="(imagen, index) in imagenes" :key="index" :name="imageUrl ? index + 1 : index"
+              class="flex flex-center">
+              <div class="full-height full-width flex flex-center">
+                <img :src="getImageUrl(imagen)" style="max-height: 85vh; max-width: 90vw; object-fit: contain;"
+                  alt="Imagen ampliada" />
+                <div v-if="imagen.title" class="absolute-bottom text-center bg-black-6 text-white q-pa-md full-width">
+                  {{ imagen.title }}
+                </div>
+              </div>
+            </q-carousel-slide>
+          </q-carousel>
+        </div>
+      </q-dialog>
     </div>
 
     <!-- Caso por defecto si no coincide con ninguna posición -->
-    <div v-else class="q-pa-md">
+    <div v-else class="q-pa-sm">
       <div class="row q-col-gutter-lg items-center">
         <div class="col-12 col-md-6">
           <q-card class="q-hoverable" style="border-radius: 8px; overflow: hidden;">
-            <q-img
-              :src="imageUrl"
-              class="full-width"
-              :ratio="16/9"
-              transition="fade"
-              spinner-color="primary"
-              spinner-size="2em"
-              @error="handleImageError"
-            />
+            <q-img :src="imageUrl" class="full-width" :ratio="16 / 9" transition="fade" spinner-color="primary"
+              spinner-size="2em" @error="handleImageError" />
           </q-card>
         </div>
         <div class="col-12 col-md-6">
@@ -358,15 +256,21 @@ const alineacionClass = computed(() => {
   }
 });
 
+const isContentDuplicateOfTitle = computed(() => {
+  // Quitar etiquetas HTML y espacios para comparar
+  const normalize = str => (str || '').replace(/<[^>]+>/g, '').replace(/\s+/g, '').trim();
+  return normalize(title.value) !== '' && normalize(title.value) === normalize(content.value);
+});
+
 // Extraer título de HTML
 const extractTitle = (html) => {
   try {
     if (!html) return '';
-    
+
     const boldMatch = html.match(/<b>([^<]+)<\/b>/);
     const titleRegex = /<h[1-3][^>]*>([^<]+)<\/h[1-3]>/;
     const match = html.match(titleRegex);
-    
+
     if (boldMatch && boldMatch.length > 1) {
       return boldMatch[1].trim();
     }
@@ -384,9 +288,9 @@ const extractTitle = (html) => {
 const getImageUrl = (imagen) => {
   try {
     if (!imagen) return '';
-    
+
     let imgUrl = '';
-    
+
     if (typeof imagen === 'string') {
       imgUrl = imagen;
     } else if (imagen.url) {
@@ -394,13 +298,13 @@ const getImageUrl = (imagen) => {
     } else if (imagen.src) {
       imgUrl = imagen.src;
     }
-    
+
     if (!imgUrl) return '';
-    
+
     if (imgUrl.startsWith('/')) {
       return `/api/proxy-image?url=${encodeURIComponent(props.apiBaseUrl + imgUrl)}`;
     }
-    
+
     return imgUrl;
   } catch (error) {
     // console.error('Error al procesar URL de imagen:', error);
@@ -430,35 +334,41 @@ onMounted(() => {
   loading.value = true;
   try {
     // console.log('Procesando bloque ImagenTexto:', props.block);
-    
+
     const blockData = props.block.value || props.block;
-    
+
     // Procesar título y contenido
     if (blockData.titulo) {
       title.value = blockData.titulo;
     }
-    
+
     if (blockData.texto) {
       const extractedTitle = extractTitle(blockData.texto);
       if (extractedTitle && !title.value) {
         title.value = extractedTitle;
+        // Eliminar el fragmento <b>...</b> del contenido si coincide con el título extraído
+        // Solo elimina el primer <b>...</b> que coincida
+        content.value = blockData.texto.replace(/<b>\s*([^<]+)\s*<\/b>/, (match, p1) => {
+          return p1.trim() === extractedTitle ? '' : match;
+        });
+      } else {
+        content.value = blockData.texto;
       }
-      content.value = blockData.texto;
     } else {
       error.value = 'No se encontró contenido de texto';
     }
-    
+
     // Procesar imágenes
     // Primero procesamos el array de imágenes
     if (Array.isArray(blockData.imagenes) && blockData.imagenes.length > 0) {
       // console.log('Encontradas imágenes en array:', blockData.imagenes);
       imagenes.value = blockData.imagenes;
-      
+
       // Usar la primera imagen como imagen principal si no hay una específica
       if (!imageUrl.value) {
         const primeraImagen = blockData.imagenes[0];
         let imgUrl = '';
-        
+
         if (typeof primeraImagen === 'string') {
           imgUrl = primeraImagen;
         } else if (primeraImagen.url) {
@@ -466,7 +376,7 @@ onMounted(() => {
         } else if (primeraImagen.src) {
           imgUrl = primeraImagen.src;
         }
-        
+
         if (imgUrl) {
           if (imgUrl.startsWith('/')) {
             imageUrl.value = `/api/proxy-image?url=${encodeURIComponent(props.apiBaseUrl + imgUrl)}`;
@@ -483,7 +393,7 @@ onMounted(() => {
     } else {
       imagenes.value = [];
     }
-    
+
     // Procesar imagen principal específica si existe
     if (blockData.imagen) {
       let imgUrl = '';
@@ -494,7 +404,7 @@ onMounted(() => {
       } else if (blockData.imagen.src) {
         imgUrl = blockData.imagen.src;
       }
-      
+
       if (imgUrl) {
         if (imgUrl.startsWith('/')) {
           imageUrl.value = `/api/proxy-image?url=${encodeURIComponent(props.apiBaseUrl + imgUrl)}`;
@@ -504,7 +414,7 @@ onMounted(() => {
         // console.log('Imagen principal establecida desde campo imagen:', imageUrl.value);
       }
     }
-    
+
     loading.value = false;
   } catch (err) {
     // console.error('Error al procesar el bloque:', err);

@@ -71,16 +71,73 @@
   align-items: center;
 }
 
-.certiffy-language-selector {
-  font-family: 'OpenSans-Bold', 'Open Sans', sans-serif;
-  font-size: 0.85rem;
-  min-width: 40px;
+.language-selector,
+.certiffy-contact-button {
+  min-height: 38px;
+  border-radius: 12px;
+  font-weight: 600;
+  transition: all 0.2s ease;
+}
+
+.language-selector .q-icon {
+  color: var(--q-primary) !important;
+  font-size: 1.3em;
+}
+
+.language-selector:hover {
+  background: #e0e0e0;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
 }
 
 .certiffy-contact-button {
-  font-family: 'OpenSans-SemiBold', 'Open Sans', sans-serif;
-  font-size: 0.85rem;
+  background: #25d366;
+  color: white;
+  border-radius: 12px;
+  font-weight: 600;
+  padding: 0 16px;
+  min-height: 38px;
   transition: all 0.3s ease;
+}
+
+.certiffy-contact-button .q-icon {
+  font-size: 1.4em;
+}
+
+.certiffy-contact-button:hover {
+  background: #1ebe5d;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+}
+
+@media (max-width: 600px) {
+  .certiffy-navbar-controls {
+    gap: 0.4rem;
+    margin-right: 0.3rem;
+  }
+
+  .language-selector,
+  .certiffy-contact-button {
+    min-width: 38px;
+    min-height: 32px;
+    font-size: 0.95em;
+    padding: 0 8px !important;
+    border-radius: 10px !important;
+  }
+
+  .certiffy-contact-button .q-icon,
+  .language-selector .q-icon {
+    font-size: 1.1em;
+  }
+}
+
+@media (max-width: 1024px) {
+  .certiffy-navbar-controls-absolute {
+    position: static;
+    margin: 0 auto;
+    justify-content: center;
+    width: 100%;
+    top: unset;
+    right: unset;
+  }
 }
 
 /* ----- FOOTER ----- */
@@ -127,4 +184,20 @@
 .certiffy-footer-copyright {
   font-family: 'OpenSans-SemiBold', 'Open Sans', sans-serif;
   font-size: 0.85rem;
+}
+
+.navbar-label {
+  position: relative;
+  display: inline-block;
+}
+
+.navbar-label--active::after {
+  content: '';
+  position: absolute;
+  bottom: -4px;
+  left: 0;
+  height: 3px;
+  width: 100%;
+  background-color: var(--q-warning);
+  border-radius: 2px;
 }

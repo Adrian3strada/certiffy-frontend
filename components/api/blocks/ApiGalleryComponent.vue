@@ -1,6 +1,6 @@
 <template>
-  <section :id="'gallery-' + (id || Math.random().toString(36).substring(2, 9))" class="q-py-xl q-px-md" style="max-width: 1200px; margin: 0 auto;">
-    <h4 class="text-h5 text-weight-bold text-center q-mb-lg" v-if="galleryTitle">{{ galleryTitle }}</h4>
+  <section :id="'gallery-' + (id || Math.random().toString(36).substring(2, 9))" class="q-py-md" style="max-width: 1200px;">
+    <h4 class="text-h5 text-weight-bold text-center q-mb-md" v-if="galleryTitle">{{ galleryTitle }}</h4>
     
     <!-- Carrusel de imágenes para pantallas pequeñas -->
     <q-carousel

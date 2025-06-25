@@ -1,10 +1,10 @@
 <template>
   <section 
     :id="'socios-' + (id || Math.random().toString(36).substring(2, 9))" 
-    class="q-py-xl q-px-md"
+    class="q-py-md q-px-sm"
   >
-    <div class="q-mx-auto q-mb-xl" style="max-width: 1200px;">
-      <div class="text-center q-mb-xl">
+    <div class="q-mx-auto q-mb-md" style="max-width: 1000px;">
+      <div class="text-center q-mb-md">
         <h2 class="text-h3 text-weight-bold">{{ titulo }}</h2>
       </div>
       

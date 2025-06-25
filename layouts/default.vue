@@ -32,13 +32,15 @@ import ApiFooterComponent from '~/components/api/layout/ApiFooterComponent.vue';
 
 /* Asegura que el contenido ocupe al menos el espacio disponible en la ventana menos el footer */
 .content-wrapper {
-  min-height: calc(100vh - 240px); /* Ajustar este valor según la altura del footer */
+  min-height: unset;
+  padding: 0 0 16px 0;
 }
 
 /* Estilo para la página completa */
 .q-page {
-  display: flex;
-  flex-direction: column;
-  min-height: 100vh;
+  display: block;
+  min-height: unset;
+  padding: 0;
+  margin: 0;
 }
 </style>

@@ -1,7 +1,7 @@
 <template>
   <section 
     :id="'image-component-' + (id || Math.random().toString(36).substring(2, 9))" 
-    class="q-my-xl q-mx-auto certiffy-image-container"
+    class="q-my-md certiffy-image-container"
     :class="fullWidth ? 'certiffy-image-fullwidth' : 'certiffy-image-standard'"
   >
     <q-img

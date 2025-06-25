@@ -1,19 +1,19 @@
 <template>
-  <section class="certiffy-modules-section q-py-xl bg-grey-1">
-    <div class="certiffy-modules-container q-px-md q-px-sm-lg">
+  <section class="certiffy-modules-section q-py-md bg-grey-1">
+    <div class="certiffy-modules-container">
       <!-- Título de la sección -->
-      <h2 class="certiffy-modules-title text-primary text-weight-bold q-mb-lg" v-if="tituloSeccion">{{ tituloSeccion }}</h2>
+      <h2 class="certiffy-modules-title text-primary text-weight-bold q-mb-md" v-if="tituloSeccion">{{ tituloSeccion }}</h2>
       
       <!-- Texto principal con alineación configurable -->
       <div 
-        class="certiffy-modules-intro q-mb-xl text-body1" 
+        class="certiffy-modules-intro q-mb-md text-body1" 
         v-if="textoInfo" 
         v-html="textoInfo.texto"
         :style="{ textAlign: textoInfo.alineacion || 'center' }"
       ></div>
       
       <!-- Módulos con imágenes y botones (sin efecto de tarjeta) -->
-      <div class="row q-col-gutter-xl justify-center items-stretch certiffy-modules-row q-mb-xl">
+      <div class="row q-col-gutter-xl justify-center items-stretch certiffy-modules-row q-mb-md">
         <div v-for="(modulo, index) in modulos" :key="index" class="col-12 col-sm-4">
           <div class="certiffy-module-item flex flex-center column items-center q-pa-md">
             <!-- Imagen del módulo con sombra sutil -->
@@ -41,7 +41,7 @@
       </div>
       
       <!-- Sección del video (mismo ancho que los módulos) -->
-      <div v-if="videoUrl" class="q-my-xl certiffy-video-section">
+      <div v-if="videoUrl" class="q-my-md certiffy-video-section">
         <div class="certiffy-video-container q-mt-lg q-mb-xl">
           <div class="certiffy-video-wrapper">
             <iframe

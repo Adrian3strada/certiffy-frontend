@@ -1,142 +1,107 @@
+
 <template>
-  <header class="bg-primary text-white q-py-sm shadow-2 fixed-top z-top">
-    <div class="q-px-md q-px-sm-lg q-mx-auto" style="max-width: 1200px; width: 100%">
-      <div class="row full-width items-center justify-between no-wrap">
-        <!-- Logo con imagen y texto -->
-        <div 
-          class="col-4 text-warning cursor-pointer row items-center q-mr-md"
-          @click="navigateToHome"
-        >
-          <!-- Imagen de logo obtenido dinámicamente de la API usando proxy -->
-          <img 
-            v-if="logoUrl"
-            :src="logoUrl" 
-            class="q-mr-sm" 
-            style="height: 50px; width: auto;"
-            alt="Logo Certify"
-            @error="handleImageError"
-          />
-          <span class="text-weight-bold text-h5">CERTIFY</span>
-        </div>
-        
-        <!-- Menú de navegación para pantallas medianas y grandes con submenús -->
-        <div class="col-9 gt-sm">
-          <q-toolbar class="q-mx-md">
-            <!-- Ya no necesitamos un botón de inicio por separado, vendrá directamente del API -->
-            <!-- Debug logo URL: {{ logoUrl }} -->
-            <!-- Debug navbar items: {{ navItems }} -->
-            <!-- Debug processed items: {{ processedNavItems }} -->
-            
-            <!-- Enlaces de nivel principal -->
-            <template v-for="(menuItem, idx) in processedNavItems" :key="idx">
-              <!-- Si tiene hijos, mostrar como dropdown -->
-              <q-btn-dropdown 
-                v-if="menuItem.children && menuItem.children.length > 0 && menuItem.title !== 'Inicio'"
-                :label="menuItem.title"
-                flat 
-                no-caps
-                dropdown-icon="expand_more"
-                class="text-weight-600 text-white q-px-sm q-py-xs rounded-borders transition-colors text-subtitle1"
-                :class="{
-                  'bg-white-2 text-warning': isActiveRoute(menuItem.url)
-                }"
-                auto-close
-              >
-                <q-list class="bg-dark shadow-5">
-                  <q-item
-                    v-for="(subItem, subIdx) in menuItem.children" 
-                    :key="subIdx"
-                    :to="normalizeUrl(subItem.url)"
-                    clickable
-                    v-close-popup
-                    class="text-white text-weight-600 transition-colors"
-                    :class="{
-                      'bg-white-1': isActiveRoute(normalizeUrl(subItem.url))
-                    }"
-                    v-ripple
-                  >
-                    <q-item-section>
-                      <q-item-label>{{ subItem.title }}</q-item-label>
-                    </q-item-section>
-                    
-                    <!-- Submenú de tercer nivel si existe -->
-                    <template v-if="subItem.children && subItem.children.length > 0">
-                      <q-item-section side>
-                        <q-icon name="chevron_right" />
-                      </q-item-section>
-                    </template>
-                  </q-item>
-                </q-list>
-              </q-btn-dropdown>
-              
-              <!-- Enlace simple sin hijos -->
-              <q-btn
-                v-else
-                :label="menuItem.title"
-                :to="normalizeUrl(menuItem.url)"
-                flat
-                no-caps
-                class="text-weight-600 text-white q-px-sm q-py-xs rounded-borders transition-colors text-subtitle1"
-                :class="{
-                  'bg-white-2 text-warning': isActiveRoute(menuItem.url)
-                }"
-              />
-            </template>
-          </q-toolbar>
-        </div>
-        
-        <!-- Botón de contacto WhatsApp y selector de idioma (esquina superior) -->
-        <div class="absolute-top-right q-ma-sm row no-wrap certiffy-navbar-controls">
-          <!-- Selector de idioma -->
+ <header class="bg-primary text-white shadow-2 fixed-top z-top">
+    <!-- contenedor centrado -->
+    <div class="q-px-md q-px-sm-lg q-mx-auto" style="max-width:1200px;width:100%">
+
+      <!-- === COLUMNA: acciones + barra principal ====================== -->
+      <div class="column full-width">
+
+        <!-- 1▸ FILA de acciones (desktop) -->
+        <div class="row items-center justify-end q-gutter-xs q-pt-xs gt-sm">
+          <!-- selector de idioma -->
           <q-btn-dropdown
-            v-if="true" 
-            color="accent"
-            class="q-mr-sm language-selector transition-transform"
+            icon="language" color="accent"
+            size="md" 
             no-caps
-            size="md"
-            icon="translate"
+            class="language-selector"
+            :label="getLanguageDisplayName(currentLanguage)"
+            :loading="isChangingLanguage"
+            :disable="isChangingLanguage"
           >
-            <!-- Etiqueta del botón con nombre completo -->
-            <template v-slot:label>
-              <div class="row items-center no-wrap">
-                <q-icon name="language" class="q-mr-xs" size="xs" color="primary" />
-                <span class="text-caption q-ml-xs text-primary">{{ getLanguageDisplayName(currentLanguage) }}</span>
-              </div>
-            </template>
             <q-list>
-              <q-item 
-                v-for="(lang, index) in availableLanguages" 
-                :key="index"
-                clickable
-                v-close-popup
-                @click="changeLanguage(lang.code || lang)"
-                :active="currentLanguage === (lang.code || lang)"
-              >
-                <q-item-section avatar>
-                  <q-icon name="language" color="primary" />
-                </q-item-section>
+              <q-item v-for="lang in availableLanguages"
+                      :key="lang.code||lang"
+                      clickable v-close-popup
+                      @click="changeLanguage(lang.code||lang)">
                 <q-item-section>
-                  <q-item-label>{{ getLanguageDisplayName(lang.code || lang) }}</q-item-label>
-                </q-item-section>
-                <q-item-section side v-if="currentLanguage === (lang.code || lang)">
-                  <q-icon name="check" color="positive" />
+                  {{ getLanguageDisplayName(lang.code||lang) }}
                 </q-item-section>
               </q-item>
             </q-list>
           </q-btn-dropdown>
 
-          <!-- Botón de WhatsApp -->
-          <q-btn 
-            class="text-white bg-positive shadow-1 certiffy-contact-button"
-            icon="mdi-whatsapp"
-            label="Contáctanos"
+          <!-- botón WhatsApp -->
+          <q-btn
+            size="md" 
             no-caps
-            square
-            :style="{ borderRadius: '8px' }"
-            size="md"
-            dense
+            color="green" icon="mdi-whatsapp"
+            label="Contáctanos"
+            class="certiffy-contact-button"
             @click="contactWhatsApp"
           />
+        </div>
+
+        <!-- 2▸ FILA principal: logo + menú + hamburguesa -->
+        <div class="row items-center no-wrap">
+
+          <!-- logo (3 col xl-lg · 4 col md) -->
+          <div
+            class="col-xl-3 col-lg-3 col-md-4 col-sm-4 col-xs-6
+                   row items-center cursor-pointer q-gutter-xs"
+            @click="navigateToHome"
+          >
+            <img v-if="logoUrl"
+                 :src="logoUrl"
+                 style="height:48px;width:auto"
+                 alt="Logo"
+                 class="q-mr-xs"
+                 @error="handleImageError" />
+            <span class="text-weight-bold text-h5">CERTIFY</span>
+          </div>
+
+          <!-- menú (7 col xl-lg · 5 col md) -->
+          <div
+            class="col-xl-7 col-lg-7 col-md-5 col-sm-12 col-xs-12
+                   row items-center no-wrap q-gutter-md gt-sm"
+          >
+    
+            <template v-for="(menuItem,idx) in processedNavItems" :key="idx">
+              <!-- enlace simple -->
+              <q-btn
+                v-if="!menuItem.children?.length || menuItem.title==='Inicio'"
+                :label="menuItem.title"
+                :to="normalizeUrl(menuItem.url)"
+                flat no-caps
+                class="navbar-link text-weight-600 text-white"
+                :class="{ 'bg-white-2': isActiveRoute(menuItem.url) }"
+              />
+              <!-- dropdown -->
+              <q-btn-dropdown
+                v-else
+                :label="menuItem.title"
+                flat no-caps auto-close
+                dropdown-icon="expand_more"
+                class="navbar-link text-weight-600 text-white"
+                :class="{ 'navbar-active-indicator': isActiveRoute(menuItem.url) }"
+              >
+                <q-list class="bg-dark shadow-5">
+                  <q-item
+                    v-for="sub in menuItem.children"
+                    :key="sub.title"
+                    :to="normalizeUrl(sub.url)"
+                    clickable v-close-popup
+                    class="text-white text-weight-600"
+                    :class="{ 'bg-white-1': isActiveRoute(normalizeUrl(sub.url)) }"
+                  >
+                    <q-item-section>{{ sub.title }}</q-item-section>
+                  </q-item>
+                </q-list>
+              </q-btn-dropdown>
+            </template>
+          </div>
+
+ 
         </div>
         
         <!-- Botón de menú para móviles -->
@@ -225,6 +190,7 @@ import { useQuasar } from 'quasar';
 const $q = useQuasar();
 const route = useRoute();
 const router = useRouter();
+
 
 
 // Variables reactivas para el componente
@@ -503,6 +469,8 @@ function getLanguageDisplayName(langCode) {
   // Ya se ha retornado en los bloques try-catch
 }
 
+const whatsappNumber = ref('5212345678901'); // ← cámbialo por el tuyo
+
 // Función para contacto WhatsApp
 function contactWhatsApp() {
   const url = `https://wa.me/${whatsappNumber.value}`;
@@ -586,57 +554,56 @@ function updateActiveTab(path) {
   
   // Si no hay coincidencia, usar el primer elemento
   activeTab.value = 0;
+
+
+
 }
+
 </script>
 
 <style scoped>
-/* ... */
-.transition-colors {
-  transition: background-color 0.2s ease, color 0.2s ease;
+
+.transition-colors   { transition: background-color .2s ease, color .2s ease; }
+.transition-transform{ transition: transform .3s ease; }
+.hover-translatey-2px:hover{ transform: translateY(-2px); }
+.hover-shadow-2:hover{/* sin sombra */}
+
+.bg-white-1{ background: rgba(255,255,255,.10); }
+.bg-white-2{ background: rgba(255,255,255,.15); }
+.text-weight-600{ font-weight:600; }
+
+.navbar-link{ position:relative; }              /* NUEVO */
+.bg-white-2::after{
+  content:''; position:absolute; bottom:2px; left:0;    /* ← arranca al inicio */
+  width:100%; height:3px; border-radius:2px;
+  background:var(--q-warning);
 }
 
-.transition-transform {
-  transition: transform 0.3s ease;
+header{ min-height:96px; }                 /* alto total (fila acciones + menú) */
+.action-bar{
+  height: 44px;            /* un poco más alta para los size="md"        */
+  padding: 0 0 6px;        /* espacio entre action-bar y barra principal */
 }
 
-.hover-translatey-2px:hover {
-  transform: translateY(-2px);
+/* evita salto de línea en TODOS los botones del menú */
+.navbar-link,
+.navbar-link .q-btn__content,
+.navbar-link .q-btn-dropdown__label{
+  white-space:nowrap !important;
 }
 
-/* Eliminada la sombra de hover */
-.hover-shadow-2:hover {
-  /* Sin efecto de sombra */
+.language-selector .q-icon,
+.certiffy-contact-button .q-icon{
+  font-size: 20px;
 }
+/* ancho mínimo para dropdowns largos (opcional; ajusta 130-150) */
+.navbar-link.q-btn-dropdown{ min-width:140px; }
 
-.bg-white-1 {
-  background-color: rgba(255, 255, 255, 0.1);
-}
+/* margen vertical negativo eliminado */
+.btn-up{ margin-top:0 !important; }
 
-.bg-white-2 {
-  background-color: rgba(255, 255, 255, 0.15);
-}
-
-.text-weight-600 {
-  font-weight: 600;
-}
-
-/* Estilo para ruta activa con indicador */
-.bg-white-2::after {
-  content: '';
-  position: absolute;
-  bottom: 2px;
-  left: 50%;
-  transform: translateX(-50%);
-  width: 30px;
-  height: 3px;
-  background-color: var(--q-warning);
-  border-radius: 2px;
-}
-
-/* Responsividad mantenida de las clases originales */
-@media (max-width: 1024px) {
-  .gt-sm {
-    display: none;
-  }
+@media (max-width:1024px){
+  .gt-sm{ display:none; }                  /* oculta elementos desktop en móvil */
 }
 </style>
+

@@ -1,89 +1,142 @@
 <template>
   <div>
-    <div v-if="pending" class="flex flex-center column q-pa-lg">
+    <!-- loading -->
+    <div v-if="pending" class="loader-wrapper">
       <q-spinner-dots color="primary" size="3em" />
-      <p class="q-mt-md">Cargando página principal...</p>
+      <p class="q-mt-md">Cargando página principal…</p>
     </div>
-    <div v-else-if="error">
-      <q-banner class="bg-negative text-white">
-        Error al cargar la página: {{ error.message }}
-      </q-banner>
-    </div>
-    <div v-else>
-      <component
-        v-if="pageData"
-        :is="dynamicPageContentComponent"
-        :pageData="pageData"
-      />
-    </div>
+
+    <!-- error -->
+    <q-banner v-else-if="error" class="bg-negative text-white">
+      Error al cargar la página: {{ error.message }}
+    </q-banner>
+
+    <!-- éxito -->
+    <component
+      v-else
+      :is="dynamicPageContentComponent"
+      :pageData="pageData"
+    />
   </div>
 </template>
 
 <script setup>
+/* ───────────── imports ───────────── */
 import { ref, shallowRef, defineAsyncComponent } from 'vue';
+import { computed, onMounted } from 'vue';
+import { useRoute } from 'vue-router';
 import { useWagtail } from '~/composables/useWagtail';
-import { useRouter, useRoute } from 'vue-router';
-import { onBeforeMount, onMounted, computed } from 'vue';
 
-// Cargar el componente de renderizado dinámicamente
-const dynamicPageContentComponent = shallowRef(defineAsyncComponent(() => 
+/* componente renderizador */
+const dynamicPageContentComponent = shallowRef(
+  defineAsyncComponent(() =>
     import('~/components/api/core/DynamicPageContent.vue')
-));
+  )
+);
 
-const router = useRouter();
-const route = useRoute();
-const { fetchPageDetails, fetchAllPages } = useWagtail();
+const { fetchPageDetails } = useWagtail();
+const route  = useRoute();
 
-// Determinar el locale actual
-const locale = computed(() => {
-  // Podría obtenerse del store, de la URL, etc.
-  return route.path.startsWith('/en') ? 'en' : 'es';
-});
+/* ───────────── configuración ───────────── */
+const homePageId       = 3;
+const noticiasPageId   = 8;
+const eventosPageId    = 5;
+const maxItemsPerBlock = 4;    // cuántas tarjetas mostrar
 
-// Utilizar el path raíz con el locale correspondiente
-const homePath = computed(() => `/${locale.value}/`);
-
-// Obtener datos de la página principal de forma dinámica
+/* ───────────── estado ───────────── */
 const pageData = ref(null);
-const pending = ref(true);
-const error = ref(null);
+const pending  = ref(true);
+const error    = ref(null);
 
-onMounted(async () => {
+const locale = computed(() => (route.path.startsWith('/en') ? 'en' : 'es'));
+
+/* ───────────── helpers ───────────── */
+function orderAndTrim (block) {
+  if (!block?.value?.noticias) return block;
+  block.value.noticias
+    .sort((a, b) => new Date(b.fecha) - new Date(a.fecha))
+    .splice(maxItemsPerBlock);            // recorta a N
+  return block;
+}
+
+function insertBlocks (home, noticiasBlocks, eventosBlocks) {
+  const idxCarousel = home.body.findIndex(
+    b => b.type?.toLowerCase() === 'carousel'
+  );
+  const pos = idxCarousel !== -1 ? idxCarousel + 1 : home.body.length;
+
+  home.body.splice(pos, 0, ...noticiasBlocks);
+  home.body.splice(pos + noticiasBlocks.length, 0, ...eventosBlocks);
+}
+
+/* ───────────── carga principal ───────────── */
+async function loadPage (lang) {
+  pending.value = true;
+  error.value   = null;
+
   try {
-    pending.value = true;
-    error.value = null;
-    
-    // Detectar idioma actual
-    const currentLocale = locale.value;
-    // console.log(`Index - Idioma actual: ${currentLocale}`);
-    
-    // Sabemos que la página de inicio tiene ID 3
-    const homePageId = 3; // ID fijo de la página de inicio
-    // console.log(`Index - Cargando directamente la página de inicio con ID: ${homePageId}`);
-    
-    // Cargar detalles completos directamente por ID
-    pageData.value = await fetchPageDetails(homePageId, currentLocale, true);
-    // console.log('Index - Datos de página cargados por ID:', pageData.value);
-    
-    // Agregar log detallado para verificar la estructura de los datos
-    // console.log('Index - Estructura completa de pageData:', JSON.stringify(pageData.value));
-    
-    // Verificar si tenemos bloques para renderizar
-    if (pageData.value?.body && Array.isArray(pageData.value.body)) {
-      // console.log(`Index - Número de bloques en body: ${pageData.value.body.length}`);
-      pageData.value.body.forEach((block, index) => {
-        // console.log(`Index - Bloque ${index}:`, block?.type || 'sin tipo', block?.id || 'sin id');
-      });
-    } else {
-      // console.log('Index - No hay bloques para renderizar o body no es un array');
-      // console.log('Index - Valor y tipo de body:', pageData.value?.body, typeof pageData.value?.body);
-    }
-    
+    const [home, noticias, eventos] = await Promise.all([
+      fetchPageDetails(homePageId,     lang, true),
+      fetchPageDetails(noticiasPageId, lang, true),
+      fetchPageDetails(eventosPageId,  lang, true)
+    ]);
+
+    /* ── bloques Noticias ── */
+    const noticiasBlocks = (noticias.body || [])
+      .filter(b => b.type?.toLowerCase() === 'grupo_de_noticias')
+      .map(orderAndTrim)
+      .map(b => ({
+        ...b,
+        value: {
+          ...b.value,
+          show_more: {
+            url: `/${lang}/noticias/`,      // respeta locale
+            label: 'Ver más noticias'
+          }
+        }
+      }));
+
+    /* ── bloques Eventos ── */
+    const eventosBlocks = (eventos.body || [])
+      .filter(b => b.type?.toLowerCase() === 'grupo_de_noticias')
+      .map(orderAndTrim)
+      .map(b => ({
+        ...b,
+        value: {
+          ...b.value,
+          show_more: {
+            url: `/${lang}/eventos/`,
+            label: 'Ver más eventos'
+          }
+        }
+      }));
+
+    /* inserta después del carrusel */
+    insertBlocks(home, noticiasBlocks, eventosBlocks);
+    pageData.value = home;
+  } catch (e) {
+    error.value = e;
+  } finally {
     pending.value = false;
-  } catch (err) {
-    // console.error(`[index] Error al cargar la página principal:`, err);
-    error.value = err;
-    pending.value = false;
+  }
+}
+
+/* ───────────── montaje & cambio de idioma ───────────── */
+onMounted(() => {
+  loadPage(locale.value);
+
+  if (process.client) {
+    window.addEventListener('language-changed', e => {
+      const newLang = e?.detail?.language;
+      if (newLang) loadPage(newLang);
+    });
   }
 });
 </script>
+
+<style scoped>
+.loader-wrapper{
+  padding:24px 0 8px;
+  text-align:center;
+}
+</style>

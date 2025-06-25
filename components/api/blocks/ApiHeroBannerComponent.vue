@@ -12,8 +12,8 @@
         class="absolute-full z-2"
         :class="lightOverlay ? 'bg-black-2' : 'bg-black-4'"
       ></div>
-      <div class="absolute-full z-3 flex flex-center q-px-md">
-        <div class="q-mx-auto text-center" style="max-width: 600px">
+      <div class="absolute-full z-3 flex q-px-sm">
+        <div style="max-width: 600px; text-align: left;">
           <h1 
             class="text-h3 text-white text-weight-900 q-mb-md text-shadow"
             v-if="block?.value?.imagen?.title"

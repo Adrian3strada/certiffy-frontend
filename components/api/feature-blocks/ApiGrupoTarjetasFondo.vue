@@ -1,8 +1,8 @@
 <template>
-  <section class="bg-black q-py-xl">
-    <div class="q-mx-auto q-px-md" style="max-width: 1400px">
+  <section class="bg-black q-py-md">
+    <div class="q-mx-auto q-px-sm" style="max-width: 1000px">
       <!-- Estado de carga -->
-      <div v-if="loading" class="flex flex-center q-pa-lg">
+      <div v-if="loading" class="flex flex-center q-pa-md">
         <q-spinner color="primary" size="1.5em" />
         <span class="q-ml-sm text-caption text-primary">Cargando tarjetas...</span>
       </div>
@@ -18,7 +18,7 @@
       <!-- Contenido principal: carrusel horizontal de tarjetas -->
       <div v-else>
         <!-- Encabezado con título y controles -->
-        <div class="row justify-between items-start q-mb-xl">
+        <div class="row justify-between items-start q-mb-md">
           <div class="col-12 col-md-8">
             <h2 class="text-h3 text-primary text-weight-bold q-my-none">{{ tituloApartado }}</h2>
           </div>

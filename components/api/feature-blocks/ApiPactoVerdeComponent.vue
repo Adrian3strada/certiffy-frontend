@@ -32,9 +32,9 @@
       <div class="absolute-full bg-primary" style="opacity: 0.75;"></div>
       
       <!-- Contenido centrado -->
-      <div class="absolute-center text-center q-pa-md full-width">
+      <div class="absolute-center text-center q-pa-sm full-width">
         <h2 class="text-h3 text-white text-weight-bold q-mb-md text-shadow-1">{{ titulo }}</h2>
-        <p class="text-subtitle1 text-white q-mb-lg">{{ descripcion }}</p>
+        <p class="text-subtitle1 text-white q-mb-md">{{ descripcion }}</p>
         
         <!-- Botones de acción si existen -->
         <div v-if="botones && botones.length" class="q-mt-lg">

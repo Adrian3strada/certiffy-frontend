@@ -1,14 +1,17 @@
 <template>
   <div>
     <!-- Loading state -->
-    <div v-if="isLoading" class="flex justify-center items-center min-h-screen">
+    <div v-if="isLoading" class="loader-wrapper">
       <div class="loader">Cargando página...</div>
     </div>
 
     <!-- Error state -->
-    <div v-else-if="error" class="flex flex-col items-center justify-center min-h-screen">
-      <h1 class="text-h4 q-mt-md">Error al cargar la página</h1>
+    <div v-else-if="error" class="error-wrapper">
+      <h1 class="text-h4 q-mt-md">Esta página no está disponible en este idioma</h1>
       <p class="text-body1 q-mt-sm">{{ error }}</p>
+      <router-link :to="`/es${route.fullPath.replace(/^\/en/, '')}`">
+        Ver en español
+      </router-link>
     </div>
 
     <!-- Dynamic page content -->
@@ -88,6 +91,7 @@ async function loadPageData() {
         // Intentar buscar la página por slug "home" como alternativa
         pageData.value = await fetchPageBySlug('home', locale);
       }
+      if (!pageData.value) throw new Error('No se encontró la página para este idioma.');
       isLoading.value = false;
       return;
     }
@@ -118,6 +122,7 @@ async function loadPageData() {
     
     if (pageId) {
       pageData.value = await fetchPageDetails(pageId, locale);
+      if (!pageData.value) throw new Error('No se encontró la página para este idioma.');
       isLoading.value = false;
       return;
     }
@@ -126,24 +131,22 @@ async function loadPageData() {
     if (slug) {
       // Intentar con diferentes variantes del slug para manejar varias profundidades de ruta
       const slugVariants = [
-        slug,                   // Ruta completa
-        slug.replace(/\/+$/, ''), // Sin slash final
-        slug.split('/').pop() || '' // Último segmento de la ruta
+        slug, // platform/traceability
+        slug.replace(/\/+$/, ''), // platform/traceability sin barra final
+        slug.split('/').pop() || '' // traceability
       ];
-      
       for (const variant of slugVariants) {
         if (!variant) continue;
         pageData.value = await fetchPageBySlug(variant, locale);
         if (pageData.value) break;
       }
-      
+      if (!pageData.value) throw new Error('No se encontró la página para este idioma.');
       isLoading.value = false;
       return;
     }
     
     throw new Error(`No se pudo determinar qué página cargar para idioma ${locale}`)
   } catch (err) {
-    // console.error('Error al cargar página:', err);
     error.value = err instanceof Error ? err.message : 'Error desconocido';
   } finally {
     isLoading.value = false
@@ -157,18 +160,36 @@ onMounted(async () => {
   await loadPageData()
 })
 
+// Watcher mejorado para cambios de ruta e idioma
 watch(
-  () => [route.fullPath, Object.keys(knownRoutes).length, routeParams.value.locale],
-  async () => {
-    const locale = routeParams.value.locale;
-    console.log(`[Debug] Detectado cambio en ruta: ${route.fullPath}, idioma: ${locale}`);
-    // Cargar todas las páginas para el idioma actual cuando cambie la ruta o el idioma
-    await fetchAllPages(locale);
-    // Forzar refresco completo para páginas anidadas
-    console.log(`[Debug] Realizando carga de datos para la nueva ruta`);
-    await loadPageData();
+  () => [route.fullPath, routeParams.value.locale],
+  async ([newPath, newLocale], [oldPath, oldLocale]) => {
+    console.log(`[Debug] Detectado cambio en ruta: ${newPath}, idioma: ${newLocale}`);
+    console.log(`[Debug] Ruta anterior: ${oldPath}, idioma anterior: ${oldLocale}`);
+    
+    // Solo recargar si realmente cambió el idioma o la ruta
+    if (newLocale !== oldLocale || newPath !== oldPath) {
+      // Cargar todas las páginas para el idioma actual cuando cambie la ruta o el idioma
+      await fetchAllPages(newLocale);
+      // Forzar refresco completo para páginas anidadas
+      console.log(`[Debug] Realizando carga de datos para la nueva ruta`);
+      await loadPageData();
+    }
   },
-  { deep: true }
+  { deep: true, immediate: false }
+)
+
+// Watcher adicional para cambios en las rutas conocidas
+watch(
+  () => Object.keys(knownRoutes).length,
+  async (newCount, oldCount) => {
+    if (newCount > 0 && newCount !== oldCount) {
+      console.log(`[Debug] Rutas actualizadas: ${newCount} rutas disponibles`);
+      // Recargar datos si las rutas se actualizaron
+      const locale = routeParams.value.locale;
+      await loadPageData();
+    }
+  }
 )
 
 watch(
@@ -194,3 +215,10 @@ useSeoMeta({
   })
 })
 </script>
+
+<style scoped>
+.loader-wrapper, .error-wrapper {
+  padding: 24px 0 8px 0;
+  text-align: center;
+}
+</style>

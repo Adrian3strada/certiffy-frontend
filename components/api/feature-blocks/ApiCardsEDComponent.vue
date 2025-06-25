@@ -1,11 +1,11 @@
 <template>
   
-  <section class="q-pa-md q-py-xl">
-    <div class="row q-col-gutter-xl justify-center q-mx-auto" style="max-width: 1000px;">
+  <section class="q-pa-sm q-py-md">
+    <div class="row q-col-gutter-md justify-center q-mx-auto" style="max-width: 900px;">
       <div 
         v-for="(tarjeta, index) in tarjetas" 
         :key="index" 
-        class="col-12 col-sm-12 col-md-5 q-mb-xl"
+        class="col-12 col-sm-12 col-md-5 q-mb-md"
       >
         <!-- Usando componente ModuloTarjeta con clases de Quasar -->
         <ModuloTarjeta

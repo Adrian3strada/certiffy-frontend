@@ -1,6 +1,6 @@
 // Plugin para proporcionar un helper inteligente para hacer fetching de datos
 import { defineNuxtPlugin, useFetch } from '#app';
-import type { UseFetchReturn, UseFetchOptions } from '#app';
+import type { UseFetchOptions } from '#app';
 
 export default defineNuxtPlugin(() => {
   return {
@@ -24,10 +24,11 @@ export default defineNuxtPlugin(() => {
           // En SSR o primera carga, usamos useFetch
           // Aseguramos que tenga una key única para evitar problemas de cache
           const uniqueKey = (options.key as string) || `${url}-${Date.now()}`;
-          return useFetch<T>(url, { ...options, key: uniqueKey }) as unknown as Promise<{
-            data: { value: T | null };
-            error: { value: Error | null };
-          }>;
+          const result = await useFetch<T>(url, { key: uniqueKey });
+          return {
+            data: { value: result.data.value as T | null },
+            error: { value: result.error.value }
+          };
         }
       }
     }

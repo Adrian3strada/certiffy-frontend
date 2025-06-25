@@ -10,7 +10,7 @@
       :showCarousel="true"
       :showVideo="true"
       :customImageUrlFunction="(image) => `/api/proxy-image?url=${encodeURIComponent(image && image.url ? image.url : '')}`"
-      :key="`carousel-${block.id || Math.random()}`"
+      :key="`${rerenderKey}-carousel-${block.id || Math.random()}`"
     />
     
     <!-- Caso especial: Video -->
@@ -20,7 +20,7 @@
       :blocks="[block]"
       :api-base-url="apiBaseUrl"
       :title="blockTitle"
-      :key="`video-${block.id || Math.random()}`"
+      :key="`${rerenderKey}-video-${block.id || Math.random()}`"
     />
     
     <!-- CASO GENERAL: Para todos los demás componentes registrados -->
@@ -29,7 +29,7 @@
       :is="getComponentForBlockType(block.type)" 
       :block="block"
       :api-base-url="apiBaseUrl"
-      :key="`component-${block.type}-${block.id || Math.random()}`"
+      :key="`${rerenderKey}-component-${block.type}-${block.id || Math.random()}`"
     />
     
     <!-- Fallback cuando no se encuentra un componente registrado -->
@@ -105,6 +105,7 @@
 <script setup>
 import { computed, onMounted, watch } from 'vue';
 import { useComponentRegistry } from '~/composables/useComponentRegistry';
+import { useLanguageRerender } from '~/composables/useLanguageRerender';
 
 // Importar el registro de componentes API
 import { registerAllComponents, getComponentByType, hasComponentForType as hasApiComponentForType } from '~/components/api/registry';
@@ -121,6 +122,9 @@ const {
   hasComponentForType,
   setFallbackComponent
 } = useComponentRegistry();
+
+// Usar el composable para re-renderización por cambio de idioma
+const { rerenderKey } = useLanguageRerender();
 
 // Debug helpers
 function componentExists(type) {

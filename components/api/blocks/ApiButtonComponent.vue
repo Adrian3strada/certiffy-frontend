@@ -1,5 +1,5 @@
 <template>
-  <div class="q-my-xl q-mx-auto" style="max-width: 800px; width: 100%;" :class="alignment">
+  <div class="q-my-md" :class="alignment">
     <q-btn
       v-if="buttonText"
       :color="buttonColor"

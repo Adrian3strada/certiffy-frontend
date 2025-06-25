@@ -1,10 +1,10 @@
 <template>
-  <div class="q-pa-md q-mx-auto">    
+  <div class="q-pa-sm">    
     <!-- Container para los bloques de contenido -->
     <div class="q-col-gutter-md w-100">
       <!-- Si hay body, iteramos por los bloques -->
       <template v-if="pageData.body && Array.isArray(pageData.body)">
-        <template v-for="(block, index) in pageData.body" :key="block.id || `block-${block.type}-${index}`">
+        <template v-for="(block, index) in pageData.body" :key="`${rerenderKey}-${block.id || block.type}-${index}`">
           <div 
             :class="{
               'full-width q-mb-none': block.type && block.type.toLowerCase() === 'carousel',
@@ -22,6 +22,7 @@
             <DynamicBlockRenderer 
               :block="block"
               :api-base-url="apiBaseUrl"
+              :key="`${rerenderKey}-renderer-${block.id || block.type}-${index}`"
             />
           </div>
         </template>
@@ -55,6 +56,7 @@
 <script setup>
 import { computed, onMounted, watch } from 'vue';
 import DynamicBlockRenderer from './DynamicBlockRenderer.vue';
+import { useLanguageRerender } from '~/composables/useLanguageRerender';
 
 const props = defineProps({
   pageData: {
@@ -75,6 +77,9 @@ const apiBaseUrl = config.public.apiBase || '';
 const debugMode = computed(() => {
   return process.env.NODE_ENV === 'development';
 });
+
+// Usar el composable para re-renderización por cambio de idioma
+const { rerenderKey } = useLanguageRerender();
 
 // Función para contar y registrar los bloques
 function logPageBlocks() {
@@ -118,6 +123,17 @@ function logPageBlocks() {
 // Ejecutar al montar el componente
 onMounted(() => {
   logPageBlocks();
+  
+  // Escuchar eventos de cambio de idioma para forzar re-renderización
+  if (process.client) {
+    window.addEventListener('language-changed', (event) => {
+      const newLang = event?.detail?.language;
+      if (newLang) {
+        console.log(`[DynamicPageContent] Evento de cambio de idioma detectado: ${newLang}`);
+        console.log(`[DynamicPageContent] Forzando re-renderización con nueva key: ${rerenderKey.value + 1}`);
+      }
+    });
+  }
 });
 
 // Observar cambios en pageData

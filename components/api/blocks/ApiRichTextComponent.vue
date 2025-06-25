@@ -1,11 +1,11 @@
 <template>
-  <section :id="'rich-text-' + (id || Math.random().toString(36).substring(2, 9))" class="q-my-xl q-mx-auto q-px-md rich-text-container">
+  <section :id="'rich-text-' + (id || Math.random().toString(36).substring(2, 9))" class="q-my-md q-px-sm rich-text-container">
     <div 
       v-if="content" 
-      :class="['certiffy-text rich-text-content', textAlignmentClass]"
+      class="certiffy-text rich-text-content text-left"
       v-html="processedContent"
     ></div>
-    <div v-else class="text-center q-pa-md text-grey-7 certiffy-text-sm">
+    <div v-else class="text-left q-pa-md text-grey-7 certiffy-text-sm">
       No hay contenido disponible
     </div>
   </section>

@@ -5,7 +5,7 @@
     <q-carousel
       v-model="activeSlide"
       animated
-      style="width: 100vw; height: 100vh; margin: 0; padding: 0;"
+      style="width: 100vw; min-height: 60vh; margin: 0; padding: 0;"
       :autoplay="5000"
       @mouseenter="pauseAutoplay"
       @mouseleave="resumeAutoplay"
@@ -136,7 +136,7 @@ onMounted(() => {
     .testimonials-container-fullwidth {
       position: relative !important;
       width: 100vw !important;
-      height: 100vh !important;
+      min-height: 60vh !important;
       margin: 0 !important;
       padding: 0 !important;
       box-sizing: border-box !important;
@@ -289,7 +289,7 @@ onUnmounted(() => {
 .testimonials-container-fullwidth {
   position: relative !important;
   width: 100vw !important;
-  height: 100vh !important;
+  min-height: 60vh !important;
   margin: 0 !important;
   padding: 0 !important;
   max-width: none !important;
